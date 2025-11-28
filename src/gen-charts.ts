@@ -51,16 +51,17 @@ export async function createExcelWorksheet (chartObject: ISlideRelChart, zip: JS
 			zipExcel.file(
 				'[Content_Types].xml',
 				'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">' +
-				'  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>' +
 				'  <Default Extension="xml" ContentType="application/xml"/>' +
+				'  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>' +
+				'  <Default Extension="xlsx" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"/>' +
+				'  <Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/>' +
+				'  <Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/>' +
 				'  <Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>' +
 				'  <Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>' +
 				'  <Override PartName="/xl/theme/theme1.xml" ContentType="application/vnd.openxmlformats-officedocument.theme+xml"/>' +
 				'  <Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>' +
 				'  <Override PartName="/xl/sharedStrings.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml"/>' +
 				'  <Override PartName="/xl/tables/table1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.table+xml"/>' +
-				'  <Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/>' +
-				'  <Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/>' +
 				'</Types>\n'
 			)
 			zipExcel.file(
@@ -120,7 +121,7 @@ export async function createExcelWorksheet (chartObject: ISlideRelChart, zip: JS
 				'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
 				'<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="x15" xmlns:x15="http://schemas.microsoft.com/office/spreadsheetml/2010/11/main">' +
 				'<fileVersion appName="xl" lastEdited="7" lowestEdited="6" rupBuild="10507"/>' +
-				'<workbookPr/>' +
+				'<workbookPr date1904="1"/>' +
 				'<bookViews><workbookView xWindow="0" yWindow="500" windowWidth="20960" windowHeight="15960"/></bookViews>' +
 				'<sheets><sheet name="Sheet1" sheetId="1" r:id="rId1"/></sheets>' +
 				'<calcPr calcId="0" concurrentCalc="0"/>' +
@@ -234,9 +235,9 @@ export async function createExcelWorksheet (chartObject: ISlideRelChart, zip: JS
 
 		// worksheets/sheet1.xml
 		{
-			let strSheetXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-			strSheetXml +=
-				'<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="x14ac" xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac">'
+			let strSheetXml = '<?xml version="1.0" encoding="UTF-8"?>'
+			// WIP: strSheetXml += '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="x14ac" xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac">'
+			strSheetXml += '<worksheet xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
 
 			if (chartObject.opts._type === CHART_TYPE.BUBBLE || chartObject.opts._type === CHART_TYPE.BUBBLE3D) {
 				strSheetXml += `<dimension ref="A1:${getExcelColName(intBubbleCols)}${data[0].values.length + 1}"/>`
@@ -247,7 +248,7 @@ export async function createExcelWorksheet (chartObject: ISlideRelChart, zip: JS
 			}
 
 			strSheetXml += '<sheetViews><sheetView tabSelected="1" workbookViewId="0"><selection activeCell="B1" sqref="B1"/></sheetView></sheetViews>'
-			strSheetXml += '<sheetFormatPr baseColWidth="10" defaultRowHeight="16"/>'
+			strSheetXml += '<sheetFormatPr defaultColWidth="10" defaultRowHeight="16"/>'
 			if (chartObject.opts._type === CHART_TYPE.BUBBLE || chartObject.opts._type === CHART_TYPE.BUBBLE3D) {
 				// UNUSED: strSheetXml += `<cols><col min="1" max="${data.length}" width="11" customWidth="1" /></cols>`
 
@@ -793,6 +794,8 @@ function makeChartType (chartType: CHART_NAME, data: IOptsChartData[], opts: ICh
 				strXml += '<c:radarStyle val="' + opts.radarStyle + '"/>'
 			}
 
+			// NEW: WIP:
+			// NO AFFECT: strXml += '<c:grouping val="standard"/>' // NEW: WILL BREAK EXISTING CHART DEMO! (probably only goes with a certain chart type)
 			strXml += '<c:varyColors val="0"/>'
 
 			// 2: "Series" block for every data row
@@ -871,6 +874,19 @@ function makeChartType (chartType: CHART_NAME, data: IOptsChartData[], opts: ICh
 				strXml += '  </c:spPr>'
 				strXml += '  <c:invertIfNegative val="0"/>'
 
+				// 'c:marker' tag: `lineDataSymbol`
+				if (chartType === CHART_TYPE.LINE || chartType === CHART_TYPE.RADAR) {
+					strXml += '<c:marker>'
+					strXml += '  <c:symbol val="' + opts.lineDataSymbol + '"/>'
+					if (opts.lineDataSymbolSize) strXml += `<c:size val="${opts.lineDataSymbolSize}"/>` // Defaults to "auto" otherwise (but this is usually too small, so there is a default)
+					strXml += '  <c:spPr>'
+					strXml += `    <a:solidFill>${createColorElement(opts.chartColors[obj._dataIndex + 1 > opts.chartColors.length ? Math.floor(Math.random() * opts.chartColors.length) : obj._dataIndex])}</a:solidFill>`
+					strXml += `    <a:ln w="${opts.lineDataSymbolLineSize}" cap="flat"><a:solidFill>${createColorElement(opts.lineDataSymbolLineColor || seriesColor)}</a:solidFill><a:prstDash val="solid"/><a:round/></a:ln>`
+					strXml += '    <a:effectLst/>'
+					strXml += '  </c:spPr>'
+					strXml += '</c:marker>'
+				}
+
 				// Data Labels per series
 				// NOTE: [20190117] Adding these to RADAR chart causes unrecoverable corruption!
 				if (chartType !== CHART_TYPE.RADAR) {
@@ -890,19 +906,6 @@ function makeChartType (chartType: CHART_NAME, data: IOptsChartData[], opts: ICh
 					strXml += `<c:showCatName val="0"/><c:showSerName val="${opts.showSerName ? '1' : '0'}"/><c:showPercent val="0"/><c:showBubbleSize val="0"/>`
 					strXml += `<c:showLeaderLines val="${opts.showLeaderLines ? '1' : '0'}"/>`
 					strXml += '</c:dLbls>'
-				}
-
-				// 'c:marker' tag: `lineDataSymbol`
-				if (chartType === CHART_TYPE.LINE || chartType === CHART_TYPE.RADAR) {
-					strXml += '<c:marker>'
-					strXml += '  <c:symbol val="' + opts.lineDataSymbol + '"/>'
-					if (opts.lineDataSymbolSize) strXml += `<c:size val="${opts.lineDataSymbolSize}"/>` // Defaults to "auto" otherwise (but this is usually too small, so there is a default)
-					strXml += '  <c:spPr>'
-					strXml += `    <a:solidFill>${createColorElement(opts.chartColors[obj._dataIndex + 1 > opts.chartColors.length ? Math.floor(Math.random() * opts.chartColors.length) : obj._dataIndex])}</a:solidFill>`
-					strXml += `    <a:ln w="${opts.lineDataSymbolLineSize}" cap="flat"><a:solidFill>${createColorElement(opts.lineDataSymbolLineColor || seriesColor)}</a:solidFill><a:prstDash val="solid"/><a:round/></a:ln>`
-					strXml += '    <a:effectLst/>'
-					strXml += '  </c:spPr>'
-					strXml += '</c:marker>'
 				}
 
 				// Allow users with a single data set to pass their own array of colors (check for this using != ours)
@@ -1030,6 +1033,7 @@ function makeChartType (chartType: CHART_NAME, data: IOptsChartData[], opts: ICh
 
 			// 5: Add axisId (NOTE: order matters! (category comes first))
 			strXml += `<c:axId val="${catAxisId}"/><c:axId val="${valAxisId}"/><c:axId val="${AXIS_ID_SERIES_PRIMARY}"/>`
+			// WIP: NEW: strXml += `<c:axId val="${catAxisId}"/><c:axId val="${valAxisId}"/>`
 
 			// 6: Close Chart tag
 			strXml += `</c:${chartType}Chart>`

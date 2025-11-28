@@ -678,8 +678,9 @@ function slideObjectToXml (slide: PresSlide | SlideLayout): string {
 				strSlideXml += ' <p:nvGraphicFramePr>'
 				strSlideXml += `   <p:cNvPr id="${idx + 2}" name="${slideItemObj.options.objectName}"/>`
 				strSlideXml += '   <p:cNvGraphicFramePr/>'
-				//strSlideXml += `   <p:nvPr>${genXmlPlaceholder(placeholderObj)}</p:nvPr>`
-				strSlideXml += '<p:nvPr/>'
+				// WIP: ISSUE#1396: strSlideXml += `   <p:nvPr>${genXmlPlaceholder(placeholderObj)}</p:nvPr>`
+				strSlideXml += `   <p:nvPr>${genXmlPlaceholder(placeholderObj)}</p:nvPr>`
+				//strSlideXml += '<p:nvPr/>' // NEW: WIP:
 				strSlideXml += ' </p:nvGraphicFramePr>'
 				strSlideXml += ` <p:xfrm><a:off x="${x}" y="${y}"/><a:ext cx="${cx}" cy="${cy}"/></p:xfrm>`
 				strSlideXml += ' <a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">'
@@ -1792,16 +1793,16 @@ export function makeXmlPresentation (pres: IPresentationProps): string {
 	pres.slides.forEach(slide => (strXml += `<p:sldId id="${slide._slideId}" r:id="rId${slide._rId}"/>`))
 	strXml += '</p:sldIdLst>'
 
-	// STEP 3: Add Notes Master (SPEC: tag 2 under <presentation>)
+	// STEP 3: Add sizes
+	strXml += `<p:sldSz cx="${pres.presLayout.width}" cy="${pres.presLayout.height}"/>`
+	strXml += `<p:notesSz cx="${pres.presLayout.height}" cy="${pres.presLayout.width}"/>`
+
+	// STEP 4: Add Notes Master (SPEC: tag 2 under <presentation>)
 	// (NOTE: length+2 is from `presentation.xml.rels` func (since we have to match this rId, we just use same logic))
 	// IMPORTANT: In this order (matches PPT2019) PPT will give corruption message on open!
 	// IMPORTANT: Placing this before `<p:sldIdLst>` causes warning in modern powerpoint!
 	// IMPORTANT: Presentations open without warning Without this line, however, the pres isnt preview in Finder anymore or viewable in iOS!
 	strXml += `<p:notesMasterIdLst><p:notesMasterId r:id="rId${pres.slides.length + 2}"/></p:notesMasterIdLst>`
-
-	// STEP 4: Add sizes
-	strXml += `<p:sldSz cx="${pres.presLayout.width}" cy="${pres.presLayout.height}"/>`
-	strXml += `<p:notesSz cx="${pres.presLayout.height}" cy="${pres.presLayout.width}"/>`
 
 	// STEP 5: Add text styles
 	strXml += '<p:defaultTextStyle>'
