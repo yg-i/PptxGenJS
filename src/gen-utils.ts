@@ -196,7 +196,10 @@ export function genXmlColorSelection (props: Color | ShapeFillProps | ShapeLineP
 		else {
 			if (props.type) fillType = props.type
 			if (props.color) colorVal = props.color
-			if (props.alpha) internalElements += `<a:alpha val="${Math.round((100 - props.alpha) * 1000)}"/>` // DEPRECATED: @deprecated v3.3.0
+			if (props.alpha) {
+				warnDeprecatedProperty('alpha', 'fill/line options')
+				internalElements += `<a:alpha val="${Math.round((100 - props.alpha) * 1000)}"/>` // DEPRECATED: @deprecated v3.3.0
+			}
 			if (props.transparency) internalElements += `<a:alpha val="${Math.round((100 - props.transparency) * 1000)}"/>`
 		}
 
@@ -220,6 +223,90 @@ export function genXmlColorSelection (props: Color | ShapeFillProps | ShapeLineP
  */
 export function getNewRelId (target: PresSlide): number {
 	return target._rels.length + target._relsChart.length + target._relsMedia.length + 1
+}
+
+// Track which deprecation warnings have been shown to avoid spam
+const shownDeprecationWarnings = new Set<string>()
+
+/**
+ * Map of deprecated property names to their replacement names
+ * @internal
+ */
+export const DEPRECATED_PROPERTY_MAP: Record<string, string> = {
+	// ShapeFillProps / ShapeLineProps
+	alpha: 'transparency',
+
+	// ShapeLineProps
+	lineDash: 'line.dashType',
+	lineHead: 'line.beginArrowType',
+	lineTail: 'line.endArrowType',
+	lineSize: 'line.width',
+	pt: 'width',
+
+	// ShapeProps
+	shapeName: 'objectName',
+
+	// TextPropsOptions
+	autoFit: 'fit',
+	shrinkText: 'fit',
+	inset: 'margin',
+
+	// BackgroundProps
+	fill: 'color',
+	src: 'path',
+
+	// SlideMasterProps / Slide
+	bkgd: 'background',
+
+	// TableProps / TableToSlidesProps
+	addHeaderToEach: 'autoPageRepeatHeader',
+	newSlideStartY: 'autoPageSlideStartY',
+
+	// TextBaseProps - bullet
+	'bullet.code': 'bullet.characterCode',
+	'bullet.marginPt': 'bullet.indent',
+	'bullet.startAt': 'bullet.numberStartAt',
+	'bullet.style': 'bullet.numberType',
+}
+
+/**
+ * Emit a deprecation warning for a property (once per session)
+ * @param {string} deprecatedProp - the deprecated property name
+ * @param {string} context - optional context (e.g., method name) for the warning
+ * @since v4.2.0
+ */
+export function warnDeprecatedProperty(deprecatedProp: string, context?: string): void {
+	const warningKey = `${context || 'global'}:${deprecatedProp}`
+
+	// Only warn once per property per context
+	if (shownDeprecationWarnings.has(warningKey)) {
+		return
+	}
+	shownDeprecationWarnings.add(warningKey)
+
+	const replacement = DEPRECATED_PROPERTY_MAP[deprecatedProp]
+	const contextStr = context ? ` in ${context}` : ''
+	const replacementStr = replacement ? ` Use '${replacement}' instead.` : ''
+
+	console.warn(`PptxGenJS: DEPRECATION WARNING - '${deprecatedProp}'${contextStr} is deprecated.${replacementStr}`)
+}
+
+/**
+ * Check an options object for deprecated properties and emit warnings
+ * @param {object} options - the options object to check
+ * @param {string} context - context for the warning (e.g., method name)
+ * @param {string[]} propsToCheck - array of deprecated property names to check for
+ * @since v4.2.0
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function checkDeprecatedProperties(options: any, context: string, propsToCheck: string[]): void {
+	if (!options || typeof options !== 'object') return
+
+	for (const prop of propsToCheck) {
+		if (prop in options && options[prop] !== undefined) {
+			warnDeprecatedProperty(prop, context)
+		}
+	}
 }
 
 /**

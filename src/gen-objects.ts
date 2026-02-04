@@ -48,7 +48,7 @@ import {
 	TextPropsOptions,
 } from './core-interfaces'
 import { getSlidesForTableRows } from './gen-tables'
-import { encodeXmlEntities, getNewRelId, getSmartParseNumber, inch2Emu, valToPts, correctShadowOptions } from './gen-utils'
+import { encodeXmlEntities, getNewRelId, getSmartParseNumber, inch2Emu, valToPts, correctShadowOptions, checkDeprecatedProperties } from './gen-utils'
 
 /**
  * Transforms a slide definition to a slide object that is then passed to the XML transformation process.
@@ -56,6 +56,9 @@ import { encodeXmlEntities, getNewRelId, getSmartParseNumber, inch2Emu, valToPts
  * @param {PresSlide|SlideLayout} target - empty slide object that should be updated by the passed definition
  */
 export function createSlideMaster(props: SlideMasterProps, target: SlideLayout): void {
+	// Check for deprecated properties
+	checkDeprecatedProperties(props, 'defineSlideMaster', ['bkgd'])
+
 	// STEP 1: Add background if either the slide or layout has background props
 	// if (props.background || target.background) addBackgroundDefinition(props.background, target)
 	if (props.bkgd) target.bkgd = props.bkgd // DEPRECATED: (remove in v4.0.0)
@@ -667,6 +670,9 @@ export function addNotesDefinition(target: PresSlide, notes: string): void {
 export function addShapeDefinition(target: PresSlide, shapeName: SHAPE_NAME, opts: ShapeProps): void {
 	const options = typeof opts === 'object' ? opts : {}
 	options.line = options.line || { type: 'none' }
+
+	// Check for deprecated properties
+	checkDeprecatedProperties(options, 'addShape', ['lineSize', 'lineDash', 'lineHead', 'lineTail', 'shapeName'])
 	const newObject: ISlideObject = {
 		_type: SLIDE_OBJECT_TYPES.text,
 		shape: shapeName || SHAPE_TYPE.RECTANGLE,
@@ -738,6 +744,9 @@ export function addTableDefinition(
 	const slides: PresSlide[] = [target] // Create array of Slides as more may be added by auto-paging
 	const opt: TableProps = options && typeof options === 'object' ? options : {}
 	opt.objectName = opt.objectName ? encodeXmlEntities(opt.objectName) : `Table ${target._slideObjects.filter(obj => obj._type === SLIDE_OBJECT_TYPES.table).length}`
+
+	// Check for deprecated properties
+	checkDeprecatedProperties(opt, 'addTable', ['newSlideStartY'])
 
 	// STEP 1: REALITY-CHECK
 	{
@@ -996,6 +1005,11 @@ export function addTableDefinition(
  * @since: 1.0.0
  */
 export function addTextDefinition(target: PresSlide, text: TextProps[], opts: TextPropsOptions, isPlaceholder: boolean): void {
+	// Check for deprecated properties
+	if (opts) {
+		checkDeprecatedProperties(opts, 'addText', ['autoFit', 'shrinkText', 'inset', 'lineDash', 'lineHead', 'lineSize', 'lineTail'])
+	}
+
 	const newObject: ISlideObject = {
 		_type: isPlaceholder ? SLIDE_OBJECT_TYPES.placeholder : SLIDE_OBJECT_TYPES.text,
 		shape: (opts?.shape) || SHAPE_TYPE.RECTANGLE,
