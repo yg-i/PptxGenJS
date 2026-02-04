@@ -1848,6 +1848,16 @@ export interface TransitionProps {
 	 * @example 5000 // auto-advance after 5 seconds
 	 */
 	advanceAfterMs?: number
+	/**
+	 * Morph transition mode (only applies when type='morph')
+	 * - byObject: Morph matching objects by objectName (default)
+	 * - byWord: Morph text word-by-word (great for text transformations)
+	 * - byChar: Morph text character-by-character (cinematic letter effects)
+	 * @default 'byObject'
+	 * @example 'byWord' // words animate individually
+	 * @example 'byChar' // characters animate individually
+	 */
+	morphOption?: 'byObject' | 'byWord' | 'byChar'
 }
 
 /**

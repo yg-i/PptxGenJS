@@ -1572,8 +1572,8 @@ const MODERN_TRANSITIONS = new Set([
 function makeXmlTransition (transition: TransitionProps): string {
 	if (!transition || transition.type === 'none') return ''
 
+	const isMorph = transition.type === 'morph'
 	const isModern = MODERN_TRANSITIONS.has(transition.type)
-	const prefix = isModern ? 'p14:' : 'p:'
 
 	// Build transition attributes
 	const attrs: string[] = []
@@ -1603,16 +1603,61 @@ function makeXmlTransition (transition: TransitionProps): string {
 		attrs.push(`advTm="${transition.advanceAfterMs}"`)
 	}
 
-	// Build type element attributes
+	const attrStr = attrs.length > 0 ? ' ' + attrs.join(' ') : ''
+
+	// MORPH transition - requires special namespace (2015/09) and mc:AlternateContent wrapper
+	if (isMorph) {
+		const morphOption = transition.morphOption || 'byObject'
+		// Morph uses the 2015/09 namespace, not p14
+		return `<mc:AlternateContent xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006">` +
+			`<mc:Choice xmlns:p159="http://schemas.microsoft.com/office/powerpoint/2015/09/main" Requires="p159">` +
+			`<p:transition${attrStr.replace('p14:dur', 'p159:dur')} xmlns:p14="http://schemas.microsoft.com/office/powerpoint/2010/main" xmlns:p159="http://schemas.microsoft.com/office/powerpoint/2015/09/main">` +
+			`<p159:morph option="${morphOption}"/>` +
+			`</p:transition>` +
+			`</mc:Choice>` +
+			`<mc:Fallback>` +
+			`<p:transition${attrStr.replace(/p14:dur="[^"]*"/, '').trim()}>` +
+			`<p:fade/>` +
+			`</p:transition>` +
+			`</mc:Fallback>` +
+			`</mc:AlternateContent>`
+	}
+
+	// Other modern transitions (p14 namespace)
+	if (isModern) {
+		// Build type element attributes
+		const typeAttrs: string[] = []
+		if (transition.direction) {
+			typeAttrs.push(`dir="${transition.direction}"`)
+		}
+
+		if (transition.type === 'wheel') {
+			typeAttrs.push('spokes="4"')
+		}
+
+		const typeAttrStr = typeAttrs.length > 0 ? ' ' + typeAttrs.join(' ') : ''
+
+		// Use mc:AlternateContent for modern transitions
+		return `<mc:AlternateContent xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006">` +
+			`<mc:Choice xmlns:p14="http://schemas.microsoft.com/office/powerpoint/2010/main" Requires="p14">` +
+			`<p:transition${attrStr} xmlns:p14="http://schemas.microsoft.com/office/powerpoint/2010/main">` +
+			`<p14:${transition.type}${typeAttrStr}/>` +
+			`</p:transition>` +
+			`</mc:Choice>` +
+			`<mc:Fallback>` +
+			`<p:transition${attrStr.replace(/p14:dur="[^"]*"/, '').trim()}>` +
+			`<p:fade/>` +
+			`</p:transition>` +
+			`</mc:Fallback>` +
+			`</mc:AlternateContent>`
+	}
+
+	// Classic transitions (no special namespace needed)
 	const typeAttrs: string[] = []
 	if (transition.direction) {
 		typeAttrs.push(`dir="${transition.direction}"`)
 	}
-
-	// Special handling for specific transitions
-	if (transition.type === 'morph') {
-		typeAttrs.push('option="byObject"')
-	} else if (transition.type === 'wheel') {
+	if (transition.type === 'wheel') {
 		typeAttrs.push('spokes="4"')
 	} else if (['wipe', 'push', 'cover', 'pull'].includes(transition.type) && !transition.direction) {
 		typeAttrs.push('dir="l"')
@@ -1621,15 +1666,8 @@ function makeXmlTransition (transition: TransitionProps): string {
 	}
 
 	const typeAttrStr = typeAttrs.length > 0 ? ' ' + typeAttrs.join(' ') : ''
-	const attrStr = attrs.length > 0 ? ' ' + attrs.join(' ') : ''
 
-	// Add p14 namespace for modern transitions
-	let namespaceAttr = ''
-	if (isModern) {
-		namespaceAttr = ' xmlns:p14="http://schemas.microsoft.com/office/powerpoint/2010/main"'
-	}
-
-	return `<p:transition${namespaceAttr}${attrStr}><${prefix}${transition.type}${typeAttrStr}/></p:transition>`
+	return `<p:transition${attrStr}><p:${transition.type}${typeAttrStr}/></p:transition>`
 }
 
 // =================================================================================================
@@ -1834,9 +1872,16 @@ export function makeXmlSlide (slide: PresSlide): string {
 	// Build timing/animation XML if present
 	const timingXml = makeXmlTiming(slide)
 
-	// Add p14 namespace if modern transition is used
+	// Add extra namespaces for modern transitions (p14, mc, p159 for morph)
 	const hasModernTransition = slide._transition && MODERN_TRANSITIONS.has(slide._transition.type)
-	const extraNamespaces = hasModernTransition ? ' xmlns:p14="http://schemas.microsoft.com/office/powerpoint/2010/main"' : ''
+	let extraNamespaces = ''
+	if (hasModernTransition) {
+		extraNamespaces = ' xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"' +
+			' xmlns:p14="http://schemas.microsoft.com/office/powerpoint/2010/main"'
+		if (slide._transition?.type === 'morph') {
+			extraNamespaces += ' xmlns:p159="http://schemas.microsoft.com/office/powerpoint/2015/09/main"'
+		}
+	}
 
 	return (
 		`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>${CRLF}` +
