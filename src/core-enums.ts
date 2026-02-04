@@ -763,6 +763,157 @@ export enum BULLET_TYPES {
 	'TRIANGLE' = '&#x25B6;',
 }
 
+// =================================================================================================
+// TRANSITIONS
+// =================================================================================================
+
+/**
+ * Slide transition types
+ * @since v4.1.0
+ */
+export enum TransitionType {
+	'none' = 'none',
+	// Classic transitions (PowerPoint 2007+)
+	'blinds' = 'blinds',
+	'checker' = 'checker',
+	'circle' = 'circle',
+	'comb' = 'comb',
+	'cover' = 'cover',
+	'cut' = 'cut',
+	'diamond' = 'diamond',
+	'dissolve' = 'dissolve',
+	'fade' = 'fade',
+	'newsflash' = 'newsflash',
+	'plus' = 'plus',
+	'pull' = 'pull',
+	'push' = 'push',
+	'random' = 'random',
+	'randomBar' = 'randomBar',
+	'split' = 'split',
+	'strips' = 'strips',
+	'wedge' = 'wedge',
+	'wheel' = 'wheel',
+	'wipe' = 'wipe',
+	'zoom' = 'zoom',
+	// Modern transitions (PowerPoint 2010+)
+	'morph' = 'morph',
+	'cube' = 'cube',
+	'box' = 'box',
+	'doors' = 'doors',
+	'pan' = 'pan',
+	'ferris' = 'ferris',
+	'gallery' = 'gallery',
+	'conveyor' = 'conveyor',
+	'flip' = 'flip',
+	'flythrough' = 'flythrough',
+	'glitter' = 'glitter',
+	'honeycomb' = 'honeycomb',
+	'origami' = 'origami',
+	'reveal' = 'reveal',
+	'ripple' = 'ripple',
+	'shred' = 'shred',
+	'switch' = 'switch',
+	'vortex' = 'vortex',
+	'warp' = 'warp',
+	'window' = 'window',
+}
+
+export type TRANSITION_TYPE = keyof typeof TransitionType
+
+/**
+ * Transition direction options
+ */
+export type TransitionDirection = 'l' | 'r' | 'u' | 'd' | 'horz' | 'vert' | 'in' | 'out'
+
+// =================================================================================================
+// ANIMATIONS
+// =================================================================================================
+
+/**
+ * Animation preset types mapped to PowerPoint preset IDs
+ * @since v4.1.0
+ */
+export const ANIMATION_PRESETS: Record<string, { presetId: number; presetClass: 'entr' | 'exit' | 'emph' | 'path' }> = {
+	// Entrance effects (presetClass: 'entr')
+	'appear': { presetId: 1, presetClass: 'entr' },
+	'fly-in': { presetId: 2, presetClass: 'entr' },
+	'blinds': { presetId: 3, presetClass: 'entr' },
+	'box': { presetId: 4, presetClass: 'entr' },
+	'checkerboard': { presetId: 5, presetClass: 'entr' },
+	'circle': { presetId: 6, presetClass: 'entr' },
+	'crawl': { presetId: 7, presetClass: 'entr' },
+	'diamond': { presetId: 8, presetClass: 'entr' },
+	'dissolve': { presetId: 9, presetClass: 'entr' },
+	'fade': { presetId: 10, presetClass: 'entr' },
+	'flash-once': { presetId: 11, presetClass: 'entr' },
+	'float': { presetId: 12, presetClass: 'entr' },
+	'glide': { presetId: 13, presetClass: 'entr' },
+	'grow-and-turn': { presetId: 14, presetClass: 'entr' },
+	'newsflash': { presetId: 15, presetClass: 'entr' },
+	'peek': { presetId: 16, presetClass: 'entr' },
+	'pinwheel': { presetId: 17, presetClass: 'entr' },
+	'plus': { presetId: 18, presetClass: 'entr' },
+	'random-bars': { presetId: 19, presetClass: 'entr' },
+	'random': { presetId: 20, presetClass: 'entr' },
+	'spiral': { presetId: 21, presetClass: 'entr' },
+	'split': { presetId: 22, presetClass: 'entr' },
+	'stretch': { presetId: 23, presetClass: 'entr' },
+	'strips': { presetId: 24, presetClass: 'entr' },
+	'swivel': { presetId: 25, presetClass: 'entr' },
+	'wedge': { presetId: 26, presetClass: 'entr' },
+	'wheel': { presetId: 27, presetClass: 'entr' },
+	'wipe': { presetId: 28, presetClass: 'entr' },
+	'zoom': { presetId: 29, presetClass: 'entr' },
+	'bounce': { presetId: 30, presetClass: 'entr' },
+	'expand': { presetId: 31, presetClass: 'entr' },
+	// Exit effects (presetClass: 'exit')
+	'disappear': { presetId: 1, presetClass: 'exit' },
+	'fly-out': { presetId: 2, presetClass: 'exit' },
+	'fade-out': { presetId: 10, presetClass: 'exit' },
+	'zoom-out': { presetId: 29, presetClass: 'exit' },
+	// Emphasis effects (presetClass: 'emph')
+	'pulse': { presetId: 1, presetClass: 'emph' },
+	'color-pulse': { presetId: 2, presetClass: 'emph' },
+	'teeter': { presetId: 3, presetClass: 'emph' },
+	'spin': { presetId: 4, presetClass: 'emph' },
+	'grow-shrink': { presetId: 5, presetClass: 'emph' },
+}
+
+export type AnimationPreset = keyof typeof ANIMATION_PRESETS
+
+/**
+ * Animation trigger types
+ */
+export enum AnimationTrigger {
+	'onClick' = 'onClick',
+	'withPrevious' = 'withPrevious',
+	'afterPrevious' = 'afterPrevious',
+}
+
+/**
+ * Animation direction/subtype values
+ */
+export const ANIMATION_DIRECTIONS: Record<string, number> = {
+	'from-bottom': 1,
+	'from-bottom-left': 2,
+	'from-left': 3,
+	'from-top-left': 4,
+	'from-top': 5,
+	'from-top-right': 6,
+	'from-right': 7,
+	'from-bottom-right': 8,
+	'horizontal': 9,
+	'vertical': 10,
+	'in': 16,
+	'out': 32,
+	'in-horizontal': 17,
+	'in-vertical': 18,
+	'out-horizontal': 33,
+	'out-vertical': 34,
+}
+
+export type AnimationDirection = keyof typeof ANIMATION_DIRECTIONS
+
 // IMAGES (base64)
 export const IMG_BROKEN =
 	'data:image/png;base64,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'

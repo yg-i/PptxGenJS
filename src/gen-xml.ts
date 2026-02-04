@@ -18,6 +18,7 @@ import {
 } from './core-enums'
 import {
 	IPresentationProps,
+	ISlideAnimation,
 	ISlideObject,
 	ISlideRel,
 	ISlideRelChart,
@@ -30,6 +31,7 @@ import {
 	TableCellProps,
 	TextProps,
 	TextPropsOptions,
+	TransitionProps,
 } from './core-interfaces'
 import {
 	convertRotationDegrees,
@@ -1551,19 +1553,299 @@ export function makeXmlPresentationRels (slides: PresSlide[]): string {
 
 // XML-GEN: Functions that run 1-N times (once for each Slide)
 
+// =================================================================================================
+// TRANSITION XML GENERATION
+// =================================================================================================
+
+/** Set of modern transitions that require p14 namespace (PowerPoint 2010+) */
+const MODERN_TRANSITIONS = new Set([
+	'morph', 'cube', 'box', 'doors', 'pan', 'ferris', 'gallery', 'conveyor',
+	'flip', 'flythrough', 'glitter', 'honeycomb', 'origami', 'reveal',
+	'ripple', 'shred', 'switch', 'vortex', 'warp', 'window'
+])
+
+/**
+ * Generates XML for slide transition
+ * @param {TransitionProps} transition - transition options
+ * @return {string} XML for <p:transition> element
+ */
+function makeXmlTransition (transition: TransitionProps): string {
+	if (!transition || transition.type === 'none') return ''
+
+	const isModern = MODERN_TRANSITIONS.has(transition.type)
+	const prefix = isModern ? 'p14:' : 'p:'
+
+	// Build transition attributes
+	const attrs: string[] = []
+
+	// Speed/duration
+	if (transition.speed) {
+		attrs.push(`spd="${transition.speed}"`)
+	} else if (transition.durationMs) {
+		if (isModern) {
+			// Modern transitions use p14:dur in 1/1000ths of a second
+			attrs.push(`p14:dur="${transition.durationMs}"`)
+		} else {
+			// Classic transitions use spd attribute
+			if (transition.durationMs <= 500) attrs.push('spd="fast"')
+			else if (transition.durationMs <= 1500) attrs.push('spd="med"')
+			else attrs.push('spd="slow"')
+		}
+	}
+
+	// Advance on click
+	if (transition.advanceOnClick === false) {
+		attrs.push('advClick="0"')
+	}
+
+	// Auto-advance time
+	if (transition.advanceAfterMs !== undefined) {
+		attrs.push(`advTm="${transition.advanceAfterMs}"`)
+	}
+
+	// Build type element attributes
+	const typeAttrs: string[] = []
+	if (transition.direction) {
+		typeAttrs.push(`dir="${transition.direction}"`)
+	}
+
+	// Special handling for specific transitions
+	if (transition.type === 'morph') {
+		typeAttrs.push('option="byObject"')
+	} else if (transition.type === 'wheel') {
+		typeAttrs.push('spokes="4"')
+	} else if (['wipe', 'push', 'cover', 'pull'].includes(transition.type) && !transition.direction) {
+		typeAttrs.push('dir="l"')
+	} else if (['split', 'blinds', 'comb', 'randomBar'].includes(transition.type) && !transition.direction) {
+		typeAttrs.push('dir="horz"')
+	}
+
+	const typeAttrStr = typeAttrs.length > 0 ? ' ' + typeAttrs.join(' ') : ''
+	const attrStr = attrs.length > 0 ? ' ' + attrs.join(' ') : ''
+
+	// Add p14 namespace for modern transitions
+	let namespaceAttr = ''
+	if (isModern) {
+		namespaceAttr = ' xmlns:p14="http://schemas.microsoft.com/office/powerpoint/2010/main"'
+	}
+
+	return `<p:transition${namespaceAttr}${attrStr}><${prefix}${transition.type}${typeAttrStr}/></p:transition>`
+}
+
+// =================================================================================================
+// ANIMATION XML GENERATION
+// =================================================================================================
+
+/**
+ * Generates XML for slide animations (timing tree)
+ * @param {PresSlide} slide - slide with animations
+ * @return {string} XML for <p:timing> element
+ */
+function makeXmlTiming (slide: PresSlide): string {
+	const animations = slide._animations
+	if (!animations || animations.length === 0) return ''
+
+	// Generate unique IDs starting from 2 (1 is reserved for root)
+	let nextId = 2
+
+	// Build the timing tree structure
+	let animationXml = ''
+	let sequenceXml = ''
+
+	animations.forEach((anim, idx) => {
+		// Get target shape ID (shape IDs in PPTX start at 2 for the first shape after the group container)
+		const shapeId = anim.shapeIndex + 2
+
+		// Build individual animation node
+		const animNodeXml = makeAnimationNode(anim, shapeId, nextId, idx)
+		sequenceXml += animNodeXml.xml
+		nextId = animNodeXml.nextId
+	})
+
+	// Build main sequence container
+	const mainSeqId = nextId++
+
+	animationXml = `<p:timing>
+		<p:tnLst>
+			<p:par>
+				<p:cTn id="1" dur="indefinite" restart="never" nodeType="tmRoot">
+					<p:childTnLst>
+						<p:seq concurrent="1" nextAc="seek">
+							<p:cTn id="${mainSeqId}" dur="indefinite" nodeType="mainSeq">
+								<p:childTnLst>${sequenceXml}</p:childTnLst>
+							</p:cTn>
+							<p:prevCondLst>
+								<p:cond evt="onPrev" delay="0"><p:tgtEl><p:sldTgt/></p:tgtEl></p:cond>
+							</p:prevCondLst>
+							<p:nextCondLst>
+								<p:cond evt="onNext" delay="0"><p:tgtEl><p:sldTgt/></p:tgtEl></p:cond>
+							</p:nextCondLst>
+						</p:seq>
+					</p:childTnLst>
+				</p:cTn>
+			</p:par>
+		</p:tnLst>
+	</p:timing>`.replace(/\t/g, '').replace(/\n\s*/g, '')
+
+	return animationXml
+}
+
+/**
+ * Generates XML for a single animation effect
+ */
+function makeAnimationNode (
+	anim: ISlideAnimation,
+	shapeId: number,
+	startId: number,
+	animIndex: number
+): { xml: string; nextId: number } {
+	let id = startId
+	const opts = anim.options
+	const durationMs = opts.durationMs || 500
+	const delayMs = opts.delayMs || 0
+
+	// Determine trigger delay
+	let triggerDelay = 'indefinite' // onClick
+	if (opts.trigger === 'withPrevious') {
+		triggerDelay = String(delayMs)
+	} else if (opts.trigger === 'afterPrevious') {
+		triggerDelay = String(delayMs)
+	}
+
+	// Build target element
+	let targetXml = `<p:spTgt spid="${shapeId}"`
+	if (opts.paragraphIndex !== undefined) {
+		targetXml += `><p:txEl><p:pRg st="${opts.paragraphIndex}" end="${opts.paragraphIndex}"/></p:txEl></p:spTgt>`
+	} else {
+		targetXml += '/>'
+	}
+
+	// Build presetSubtype attribute
+	const subtypeAttr = anim.presetSubtype ? ` presetSubtype="${anim.presetSubtype}"` : ''
+
+	// Outer par (click/with/after container)
+	const outerId = id++
+	const innerId = id++
+	const effectParId = id++
+	const effectCTnId = id++
+
+	// Build the effect based on animation class
+	let effectChildrenXml = ''
+
+	// Set element (makes shape visible for entrance)
+	if (anim.presetClass === 'entr') {
+		const setId = id++
+		const setCTnId = id++
+		effectChildrenXml += `<p:set>
+			<p:cBhvr>
+				<p:cTn id="${setCTnId}" dur="1" fill="hold">
+					<p:stCondLst><p:cond delay="0"/></p:stCondLst>
+				</p:cTn>
+				<p:tgtEl>${targetXml}</p:tgtEl>
+				<p:attrNameLst><p:attrName>style.visibility</p:attrName></p:attrNameLst>
+			</p:cBhvr>
+			<p:to><p:strVal val="visible"/></p:to>
+		</p:set>`.replace(/\t/g, '').replace(/\n\s*/g, '')
+	}
+
+	// Anim element (property animation)
+	const animId = id++
+	effectChildrenXml += `<p:anim calcmode="lin" valueType="num">
+		<p:cBhvr additive="base">
+			<p:cTn id="${animId}" dur="${durationMs}"/>
+			<p:tgtEl>${targetXml}</p:tgtEl>
+			<p:attrNameLst><p:attrName>ppt_y</p:attrName></p:attrNameLst>
+		</p:cBhvr>
+		<p:tavLst>
+			<p:tav tm="0"><p:val><p:strVal val="#ppt_y+#ppt_h*0.1"/></p:val></p:tav>
+			<p:tav tm="100000"><p:val><p:strVal val="#ppt_y"/></p:val></p:tav>
+		</p:tavLst>
+	</p:anim>`.replace(/\t/g, '').replace(/\n\s*/g, '')
+
+	// AnimEffect element (transition filter)
+	const animEffectId = id++
+	const filter = getAnimationFilter(anim)
+	if (filter) {
+		effectChildrenXml += `<p:animEffect transition="in" filter="${filter}">
+			<p:cBhvr>
+				<p:cTn id="${animEffectId}" dur="${durationMs}"/>
+				<p:tgtEl>${targetXml}</p:tgtEl>
+			</p:cBhvr>
+		</p:animEffect>`.replace(/\t/g, '').replace(/\n\s*/g, '')
+	}
+
+	const xml = `<p:par>
+		<p:cTn id="${outerId}" fill="hold">
+			<p:stCondLst><p:cond delay="${triggerDelay}"/></p:stCondLst>
+			<p:childTnLst>
+				<p:par>
+					<p:cTn id="${innerId}" fill="hold">
+						<p:stCondLst><p:cond delay="0"/></p:stCondLst>
+						<p:childTnLst>
+							<p:par>
+								<p:cTn id="${effectParId}" presetID="${anim.presetId}" presetClass="${anim.presetClass}"${subtypeAttr} fill="hold" nodeType="clickEffect">
+									<p:stCondLst><p:cond delay="0"/></p:stCondLst>
+									<p:childTnLst>${effectChildrenXml}</p:childTnLst>
+								</p:cTn>
+							</p:par>
+						</p:childTnLst>
+					</p:cTn>
+				</p:par>
+			</p:childTnLst>
+		</p:cTn>
+	</p:par>`.replace(/\t/g, '').replace(/\n\s*/g, '')
+
+	return { xml, nextId: id }
+}
+
+/**
+ * Get animation filter string based on preset
+ */
+function getAnimationFilter (anim: ISlideAnimation): string {
+	switch (anim.presetId) {
+		case 10: // fade
+			return 'fade'
+		case 1: // appear
+			return ''
+		case 2: // fly-in
+			return 'wipe(down)'
+		case 3: // blinds
+			return 'blinds(horizontal)'
+		case 22: // split
+			return 'split(horizontal)'
+		case 28: // wipe
+			return 'wipe(left)'
+		case 29: // zoom
+			return 'zoom'
+		default:
+			return 'fade'
+	}
+}
+
 /**
  * Generates XML for the slide file (`ppt/slides/slide1.xml`)
  * @param {PresSlide} slide - the slide object to transform into XML
  * @return {string} XML
  */
 export function makeXmlSlide (slide: PresSlide): string {
+	// Build transition XML if present
+	const transitionXml = slide._transition ? makeXmlTransition(slide._transition) : ''
+
+	// Build timing/animation XML if present
+	const timingXml = makeXmlTiming(slide)
+
+	// Add p14 namespace if modern transition is used
+	const hasModernTransition = slide._transition && MODERN_TRANSITIONS.has(slide._transition.type)
+	const extraNamespaces = hasModernTransition ? ' xmlns:p14="http://schemas.microsoft.com/office/powerpoint/2010/main"' : ''
+
 	return (
 		`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>${CRLF}` +
 		'<p:sld xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" ' +
-		'xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main"' +
+		`xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main"${extraNamespaces}` +
 		`${slide?.hidden ? ' show="0"' : ''}>` +
 		`${slideObjectToXml(slide)}` +
-		'<p:clrMapOvr><a:masterClrMapping/></p:clrMapOvr></p:sld>'
+		'<p:clrMapOvr><a:masterClrMapping/></p:clrMapOvr>' +
+		`${transitionXml}${timingXml}</p:sld>`
 	)
 }
 

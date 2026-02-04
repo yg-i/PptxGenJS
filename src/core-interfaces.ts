@@ -1803,10 +1803,118 @@ export interface SlideLayout extends SlideBaseProps {
 		hidden?: boolean
 	}
 }
+
+// =================================================================================================
+// TRANSITIONS & ANIMATIONS
+// =================================================================================================
+
+/**
+ * Slide transition options
+ * @since v4.1.0
+ */
+export interface TransitionProps {
+	/**
+	 * Transition type
+	 * @example 'fade'
+	 * @example 'morph'
+	 */
+	type: string
+	/**
+	 * Direction/subtype
+	 * - For directional transitions like wipe, push, cover
+	 * @example 'l' // from left
+	 * @example 'horz' // horizontal
+	 */
+	direction?: string
+	/**
+	 * Duration in milliseconds
+	 * @default 1000
+	 * @example 2000 // 2 second transition
+	 */
+	durationMs?: number
+	/**
+	 * Speed preset (alternative to durationMs)
+	 * @default 'med'
+	 */
+	speed?: 'slow' | 'med' | 'fast'
+	/**
+	 * Advance slide on click
+	 * @default true
+	 */
+	advanceOnClick?: boolean
+	/**
+	 * Auto-advance after specified milliseconds
+	 * - If set, slide will auto-advance after this duration
+	 * @example 5000 // auto-advance after 5 seconds
+	 */
+	advanceAfterMs?: number
+}
+
+/**
+ * Animation effect options
+ * @since v4.1.0
+ */
+export interface AnimationProps {
+	/**
+	 * Animation preset name
+	 * @example 'fade'
+	 * @example 'fly-in'
+	 * @example 'appear'
+	 */
+	type: string
+	/**
+	 * Direction for directional animations
+	 * @example 'from-bottom'
+	 * @example 'from-left'
+	 */
+	direction?: string
+	/**
+	 * Duration in milliseconds
+	 * @default 500
+	 */
+	durationMs?: number
+	/**
+	 * Delay before animation starts (milliseconds)
+	 * @default 0
+	 */
+	delayMs?: number
+	/**
+	 * Animation trigger
+	 * @default 'onClick'
+	 */
+	trigger?: 'onClick' | 'withPrevious' | 'afterPrevious'
+	/**
+	 * Target paragraph index (0-based)
+	 * - If specified, animates specific paragraph in text box
+	 * - If not specified, animates entire shape
+	 */
+	paragraphIndex?: number
+}
+
+/**
+ * Internal animation object stored on slide objects
+ */
+export interface ISlideAnimation {
+	/** Target shape index in _slideObjects array */
+	shapeIndex: number
+	/** Animation options */
+	options: AnimationProps
+	/** Resolved preset ID */
+	presetId: number
+	/** Resolved preset class (entr/exit/emph/path) */
+	presetClass: 'entr' | 'exit' | 'emph' | 'path'
+	/** Resolved direction subtype */
+	presetSubtype?: number
+}
+
 export interface PresSlide extends SlideBaseProps {
 	_rId: number
 	_slideLayout: SlideLayout
 	_slideId: number
+	/** Internal: slide transition settings */
+	_transition?: TransitionProps
+	/** Internal: slide animations */
+	_animations?: ISlideAnimation[]
 
 	addChart: (type: CHART_NAME | IChartMulti[], data: IOptsChartData[], options?: IChartOpts) => PresSlide
 	addImage: (options: ImageProps) => PresSlide
@@ -1815,6 +1923,15 @@ export interface PresSlide extends SlideBaseProps {
 	addShape: (shapeName: SHAPE_NAME, options?: ShapeProps) => PresSlide
 	addTable: (tableRows: TableRow[], options?: TableProps) => PresSlide
 	addText: (text: string | TextProps[], options?: TextPropsOptions) => PresSlide
+	/**
+	 * Add animation to a shape on this slide
+	 * @since v4.1.0
+	 * @param shapeIndex - index of shape in slide (0-based, in order added)
+	 * @param options - animation options
+	 * @example slide.addAnimation(0, { type: 'fade' })
+	 * @example slide.addAnimation(1, { type: 'fly-in', direction: 'from-bottom', durationMs: 1000 })
+	 */
+	addAnimation: (shapeIndex: number, options: AnimationProps) => PresSlide
 
 	/**
 	 * Background color or image (`color` | `path` | `data`)
@@ -1841,6 +1958,14 @@ export interface PresSlide extends SlideBaseProps {
 	 * Slide number options
 	 */
 	slideNumber?: SlideNumberProps
+	/**
+	 * Slide transition
+	 * @since v4.1.0
+	 * @example { type: 'fade' }
+	 * @example { type: 'morph', durationMs: 2000 }
+	 * @example { type: 'push', direction: 'l', speed: 'slow' }
+	 */
+	transition?: TransitionProps
 }
 export interface AddSlideProps {
 	masterName?: string // TODO: 20200528: rename to "masterTitle" (createMaster uses `title` so lets be consistent)

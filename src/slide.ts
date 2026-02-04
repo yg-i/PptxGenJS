@@ -2,15 +2,17 @@
  * PptxGenJS: Slide Class
  */
 
-import { CHART_NAME, SHAPE_NAME } from './core-enums'
+import { ANIMATION_DIRECTIONS, ANIMATION_PRESETS, CHART_NAME, SHAPE_NAME } from './core-enums'
 import {
 	AddSlideProps,
+	AnimationProps,
 	BackgroundProps,
 	HexColor,
 	IChartMulti,
 	IChartOpts,
 	IChartOptsLib,
 	IOptsChartData,
+	ISlideAnimation,
 	ISlideObject,
 	ISlideRel,
 	ISlideRelChart,
@@ -26,6 +28,7 @@ import {
 	TableRow,
 	TextProps,
 	TextPropsOptions,
+	TransitionProps,
 } from './core-interfaces'
 import * as genObj from './gen-objects'
 
@@ -46,6 +49,8 @@ export default class Slide {
 	public _slideNumberProps: SlideNumberProps
 	public _slideObjects: ISlideObject[]
 	public _newAutoPagedSlides: PresSlide[]
+	public _transition: TransitionProps
+	public _animations: ISlideAnimation[]
 
 	constructor(params: {
 		addSlide: (options?: AddSlideProps) => PresSlide
@@ -70,6 +75,7 @@ export default class Slide {
 		this._slideLayout = params.slideLayout || null
 		this._slideNum = params.slideNumber
 		this._slideObjects = []
+		this._animations = []
 		/** NOTE: Slide Numbers: In order for Slide Numbers to function they need to be in all 3 files: master/layout/slide
 		 * `defineSlideMaster` and `addNewSlide.slideNumber` will add {slideNumber} to `this.masterSlide` and `this.slideLayouts`
 		 * so, lastly, add to the Slide now.
@@ -151,6 +157,21 @@ export default class Slide {
 
 	public get slideNumber(): SlideNumberProps {
 		return this._slideNumberProps
+	}
+
+	/**
+	 * Slide transition
+	 * @since v4.1.0
+	 * @example slide.transition = { type: 'fade' }
+	 * @example slide.transition = { type: 'morph', durationMs: 2000 }
+	 * @example slide.transition = { type: 'push', direction: 'l', speed: 'slow' }
+	 */
+	public set transition(value: TransitionProps) {
+		this._transition = value
+	}
+
+	public get transition(): TransitionProps {
+		return this._transition
 	}
 
 	public get newAutoPagedSlides(): PresSlide[] {
@@ -241,6 +262,48 @@ export default class Slide {
 	addText(text: string | TextProps[], options?: TextPropsOptions): Slide {
 		const textParam = typeof text === 'string' || typeof text === 'number' ? [{ text, options }] : text
 		genObj.addTextDefinition(this, textParam, options, false)
+		return this
+	}
+
+	/**
+	 * Add animation to a shape on this slide
+	 * @since v4.1.0
+	 * @param {number} shapeIndex - index of shape in slide (0-based, in order shapes were added)
+	 * @param {AnimationProps} options - animation options
+	 * @return {Slide} this Slide
+	 * @example slide.addAnimation(0, { type: 'fade' }) // fade animation on first shape
+	 * @example slide.addAnimation(1, { type: 'fly-in', direction: 'from-bottom', durationMs: 1000 })
+	 */
+	addAnimation(shapeIndex: number, options: AnimationProps): Slide {
+		// Validate shape index
+		if (shapeIndex < 0 || shapeIndex >= this._slideObjects.length) {
+			console.warn(`PptxGenJS: addAnimation - invalid shapeIndex ${shapeIndex}. Slide has ${this._slideObjects.length} shapes.`)
+			return this
+		}
+
+		// Look up animation preset
+		const preset = ANIMATION_PRESETS[options.type]
+		if (!preset) {
+			console.warn(`PptxGenJS: addAnimation - unknown animation type '${options.type}'`)
+			return this
+		}
+
+		// Resolve direction subtype
+		let presetSubtype: number | undefined
+		if (options.direction && ANIMATION_DIRECTIONS[options.direction]) {
+			presetSubtype = ANIMATION_DIRECTIONS[options.direction]
+		}
+
+		// Create animation object
+		const animation: ISlideAnimation = {
+			shapeIndex,
+			options,
+			presetId: preset.presetId,
+			presetClass: preset.presetClass,
+			presetSubtype,
+		}
+
+		this._animations.push(animation)
 		return this
 	}
 }
