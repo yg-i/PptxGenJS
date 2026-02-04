@@ -3,7 +3,20 @@
  * PptxGenJS Interfaces
  */
 
-import { CHART_NAME, PLACEHOLDER_TYPE, SHAPE_NAME, SLIDE_OBJECT_TYPES, TEXT_HALIGN, TEXT_VALIGN, WRITE_OUTPUT_TYPE } from './core-enums'
+import {
+	CHART_NAME,
+	PLACEHOLDER_TYPE,
+	SHAPE_NAME,
+	SLIDE_OBJECT_TYPES,
+	TEXT_HALIGN,
+	TEXT_VALIGN,
+	WRITE_OUTPUT_TYPE,
+	TransitionType,
+	TransitionDirection,
+	AnimationPreset,
+	AnimationDirection,
+	AnimationTrigger,
+} from './core-enums'
 
 // Core Types
 // ==========
@@ -976,26 +989,91 @@ export interface TextGlowProps {
 	size: number
 }
 
-export interface TextPropsOptions extends PositionProps, DataOrPathProps, TextBaseProps, ObjectNameProps {
-	_bodyProp?: {
-		// Note: Many of these duplicated as user options are transformed to _bodyProp options for XML processing
-		autoFit?: boolean
-		align?: TEXT_HALIGN
-		anchor?: TEXT_VALIGN
-		lIns?: number
-		rIns?: number
-		tIns?: number
-		bIns?: number
-		vert?: 'eaVert' | 'horz' | 'mongolianVert' | 'vert' | 'vert270' | 'wordArtVert' | 'wordArtVertRtl'
-		wrap?: boolean
-	}
-	_lineIdx?: number
+// =================================================================================================
+// DECOMPOSED TEXT INTERFACES (Phase 2.2)
+// =================================================================================================
 
-	baseline?: number
+/**
+ * Paragraph-level text formatting options
+ * @since v4.2.0
+ */
+export interface TextParagraphProps {
 	/**
-	 * Character spacing
+	 * Indent level for bullets/numbering
 	 */
-	charSpacing?: number
+	indentLevel?: number
+	/**
+	 * Line spacing (pt)
+	 * - PowerPoint: Paragraph > Indents and Spacing > Line Spacing: > "Exactly"
+	 * @example 28 // 28pt
+	 */
+	lineSpacing?: number
+	/**
+	 * Line spacing multiple (percent)
+	 * - range: 0.0-9.99
+	 * - PowerPoint: Paragraph > Indents and Spacing > Line Spacing: > "Multiple"
+	 * @example 1.5 // 1.5X line spacing
+	 * @since v3.5.0
+	 */
+	lineSpacingMultiple?: number
+	/**
+	 * Space after paragraph (points)
+	 */
+	paraSpaceAfter?: number
+	/**
+	 * Space before paragraph (points)
+	 */
+	paraSpaceBefore?: number
+	/**
+	 * Whether to enable right-to-left mode
+	 * @default false
+	 */
+	rtlMode?: boolean
+}
+
+/**
+ * Text visual effects options
+ * @since v4.2.0
+ */
+export interface TextEffectsProps {
+	/**
+	 * Glow effect
+	 */
+	glow?: TextGlowProps
+	/**
+	 * Text outline
+	 */
+	outline?: { color: Color, size: number }
+	/**
+	 * Shadow effect
+	 */
+	shadow?: ShadowProps
+	/**
+	 * Strikethrough style
+	 */
+	strike?: boolean | 'dblStrike' | 'sngStrike'
+	/**
+	 * Subscript text
+	 */
+	subscript?: boolean
+	/**
+	 * Superscript text
+	 */
+	superscript?: boolean
+}
+
+/**
+ * Text container/shape options
+ * @since v4.2.0
+ */
+export interface TextShapeContainerProps {
+	/**
+	 * Shape fill
+	 * @example { color:'FF0000' } // hex color (red)
+	 * @example { color:'0088CC', transparency:50 } // hex color, 50% transparent
+	 * @example { color:pptx.SchemeColor.accent1 } // theme color Accent1
+	 */
+	fill?: ShapeFillProps
 	/**
 	 * Text fit options
 	 *
@@ -1005,20 +1083,10 @@ export interface TextPropsOptions extends PositionProps, DataOrPathProps, TextBa
 	 * - 'resize' = Resize shape to fit text
 	 *
 	 * **Note** 'shrink' and 'resize' only take effect after editing text/resize shape.
-	 * Both PowerPoint and Word dynamically calculate a scaling factor and apply it when edit/resize occurs.
-	 *
-	 * There is no way for this library to trigger that behavior, sorry.
 	 * @since v3.3.0
 	 * @default "none"
 	 */
 	fit?: 'none' | 'shrink' | 'resize'
-	/**
-	 * Shape fill
-	 * @example { color:'FF0000' } // hex color (red)
-	 * @example { color:'0088CC', transparency:50 } // hex color, 50% transparent
-	 * @example { color:pptx.SchemeColor.accent1 } // theme color Accent1
-	 */
-	fill?: ShapeFillProps
 	/**
 	 * Flip shape horizontally?
 	 * @default false
@@ -1029,38 +1097,26 @@ export interface TextPropsOptions extends PositionProps, DataOrPathProps, TextBa
 	 * @default false
 	 */
 	flipV?: boolean
-	glow?: TextGlowProps
-	hyperlink?: HyperlinkProps
-	indentLevel?: number
+	/**
+	 * Whether this is a text box
+	 */
 	isTextBox?: boolean
+	/**
+	 * Shape border/line
+	 */
 	line?: ShapeLineProps
-	/**
-	 * Line spacing (pt)
-	 * - PowerPoint: Paragraph > Indents and Spacing > Line Spacing: > "Exactly"
-	 * @example 28 // 28pt
-	 */
-	lineSpacing?: number
-	/**
-	 * line spacing multiple (percent)
-	 * - range: 0.0-9.99
-	 * - PowerPoint: Paragraph > Indents and Spacing > Line Spacing: > "Multiple"
-	 * @example 1.5 // 1.5X line spacing
-	 * @since v3.5.0
-	 */
-	lineSpacingMultiple?: number
-	// TODO: [20220219] powerpoint uses inches but library has always been pt... @future @deprecated - update in v4.0? [range: 0.0-22.0]
 	/**
 	 * Margin (points)
 	 * - PowerPoint: Format Shape > Shape Options > Size & Properties > Text Box > Left/Right/Top/Bottom margin
-	 * @default "Normal" margin in PowerPoint [3.5, 7.0, 3.5, 7.0] // (this library sets no value, but PowerPoint defaults to "Normal" [0.05", 0.1", 0.05", 0.1"])
-	 * @example 0 // Top/Right/Bottom/Left margin 0 [0.0" in powerpoint]
-	 * @example 10 // Top/Right/Bottom/Left margin 10 [0.14" in powerpoint]
-	 * @example [10,5,10,5] // Top margin 10, Right margin 5, Bottom margin 10, Left margin 5
+	 * @default "Normal" margin in PowerPoint [3.5, 7.0, 3.5, 7.0]
+	 * @example 0 // All margins 0
+	 * @example 10 // All margins 10 points
+	 * @example [10,5,10,5] // Top, Right, Bottom, Left margins
 	 */
 	margin?: Margin
-	outline?: { color: Color, size: number }
-	paraSpaceAfter?: number
-	paraSpaceBefore?: number
+	/**
+	 * Placeholder name
+	 */
 	placeholder?: string
 	/**
 	 * Rounded rectangle radius (only for pptx.shapes.ROUNDED_RECTANGLE)
@@ -1076,20 +1132,12 @@ export interface TextPropsOptions extends PositionProps, DataOrPathProps, TextBa
 	 */
 	rotate?: number
 	/**
-	 * Whether to enable right-to-left mode
-	 * @default false
+	 * Shape type
 	 */
-	rtlMode?: boolean
-	shadow?: ShadowProps
 	shape?: SHAPE_NAME
-	strike?: boolean | 'dblStrike' | 'sngStrike'
-	subscript?: boolean
-	superscript?: boolean
 	/**
-	 * Vertical alignment
-	 * @default middle
+	 * Text direction/vertical orientation
 	 */
-	valign?: VAlign
 	vert?: 'eaVert' | 'horz' | 'mongolianVert' | 'vert' | 'vert270' | 'wordArtVert' | 'wordArtVertRtl'
 	/**
 	 * Text wrap
@@ -1097,6 +1145,52 @@ export interface TextPropsOptions extends PositionProps, DataOrPathProps, TextBa
 	 * @default true
 	 */
 	wrap?: boolean
+}
+
+/**
+ * Full text properties options
+ * Composes all focused text property interfaces for maximum flexibility
+ * @extends PositionProps - x, y, w, h positioning
+ * @extends DataOrPathProps - data, path for background
+ * @extends TextBaseProps - font properties (bold, italic, color, etc.)
+ * @extends ObjectNameProps - objectName
+ * @extends TextParagraphProps - paragraph formatting
+ * @extends TextEffectsProps - visual effects (shadow, glow, etc.)
+ * @extends TextShapeContainerProps - shape/container properties
+ */
+export interface TextPropsOptions extends PositionProps, DataOrPathProps, TextBaseProps, ObjectNameProps, TextParagraphProps, TextEffectsProps, TextShapeContainerProps {
+	/** @internal */
+	_bodyProp?: {
+		// Note: Many of these duplicated as user options are transformed to _bodyProp options for XML processing
+		autoFit?: boolean
+		align?: TEXT_HALIGN
+		anchor?: TEXT_VALIGN
+		lIns?: number
+		rIns?: number
+		tIns?: number
+		bIns?: number
+		vert?: 'eaVert' | 'horz' | 'mongolianVert' | 'vert' | 'vert270' | 'wordArtVert' | 'wordArtVertRtl'
+		wrap?: boolean
+	}
+	/** @internal */
+	_lineIdx?: number
+
+	/**
+	 * Baseline offset
+	 */
+	baseline?: number
+	/**
+	 * Character spacing
+	 */
+	charSpacing?: number
+	/**
+	 * Hyperlink options
+	 */
+	hyperlink?: HyperlinkProps
+
+	// ========================================
+	// DEPRECATED PROPERTIES
+	// ========================================
 
 	/**
 	 * Whether "Fit to Shape?" is enabled
@@ -1104,7 +1198,7 @@ export interface TextPropsOptions extends PositionProps, DataOrPathProps, TextBa
 	 */
 	autoFit?: boolean
 	/**
-	 * Whather "Shrink Text on Overflow?" is enabled
+	 * Whether "Shrink Text on Overflow?" is enabled
 	 * @deprecated v3.3.0 - use `fit`
 	 */
 	shrinkText?: boolean
@@ -1723,6 +1817,11 @@ export interface SectionProps {
 export interface PresLayout {
 	_sizeW?: number
 	_sizeH?: number
+	/**
+	 * Internal: chart counter for unique chart IDs within this presentation
+	 * @internal
+	 */
+	_chartCounter?: number
 
 	/**
 	 * Layout Name
@@ -1817,15 +1916,16 @@ export interface TransitionProps {
 	 * Transition type
 	 * @example 'fade'
 	 * @example 'morph'
+	 * @example TransitionType.fade
 	 */
-	type: string
+	type: TransitionType | keyof typeof TransitionType
 	/**
 	 * Direction/subtype
 	 * - For directional transitions like wipe, push, cover
 	 * @example 'l' // from left
 	 * @example 'horz' // horizontal
 	 */
-	direction?: string
+	direction?: TransitionDirection
 	/**
 	 * Duration in milliseconds
 	 * @default 1000
@@ -1871,13 +1971,13 @@ export interface AnimationProps {
 	 * @example 'fly-in'
 	 * @example 'appear'
 	 */
-	type: string
+	type: AnimationPreset
 	/**
 	 * Direction for directional animations
 	 * @example 'from-bottom'
 	 * @example 'from-left'
 	 */
-	direction?: string
+	direction?: AnimationDirection
 	/**
 	 * Duration in milliseconds
 	 * @default 500
@@ -1892,7 +1992,7 @@ export interface AnimationProps {
 	 * Animation trigger
 	 * @default 'onClick'
 	 */
-	trigger?: 'onClick' | 'withPrevious' | 'afterPrevious'
+	trigger?: AnimationTrigger | keyof typeof AnimationTrigger
 	/**
 	 * Target paragraph index (0-based)
 	 * - If specified, animates specific paragraph in text box
@@ -1917,6 +2017,20 @@ export interface ISlideAnimation {
 	presetSubtype?: number
 }
 
+/**
+ * Reference to a shape on a slide, enabling type-safe animation targeting
+ * @since v4.2.0
+ * @example
+ * const shape = slide.addShape('rect', { x: 1, y: 1, w: 2, h: 2 })
+ * slide.addAnimation(shape, { type: 'fade' })
+ */
+export interface ShapeRef {
+	/** Internal: index of this shape in the slide's _slideObjects array */
+	readonly _shapeIndex: number
+	/** Internal: reference to parent slide for validation */
+	readonly _slideRef: PresSlide
+}
+
 export interface PresSlide extends SlideBaseProps {
 	_rId: number
 	_slideLayout: SlideLayout
@@ -1926,22 +2040,35 @@ export interface PresSlide extends SlideBaseProps {
 	/** Internal: slide animations */
 	_animations?: ISlideAnimation[]
 
-	addChart: (type: CHART_NAME | IChartMulti[], data: IOptsChartData[], options?: IChartOpts) => PresSlide
-	addImage: (options: ImageProps) => PresSlide
+	addChart: (type: CHART_NAME | IChartMulti[], data: IOptsChartData[], options?: IChartOpts) => ShapeRef
+	/**
+	 * Add image to slide
+	 * @since v4.2.0 - returns ShapeRef for animation targeting
+	 */
+	addImage: (options: ImageProps) => ShapeRef
 	addMedia: (options: MediaProps) => PresSlide
 	addNotes: (notes: string) => PresSlide
-	addShape: (shapeName: SHAPE_NAME, options?: ShapeProps) => PresSlide
+	/**
+	 * Add shape to slide
+	 * @since v4.2.0 - returns ShapeRef for animation targeting
+	 */
+	addShape: (shapeName: SHAPE_NAME, options?: ShapeProps) => ShapeRef
 	addTable: (tableRows: TableRow[], options?: TableProps) => PresSlide
-	addText: (text: string | TextProps[], options?: TextPropsOptions) => PresSlide
+	/**
+	 * Add text to slide
+	 * @since v4.2.0 - returns ShapeRef for animation targeting
+	 */
+	addText: (text: string | TextProps[], options?: TextPropsOptions) => ShapeRef
 	/**
 	 * Add animation to a shape on this slide
 	 * @since v4.1.0
-	 * @param shapeIndex - index of shape in slide (0-based, in order added)
+	 * @since v4.2.0 - accepts ShapeRef in addition to numeric index
+	 * @param shapeOrIndex - ShapeRef returned by addShape/addText/addImage, or numeric index (0-based)
 	 * @param options - animation options
-	 * @example slide.addAnimation(0, { type: 'fade' })
-	 * @example slide.addAnimation(1, { type: 'fly-in', direction: 'from-bottom', durationMs: 1000 })
+	 * @example slide.addAnimation(shape, { type: 'fade' }) // using ShapeRef (recommended)
+	 * @example slide.addAnimation(0, { type: 'fade' }) // using numeric index
 	 */
-	addAnimation: (shapeIndex: number, options: AnimationProps) => PresSlide
+	addAnimation: (shapeOrIndex: ShapeRef | number, options: AnimationProps) => PresSlide
 
 	/**
 	 * Background color or image (`color` | `path` | `data`)

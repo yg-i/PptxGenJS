@@ -225,6 +225,21 @@ export default class PptxGenJS implements IPresentationProps {
 		return this._rtlMode
 	}
 
+	/**
+	 * Strict mode - when enabled, throws errors instead of logging warnings for invalid configs
+	 * @type {boolean}
+	 * @default false
+	 * @since v4.1.0
+	 */
+	private _strictMode: boolean
+	public set strictMode(value: boolean) {
+		this._strictMode = value
+	}
+
+	public get strictMode(): boolean {
+		return this._strictMode
+	}
+
 	/** master slide layout object */
 	private readonly _masterSlide: PresSlide
 	public get masterSlide(): PresSlide {
@@ -337,8 +352,10 @@ export default class PptxGenJS implements IPresentationProps {
 			_sizeH: this.LAYOUTS[DEF_PRES_LAYOUT].height,
 			width: this.LAYOUTS[DEF_PRES_LAYOUT].width,
 			height: this.LAYOUTS[DEF_PRES_LAYOUT].height,
+			_chartCounter: 0,
 		}
 		this._rtlMode = false
+		this._strictMode = false
 		//
 		this._slideLayouts = [
 			{
@@ -378,6 +395,19 @@ export default class PptxGenJS implements IPresentationProps {
 			_slideNumberProps: null,
 			_slideObjects: [],
 			_animations: [],
+		}
+	}
+
+	/**
+	 * Log a warning or throw an error based on strict mode
+	 * @param {string} message - warning message
+	 * @throws {Error} when strictMode is enabled
+	 */
+	private warnOrThrow(message: string): void {
+		if (this._strictMode) {
+			throw new Error(`PptxGenJS: ${message}`)
+		} else {
+			console.warn(`PptxGenJS: ${message}`)
 		}
 	}
 
@@ -640,8 +670,8 @@ export default class PptxGenJS implements IPresentationProps {
 	 * @example pptx.addSection({ title:'Charts' });
 	 */
 	addSection(section: SectionProps): void {
-		if (!section) console.warn('addSection requires an argument')
-		else if (!section.title) console.warn('addSection requires a title')
+		if (!section) this.warnOrThrow('addSection requires an argument')
+		else if (!section.title) this.warnOrThrow('addSection requires a title')
 
 		const newSection: SectionProps = {
 			_type: 'user',
@@ -694,7 +724,7 @@ export default class PptxGenJS implements IPresentationProps {
 		// B-2: Handle slides without a section when sections are already is use ("loose" slides arent allowed, they all need a section)
 		if (options?.sectionTitle) {
 			const sect = this.sections.filter(section => section.title === options.sectionTitle)[0]
-			if (!sect) console.warn(`addSlide: unable to find section with title: "${options.sectionTitle}"`)
+			if (!sect) this.warnOrThrow(`addSlide: unable to find section with title: "${options.sectionTitle}"`)
 			else sect._slides.push(newSlide)
 		} else if (this.sections && this.sections.length > 0 && (!options?.sectionTitle)) {
 			const lastSect = this._sections[this.sections.length - 1]
@@ -721,12 +751,12 @@ export default class PptxGenJS implements IPresentationProps {
 	 */
 	defineLayout(layout: PresLayout): void {
 		// @see https://support.office.com/en-us/article/Change-the-size-of-your-slides-040a811c-be43-40b9-8d04-0de5ed79987e
-		if (!layout) console.warn('defineLayout requires `{name, width, height}`')
-		else if (!layout.name) console.warn('defineLayout requires `name`')
-		else if (!layout.width) console.warn('defineLayout requires `width`')
-		else if (!layout.height) console.warn('defineLayout requires `height`')
-		else if (typeof layout.height !== 'number') console.warn('defineLayout `height` should be a number (inches)')
-		else if (typeof layout.width !== 'number') console.warn('defineLayout `width` should be a number (inches)')
+		if (!layout) this.warnOrThrow('defineLayout requires `{name, width, height}`')
+		else if (!layout.name) this.warnOrThrow('defineLayout requires `name`')
+		else if (!layout.width) this.warnOrThrow('defineLayout requires `width`')
+		else if (!layout.height) this.warnOrThrow('defineLayout requires `height`')
+		else if (typeof layout.height !== 'number') this.warnOrThrow('defineLayout `height` should be a number (inches)')
+		else if (typeof layout.width !== 'number') this.warnOrThrow('defineLayout `width` should be a number (inches)')
 
 		this.LAYOUTS[layout.name] = {
 			name: layout.name,
@@ -743,7 +773,7 @@ export default class PptxGenJS implements IPresentationProps {
 	 */
 	defineSlideMaster(props: SlideMasterProps): void {
 		// (ISSUE#406;PULL#1176) deep clone the props object to avoid mutating the original object
-		const propsClone = JSON.parse(JSON.stringify(props))
+		const propsClone = structuredClone(props)
 		if (!propsClone.title) throw new Error('defineSlideMaster() object argument requires a `title` value. (https://gitbrent.github.io/PptxGenJS/docs/masters.html)')
 
 		const newLayout: SlideLayout = {

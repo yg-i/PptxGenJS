@@ -50,9 +50,6 @@ import {
 import { getSlidesForTableRows } from './gen-tables'
 import { encodeXmlEntities, getNewRelId, getSmartParseNumber, inch2Emu, valToPts, correctShadowOptions } from './gen-utils'
 
-/** counter for included charts (used for index in their filenames) */
-let _chartCounter = 0
-
 /**
  * Transforms a slide definition to a slide object that is then passed to the XML transformation process.
  * @param {SlideMasterProps} props - slide definition
@@ -145,7 +142,8 @@ export function addChartDefinition(target: PresSlide, type: CHART_NAME | IChartM
 		}
 	}
 
-	const chartId = ++_chartCounter
+	// Use presentation-level chart counter (stored in _presLayout to be shared across slides)
+	const chartId = ++target._presLayout._chartCounter
 	const resultObject = {
 		_type: null,
 		text: null,

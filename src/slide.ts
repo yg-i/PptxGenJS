@@ -22,6 +22,7 @@ import {
 	PresLayout,
 	PresSlide,
 	ShapeProps,
+	ShapeRef,
 	SlideLayout,
 	SlideNumberProps,
 	TableProps,
@@ -183,25 +184,27 @@ export default class Slide {
 	 * @param {CHART_NAME|IChartMulti[]} type - chart type
 	 * @param {object[]} data - data object
 	 * @param {IChartOpts} options - chart options
-	 * @return {Slide} this Slide
+	 * @return {ShapeRef} reference to the added chart for animation targeting
+	 * @since v4.2.0 - returns ShapeRef instead of Slide
 	 */
-	addChart(type: CHART_NAME | IChartMulti[], data: IOptsChartData[], options?: IChartOpts): Slide {
+	addChart(type: CHART_NAME | IChartMulti[], data: IOptsChartData[], options?: IChartOpts): ShapeRef {
 		// FUTURE: TODO-VERSION-4: Remove first arg - only take data and opts, with "type" required on opts
 		// Set `_type` on IChartOptsLib as its what is used as object is passed around
 		const optionsWithType: IChartOptsLib = options || {}
 		optionsWithType._type = type
 		genObj.addChartDefinition(this, type, data, options)
-		return this
+		return this._createShapeRef()
 	}
 
 	/**
 	 * Add image to Slide
 	 * @param {ImageProps} options - image options
-	 * @return {Slide} this Slide
+	 * @return {ShapeRef} reference to the added image for animation targeting
+	 * @since v4.2.0 - returns ShapeRef instead of Slide
 	 */
-	addImage(options: ImageProps): Slide {
+	addImage(options: ImageProps): ShapeRef {
 		genObj.addImageDefinition(this, options)
-		return this
+		return this._createShapeRef()
 	}
 
 	/**
@@ -229,16 +232,17 @@ export default class Slide {
 	 * Add shape to Slide
 	 * @param {SHAPE_NAME} shapeName - shape name
 	 * @param {ShapeProps} options - shape options
-	 * @return {Slide} this Slide
+	 * @return {ShapeRef} reference to the added shape for animation targeting
+	 * @since v4.2.0 - returns ShapeRef instead of Slide
 	 */
-	addShape(shapeName: SHAPE_NAME, options?: ShapeProps): Slide {
+	addShape(shapeName: SHAPE_NAME, options?: ShapeProps): ShapeRef {
 		// NOTE: As of v3.1.0, <script> users are passing the old shape object from the shapes file (orig to the project)
 		// But React/TypeScript users are passing the shapeName from an enum, which is a simple string, so lets cast
 		// <script./> => `pptx.shapes.RECTANGLE` [string] "rect" ... shapeName['name'] = 'rect'
 		// TypeScript => `pptxgen.shapes.RECTANGLE` [string] "rect" ... shapeName = 'rect'
 		// let shapeNameDecode = typeof shapeName === 'object' && shapeName['name'] ? shapeName['name'] : shapeName
 		genObj.addShapeDefinition(this, shapeName, options)
-		return this
+		return this._createShapeRef()
 	}
 
 	/**
@@ -257,24 +261,42 @@ export default class Slide {
 	 * Add text to Slide
 	 * @param {string|TextProps[]} text - text string or complex object
 	 * @param {TextPropsOptions} options - text options
-	 * @return {Slide} this Slide
+	 * @return {ShapeRef} reference to the added text for animation targeting
+	 * @since v4.2.0 - returns ShapeRef instead of Slide
 	 */
-	addText(text: string | TextProps[], options?: TextPropsOptions): Slide {
+	addText(text: string | TextProps[], options?: TextPropsOptions): ShapeRef {
 		const textParam = typeof text === 'string' || typeof text === 'number' ? [{ text, options }] : text
 		genObj.addTextDefinition(this, textParam, options, false)
-		return this
+		return this._createShapeRef()
 	}
 
 	/**
 	 * Add animation to a shape on this slide
 	 * @since v4.1.0
-	 * @param {number} shapeIndex - index of shape in slide (0-based, in order shapes were added)
+	 * @since v4.2.0 - accepts ShapeRef in addition to numeric index
+	 * @param {ShapeRef|number} shapeOrIndex - ShapeRef returned by addShape/addText/addImage, or numeric index (0-based)
 	 * @param {AnimationProps} options - animation options
 	 * @return {Slide} this Slide
-	 * @example slide.addAnimation(0, { type: 'fade' }) // fade animation on first shape
-	 * @example slide.addAnimation(1, { type: 'fly-in', direction: 'from-bottom', durationMs: 1000 })
+	 * @example slide.addAnimation(shape, { type: 'fade' }) // using ShapeRef (recommended)
+	 * @example slide.addAnimation(0, { type: 'fade' }) // using numeric index
 	 */
-	addAnimation(shapeIndex: number, options: AnimationProps): Slide {
+	addAnimation(shapeOrIndex: ShapeRef | number, options: AnimationProps): Slide {
+		// Resolve shape index from ShapeRef or number
+		let shapeIndex: number
+		if (typeof shapeOrIndex === 'number') {
+			shapeIndex = shapeOrIndex
+		} else if (shapeOrIndex && typeof shapeOrIndex === 'object' && '_shapeIndex' in shapeOrIndex) {
+			// Validate ShapeRef belongs to this slide
+			if (shapeOrIndex._slideRef !== this) {
+				console.warn('PptxGenJS: addAnimation - ShapeRef belongs to a different slide')
+				return this
+			}
+			shapeIndex = shapeOrIndex._shapeIndex
+		} else {
+			console.warn('PptxGenJS: addAnimation - invalid shapeOrIndex parameter')
+			return this
+		}
+
 		// Validate shape index
 		if (shapeIndex < 0 || shapeIndex >= this._slideObjects.length) {
 			console.warn(`PptxGenJS: addAnimation - invalid shapeIndex ${shapeIndex}. Slide has ${this._slideObjects.length} shapes.`)
@@ -305,5 +327,16 @@ export default class Slide {
 
 		this._animations.push(animation)
 		return this
+	}
+
+	/**
+	 * Create a ShapeRef for the most recently added shape
+	 * @internal
+	 */
+	private _createShapeRef(): ShapeRef {
+		return {
+			_shapeIndex: this._slideObjects.length - 1,
+			_slideRef: this as unknown as PresSlide,
+		}
 	}
 }
