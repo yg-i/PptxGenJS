@@ -3964,7 +3964,7 @@ function createSvgPngPreview(rel) {
 }
 
 // src/gen-xml.ts
-import { create, fragment } from "xmlbuilder2";
+import { create } from "xmlbuilder2";
 
 // src/xml-namespaces.ts
 var NS_A = "http://schemas.openxmlformats.org/drawingml/2006/main";
@@ -4282,7 +4282,8 @@ function genXmlPlaceholder(placeholderObj) {
 		/>`;
 }
 
-// src/gen-xml.ts
+// src/gen-xml-slide-objects.ts
+import { fragment } from "xmlbuilder2";
 function computeShadowXmlValues(shadow) {
   if (!shadow || shadow.type === "none") {
     return void 0;
@@ -4819,6 +4820,8 @@ function slideObjectToXml(slide) {
   strSlideXml += "</p:cSld>";
   return strSlideXml;
 }
+
+// src/gen-xml.ts
 function slideObjectRelationsToXml(slide, defaultRels) {
   const doc = create({ version: "1.0", encoding: "UTF-8", standalone: "yes" }).ele("Relationships", { xmlns: NS_RELATIONSHIPS });
   let lastRid = 0;
@@ -5367,7 +5370,7 @@ function makeXmlSlide(slide) {
 }
 function getNotesFromSlide(slide) {
   let notesText = "";
-  slide._slideObjects.forEach((data) => {
+  (slide._slideObjects || []).forEach((data) => {
     if (data._type === "notes" /* notes */) notesText += (data == null ? void 0 : data.text) && data.text[0] ? data.text[0].text : "";
   });
   return notesText.replace(/\r*\n/g, CRLF);
@@ -5445,8 +5448,9 @@ function makeXmlNotesMasterRel() {
   return doc.end({ prettyPrint: false });
 }
 function getLayoutIdxForSlide(slides, slideLayouts, slideNumber) {
+  var _a, _b;
   for (let i = 0; i < slideLayouts.length; i++) {
-    if (slideLayouts[i]._name === slides[slideNumber - 1]._slideLayout._name) {
+    if (slideLayouts[i]._name === ((_b = (_a = slides[slideNumber - 1]) == null ? void 0 : _a._slideLayout) == null ? void 0 : _b._name)) {
       return i + 1;
     }
   }

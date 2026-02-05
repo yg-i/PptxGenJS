@@ -3995,7 +3995,7 @@ function createSvgPngPreview(rel) {
 }
 
 // src/gen-xml.ts
-var import_xmlbuilder2 = require("xmlbuilder2");
+var import_xmlbuilder22 = require("xmlbuilder2");
 
 // src/xml-namespaces.ts
 var NS_A = "http://schemas.openxmlformats.org/drawingml/2006/main";
@@ -4313,7 +4313,8 @@ function genXmlPlaceholder(placeholderObj) {
 		/>`;
 }
 
-// src/gen-xml.ts
+// src/gen-xml-slide-objects.ts
+var import_xmlbuilder2 = require("xmlbuilder2");
 function computeShadowXmlValues(shadow) {
   if (!shadow || shadow.type === "none") {
     return void 0;
@@ -4850,8 +4851,10 @@ function slideObjectToXml(slide) {
   strSlideXml += "</p:cSld>";
   return strSlideXml;
 }
+
+// src/gen-xml.ts
 function slideObjectRelationsToXml(slide, defaultRels) {
-  const doc = (0, import_xmlbuilder2.create)({ version: "1.0", encoding: "UTF-8", standalone: "yes" }).ele("Relationships", { xmlns: NS_RELATIONSHIPS });
+  const doc = (0, import_xmlbuilder22.create)({ version: "1.0", encoding: "UTF-8", standalone: "yes" }).ele("Relationships", { xmlns: NS_RELATIONSHIPS });
   let lastRid = 0;
   const seenTargets = /* @__PURE__ */ new Set();
   slide._rels.forEach((rel) => {
@@ -4953,7 +4956,7 @@ function slideObjectRelationsToXml(slide, defaultRels) {
   return doc.end({ prettyPrint: false });
 }
 function makeXmlContTypes(slides, slideLayouts, masterSlide) {
-  const doc = (0, import_xmlbuilder2.create)({ version: "1.0", encoding: "UTF-8", standalone: "yes" }).ele("Types", { xmlns: NS_CONTENT_TYPES });
+  const doc = (0, import_xmlbuilder22.create)({ version: "1.0", encoding: "UTF-8", standalone: "yes" }).ele("Types", { xmlns: NS_CONTENT_TYPES });
   const addedContentTypes = /* @__PURE__ */ new Set();
   doc.ele("Default", { Extension: "xml", ContentType: "application/xml" }).up();
   doc.ele("Default", { Extension: "rels", ContentType: "application/vnd.openxmlformats-package.relationships+xml" }).up();
@@ -5057,7 +5060,7 @@ function makeXmlContTypes(slides, slideLayouts, masterSlide) {
   return doc.end({ prettyPrint: false });
 }
 function makeXmlRootRels() {
-  const doc = (0, import_xmlbuilder2.create)({ version: "1.0", encoding: "UTF-8", standalone: "yes" }).ele("Relationships", { xmlns: NS_RELATIONSHIPS }).ele("Relationship", {
+  const doc = (0, import_xmlbuilder22.create)({ version: "1.0", encoding: "UTF-8", standalone: "yes" }).ele("Relationships", { xmlns: NS_RELATIONSHIPS }).ele("Relationship", {
     Id: "rId1",
     Type: REL_TYPE_EXTENDED_PROPERTIES,
     Target: "docProps/app.xml"
@@ -5073,7 +5076,7 @@ function makeXmlRootRels() {
   return doc.end({ prettyPrint: false });
 }
 function makeXmlApp(slides, company) {
-  const doc = (0, import_xmlbuilder2.create)({ version: "1.0", encoding: "UTF-8", standalone: "yes" }).ele("Properties", { xmlns: NS_EXTENDED_PROPERTIES, "xmlns:vt": NS_VT });
+  const doc = (0, import_xmlbuilder22.create)({ version: "1.0", encoding: "UTF-8", standalone: "yes" }).ele("Properties", { xmlns: NS_EXTENDED_PROPERTIES, "xmlns:vt": NS_VT });
   doc.ele("TotalTime").txt("0").up();
   doc.ele("Words").txt("0").up();
   doc.ele("Application").txt("Microsoft Office PowerPoint").up();
@@ -5111,7 +5114,7 @@ function makeXmlApp(slides, company) {
 }
 function makeXmlCore(title, subject, author, revision) {
   const isoTimestamp = (/* @__PURE__ */ new Date()).toISOString().replace(/\.\d\d\dZ/, "Z");
-  const doc = (0, import_xmlbuilder2.create)({ version: "1.0", encoding: "UTF-8", standalone: "yes" }).ele("cp:coreProperties", {
+  const doc = (0, import_xmlbuilder22.create)({ version: "1.0", encoding: "UTF-8", standalone: "yes" }).ele("cp:coreProperties", {
     "xmlns:cp": NS_CP,
     "xmlns:dc": NS_DC,
     "xmlns:dcterms": NS_DCTERMS,
@@ -5128,7 +5131,7 @@ function makeXmlCore(title, subject, author, revision) {
   return doc.end({ prettyPrint: false });
 }
 function makeXmlPresentationRels(slides) {
-  const doc = (0, import_xmlbuilder2.create)({ version: "1.0", encoding: "UTF-8", standalone: "yes" }).ele("Relationships", { xmlns: NS_RELATIONSHIPS });
+  const doc = (0, import_xmlbuilder22.create)({ version: "1.0", encoding: "UTF-8", standalone: "yes" }).ele("Relationships", { xmlns: NS_RELATIONSHIPS });
   let relNum = 1;
   doc.ele("Relationship", {
     Id: `rId${relNum}`,
@@ -5398,7 +5401,7 @@ function makeXmlSlide(slide) {
 }
 function getNotesFromSlide(slide) {
   let notesText = "";
-  slide._slideObjects.forEach((data) => {
+  (slide._slideObjects || []).forEach((data) => {
     if (data._type === "notes" /* notes */) notesText += (data == null ? void 0 : data.text) && data.text[0] ? data.text[0].text : "";
   });
   return notesText.replace(/\r*\n/g, CRLF);
@@ -5448,7 +5451,7 @@ function makeXmlSlideRel(slides, slideLayouts, slideNumber) {
   ]);
 }
 function makeXmlNotesSlideRel(slideNumber) {
-  const doc = (0, import_xmlbuilder2.create)({ version: "1.0", encoding: "UTF-8", standalone: "yes" }).ele("Relationships", { xmlns: NS_RELATIONSHIPS }).ele("Relationship", {
+  const doc = (0, import_xmlbuilder22.create)({ version: "1.0", encoding: "UTF-8", standalone: "yes" }).ele("Relationships", { xmlns: NS_RELATIONSHIPS }).ele("Relationship", {
     Id: "rId1",
     Type: REL_TYPE_NOTES_MASTER,
     Target: "../notesMasters/notesMaster1.xml"
@@ -5468,7 +5471,7 @@ function makeXmlMasterRel(masterSlide, slideLayouts) {
   return slideObjectRelationsToXml(masterSlide, defaultRels);
 }
 function makeXmlNotesMasterRel() {
-  const doc = (0, import_xmlbuilder2.create)({ version: "1.0", encoding: "UTF-8", standalone: "yes" }).ele("Relationships", { xmlns: NS_RELATIONSHIPS }).ele("Relationship", {
+  const doc = (0, import_xmlbuilder22.create)({ version: "1.0", encoding: "UTF-8", standalone: "yes" }).ele("Relationships", { xmlns: NS_RELATIONSHIPS }).ele("Relationship", {
     Id: "rId1",
     Type: REL_TYPE_THEME,
     Target: "../theme/theme1.xml"
@@ -5476,8 +5479,9 @@ function makeXmlNotesMasterRel() {
   return doc.end({ prettyPrint: false });
 }
 function getLayoutIdxForSlide(slides, slideLayouts, slideNumber) {
+  var _a, _b;
   for (let i = 0; i < slideLayouts.length; i++) {
-    if (slideLayouts[i]._name === slides[slideNumber - 1]._slideLayout._name) {
+    if (slideLayouts[i]._name === ((_b = (_a = slides[slideNumber - 1]) == null ? void 0 : _a._slideLayout) == null ? void 0 : _b._name)) {
       return i + 1;
     }
   }
@@ -5500,7 +5504,7 @@ function makeXmlPresentation(pres) {
   if (pres.rtlMode) {
     rootAttrs.rtl = "1";
   }
-  const doc = (0, import_xmlbuilder2.create)({ version: "1.0", encoding: "UTF-8", standalone: "yes" }).ele("p:presentation", rootAttrs);
+  const doc = (0, import_xmlbuilder22.create)({ version: "1.0", encoding: "UTF-8", standalone: "yes" }).ele("p:presentation", rootAttrs);
   doc.ele("p:sldMasterIdLst").ele("p:sldMasterId", { id: "2147483648", "r:id": "rId1" }).up().up();
   const sldIdLst = doc.ele("p:sldIdLst");
   pres.slides.forEach((slide) => {
@@ -5554,7 +5558,7 @@ function makeXmlPresentation(pres) {
   return doc.end({ prettyPrint: false });
 }
 function makeXmlPresProps() {
-  const doc = (0, import_xmlbuilder2.create)({ version: "1.0", encoding: "UTF-8", standalone: "yes" }).ele("p:presentationPr", {
+  const doc = (0, import_xmlbuilder22.create)({ version: "1.0", encoding: "UTF-8", standalone: "yes" }).ele("p:presentationPr", {
     "xmlns:a": NS_A,
     "xmlns:r": NS_R,
     "xmlns:p": NS_P
@@ -5562,7 +5566,7 @@ function makeXmlPresProps() {
   return doc.end({ prettyPrint: false });
 }
 function makeXmlTableStyles() {
-  const doc = (0, import_xmlbuilder2.create)({ version: "1.0", encoding: "UTF-8", standalone: "yes" }).ele("a:tblStyleLst", {
+  const doc = (0, import_xmlbuilder22.create)({ version: "1.0", encoding: "UTF-8", standalone: "yes" }).ele("a:tblStyleLst", {
     "xmlns:a": NS_A,
     def: "{5C22544A-7EE6-4342-B048-85BDC9FD1C3A}"
   });

@@ -1,14 +1,13 @@
-// @ts-nocheck
-// TODO: v5.1 - Remove this pragma and fix all strict mode errors in this file
 /**
  * PptxGenJS: XML Generation
+ * Refactored to use xmlbuilder2 for cleaner, type-safe XML generation
  */
+
+import { create, fragment } from 'xmlbuilder2'
 
 import {
 	CRLF,
-	DEF_CELL_MARGIN_IN,
 	DEF_PRES_LAYOUT_NAME,
-	DEF_TEXT_SHADOW,
 	EMU,
 	LAYOUT_IDX_SERIES_BASE,
 	SLDNUMFLDID,
@@ -17,25 +16,58 @@ import {
 import type {
 	IPresentationProps,
 	ISlideAnimation,
-	ISlideObject,
 	ISlideRel,
 	ISlideRelChart,
 	ISlideRelMedia,
 	PresSlide,
 	ShadowProps,
 	SlideLayout,
-	TableCell,
 	TransitionProps,
 } from './core-interfaces'
 import {
-	convertRotationDegrees,
-	createColorElement,
 	encodeXmlEntities,
 	genXmlColorSelection,
-	getSmartParseNumber,
 	getUuid,
-	inch2Emu,
 } from './gen-utils'
+import {
+	NS_A,
+	NS_P,
+	NS_R,
+	NS_C,
+	NS_P14,
+	NS_P159,
+	NS_MC,
+	NS_CP,
+	NS_DC,
+	NS_DCTERMS,
+	NS_XSI,
+	NS_RELATIONSHIPS,
+	NS_CONTENT_TYPES,
+	NS_EXTENDED_PROPERTIES,
+	NS_VT,
+	NS_ASVG,
+	NS_MA14,
+	NS_P15,
+	NS_THM15,
+	REL_TYPE_EXTENDED_PROPERTIES,
+	REL_TYPE_CORE_PROPERTIES,
+	REL_TYPE_OFFICE_DOCUMENT,
+	REL_TYPE_SLIDE_MASTER,
+	REL_TYPE_SLIDE,
+	REL_TYPE_SLIDE_LAYOUT,
+	REL_TYPE_NOTES_MASTER,
+	REL_TYPE_NOTES_SLIDE,
+	REL_TYPE_PRES_PROPS,
+	REL_TYPE_VIEW_PROPS,
+	REL_TYPE_THEME,
+	REL_TYPE_TABLE_STYLES,
+	REL_TYPE_HYPERLINK,
+	REL_TYPE_IMAGE,
+	REL_TYPE_AUDIO,
+	REL_TYPE_VIDEO,
+	REL_TYPE_CHART,
+	REL_TYPE_MEDIA,
+} from './xml-namespaces'
 
 // Re-export text functions from gen-xml-text module
 export {
@@ -47,722 +79,13 @@ export {
 	genXmlBodyProperties,
 } from './gen-xml-text'
 
+// Import slideObjectToXml from separate file (has @ts-nocheck due to legacy code)
+import { slideObjectToXml } from './gen-xml-slide-objects'
+
 // Import for internal use
-import { genXmlTextBody, genXmlParagraphProperties } from './gen-xml-text'
+import { genXmlParagraphProperties } from './gen-xml-text'
 
-const ImageSizingXml = {
-	cover: function (imgSize: { w: number, h: number }, boxDim: { w: number, h: number, x: number, y: number }) {
-		const imgRatio = imgSize.h / imgSize.w
-		const boxRatio = boxDim.h / boxDim.w
-		const isBoxBased = boxRatio > imgRatio
-		const width = isBoxBased ? boxDim.h / imgRatio : boxDim.w
-		const height = isBoxBased ? boxDim.h : boxDim.w * imgRatio
-		const hzPerc = Math.round(1e5 * 0.5 * (1 - boxDim.w / width))
-		const vzPerc = Math.round(1e5 * 0.5 * (1 - boxDim.h / height))
-		return `<a:srcRect l="${hzPerc}" r="${hzPerc}" t="${vzPerc}" b="${vzPerc}"/><a:stretch/>`
-	},
-	contain: function (imgSize: { w: number, h: number }, boxDim: { w: number, h: number, x: number, y: number }) {
-		const imgRatio = imgSize.h / imgSize.w
-		const boxRatio = boxDim.h / boxDim.w
-		const widthBased = boxRatio > imgRatio
-		const width = widthBased ? boxDim.w : boxDim.h / imgRatio
-		const height = widthBased ? boxDim.w * imgRatio : boxDim.h
-		const hzPerc = Math.round(1e5 * 0.5 * (1 - boxDim.w / width))
-		const vzPerc = Math.round(1e5 * 0.5 * (1 - boxDim.h / height))
-		return `<a:srcRect l="${hzPerc}" r="${hzPerc}" t="${vzPerc}" b="${vzPerc}"/><a:stretch/>`
-	},
-	crop: function (imgSize: { w: number, h: number }, boxDim: { w: number, h: number, x: number, y: number }) {
-		const l = boxDim.x
-		const r = imgSize.w - (boxDim.x + boxDim.w)
-		const t = boxDim.y
-		const b = imgSize.h - (boxDim.y + boxDim.h)
-		const lPerc = Math.round(1e5 * (l / imgSize.w))
-		const rPerc = Math.round(1e5 * (r / imgSize.w))
-		const tPerc = Math.round(1e5 * (t / imgSize.h))
-		const bPerc = Math.round(1e5 * (b / imgSize.h))
-		return `<a:srcRect l="${lPerc}" r="${rPerc}" t="${tPerc}" b="${bPerc}"/><a:stretch/>`
-	},
-}
-
-/**
- * Transforms a slide or slideLayout to resulting XML string - Creates `ppt/slide*.xml`
- * @param {PresSlide|SlideLayout} slideObject - slide object created within createSlideObject
- * @return {string} XML string with <p:cSld> as the root
- */
-function slideObjectToXml (slide: PresSlide | SlideLayout): string {
-	let strSlideXml: string = slide._name ? '<p:cSld name="' + slide._name + '">' : '<p:cSld>'
-	let intTableNum = 1
-
-	// STEP 1: Add background color/image (ensure only a single `<p:bg>` tag is created, ex: when master-baskground has both `color` and `path`)
-	if (slide._bkgdImgRid) {
-		strSlideXml += `<p:bg><p:bgPr><a:blipFill dpi="0" rotWithShape="1"><a:blip r:embed="rId${slide._bkgdImgRid}"><a:lum/></a:blip><a:srcRect/><a:stretch><a:fillRect/></a:stretch></a:blipFill><a:effectLst/></p:bgPr></p:bg>`
-	} else if (slide.background?.color) {
-		strSlideXml += `<p:bg><p:bgPr>${genXmlColorSelection(slide.background)}</p:bgPr></p:bg>`
-	} else if (!slide.bkgd && slide._name && slide._name === DEF_PRES_LAYOUT_NAME) {
-		// NOTE: Default [white] background is needed on slideMaster1.xml to avoid gray background in Keynote (and Finder previews)
-		strSlideXml += '<p:bg><p:bgRef idx="1001"><a:schemeClr val="bg1"/></p:bgRef></p:bg>'
-	}
-
-	// STEP 2: Continue slide by starting spTree node
-	strSlideXml += '<p:spTree>'
-	strSlideXml += '<p:nvGrpSpPr><p:cNvPr id="1" name=""/><p:cNvGrpSpPr/><p:nvPr/></p:nvGrpSpPr>'
-	strSlideXml += '<p:grpSpPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="0" cy="0"/>'
-	strSlideXml += '<a:chOff x="0" y="0"/><a:chExt cx="0" cy="0"/></a:xfrm></p:grpSpPr>'
-
-	// STEP 3: Loop over all Slide.data objects and add them to this slide
-	slide._slideObjects.forEach((slideItemObj: ISlideObject, idx: number) => {
-		let x = 0
-		let y = 0
-		let cx = getSmartParseNumber('75%', 'X', slide._presLayout)
-		let cy = 0
-		let placeholderObj: ISlideObject
-		let locationAttr = ''
-		let arrTabRows: TableCell[][] = null
-		let objTabOpts: ObjectOptions = null
-		let intColCnt = 0
-		let intColW = 0
-		let cellOpts: TableCellProps = null
-		let strXml: string = null
-		const sizing: ObjectOptions['sizing'] = slideItemObj.options?.sizing
-		const rounding = slideItemObj.options?.rounding
-
-		if (
-			(slide as PresSlide)._slideLayout !== undefined &&
-			(slide as PresSlide)._slideLayout._slideObjects !== undefined &&
-			slideItemObj.options &&
-			slideItemObj.options.placeholder
-		) {
-			placeholderObj = (slide as PresSlide)._slideLayout._slideObjects.filter(
-				(object: ISlideObject) => object.options.placeholder === slideItemObj.options.placeholder
-			)[0]
-		}
-
-		// A: Set option vars
-		slideItemObj.options = slideItemObj.options || {}
-
-		if (typeof slideItemObj.options.x !== 'undefined') x = getSmartParseNumber(slideItemObj.options.x, 'X', slide._presLayout)
-		if (typeof slideItemObj.options.y !== 'undefined') y = getSmartParseNumber(slideItemObj.options.y, 'Y', slide._presLayout)
-		if (typeof slideItemObj.options.w !== 'undefined') cx = getSmartParseNumber(slideItemObj.options.w, 'X', slide._presLayout)
-		if (typeof slideItemObj.options.h !== 'undefined') cy = getSmartParseNumber(slideItemObj.options.h, 'Y', slide._presLayout)
-
-		// Set w/h now that smart parse is done
-		let imgWidth = cx
-		let imgHeight = cy
-
-		// If using a placeholder then inherit it's position
-		if (placeholderObj) {
-			if (placeholderObj.options.x || placeholderObj.options.x === 0) x = getSmartParseNumber(placeholderObj.options.x, 'X', slide._presLayout)
-			if (placeholderObj.options.y || placeholderObj.options.y === 0) y = getSmartParseNumber(placeholderObj.options.y, 'Y', slide._presLayout)
-			if (placeholderObj.options.w || placeholderObj.options.w === 0) cx = getSmartParseNumber(placeholderObj.options.w, 'X', slide._presLayout)
-			if (placeholderObj.options.h || placeholderObj.options.h === 0) cy = getSmartParseNumber(placeholderObj.options.h, 'Y', slide._presLayout)
-		}
-		//
-		if (slideItemObj.options.flipH) locationAttr += ' flipH="1"'
-		if (slideItemObj.options.flipV) locationAttr += ' flipV="1"'
-		if (slideItemObj.options.rotate) locationAttr += ` rot="${convertRotationDegrees(slideItemObj.options.rotate)}"`
-
-		// B: Add OBJECT to the current Slide
-		switch (slideItemObj._type) {
-			case SLIDE_OBJECT_TYPES.table:
-				arrTabRows = slideItemObj.arrTabRows
-				objTabOpts = slideItemObj.options
-				intColCnt = 0
-				intColW = 0
-
-				// Calc number of columns
-				// NOTE: Cells may have a colspan, so merely taking the length of the [0] (or any other) row is not
-				// ....: sufficient to determine column count. Therefore, check each cell for a colspan and total cols as reqd
-				arrTabRows[0].forEach(cell => {
-					cellOpts = cell.options || null
-					intColCnt += cellOpts?.colspan ? Number(cellOpts.colspan) : 1
-				})
-
-				// STEP 1: Start Table XML
-				// NOTE: Non-numeric cNvPr id values will trigger "presentation needs repair" type warning in MS-PPT-2013
-				strXml = `<p:graphicFrame><p:nvGraphicFramePr><p:cNvPr id="${intTableNum * slide._slideNum + 1}" name="${slideItemObj.options.objectName}"/>`
-				strXml +=
-					'<p:cNvGraphicFramePr><a:graphicFrameLocks noGrp="1"/></p:cNvGraphicFramePr>' +
-					'  <p:nvPr><p:extLst><p:ext uri="{D42A27DB-BD31-4B8C-83A1-F6EECF244321}"><p14:modId xmlns:p14="http://schemas.microsoft.com/office/powerpoint/2010/main" val="1579011935"/></p:ext></p:extLst></p:nvPr>' +
-					'</p:nvGraphicFramePr>'
-				strXml += `<p:xfrm><a:off x="${x || (x === 0 ? 0 : EMU)}" y="${y || (y === 0 ? 0 : EMU)}"/><a:ext cx="${cx || (cx === 0 ? 0 : EMU)}" cy="${cy || EMU
-				}"/></p:xfrm>`
-				strXml += '<a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/table"><a:tbl><a:tblPr/>'
-				// + '        <a:tblPr bandRow="1"/>';
-				// TODO: Support banded rows, first/last row, etc.
-				// NOTE: Banding, etc. only shows when using a table style! (or set alt row color if banding)
-				// <a:tblPr firstCol="0" firstRow="0" lastCol="0" lastRow="0" bandCol="0" bandRow="1">
-
-				// STEP 2: Set column widths
-				// Evenly distribute cols/rows across size provided when applicable (calc them if only overall dimensions were provided)
-				// A: Col widths provided?
-				// B: Table Width provided without colW? Then distribute cols
-				if (Array.isArray(objTabOpts.colW)) {
-					strXml += '<a:tblGrid>'
-					for (let col = 0; col < intColCnt; col++) {
-						let w = inch2Emu(objTabOpts.colW[col])
-						if (w == null || isNaN(w)) {
-							w = (typeof slideItemObj.options.w === 'number' ? slideItemObj.options.w : 1) / intColCnt
-						}
-						strXml += `<a:gridCol w="${Math.round(w)}"/>`
-					}
-					strXml += '</a:tblGrid>'
-				} else {
-					intColW = objTabOpts.colW ? objTabOpts.colW : EMU
-					if (slideItemObj.options.w && !objTabOpts.colW) intColW = Math.round((typeof slideItemObj.options.w === 'number' ? slideItemObj.options.w : 1) / intColCnt)
-					strXml += '<a:tblGrid>'
-					for (let colw = 0; colw < intColCnt; colw++) {
-						strXml += `<a:gridCol w="${intColW}"/>`
-					}
-					strXml += '</a:tblGrid>'
-				}
-
-				// STEP 3: Build our row arrays into an actual grid to match the XML we will be building next (ISSUE #36)
-				// Note row arrays can arrive "lopsided" as in row1:[1,2,3] row2:[3] when first two cols rowspan!,
-				// so a simple loop below in XML building wont suffice to build table correctly.
-				// We have to build an actual grid now
-				/*
-					EX: (A0:rowspan=3, B1:rowspan=2, C1:colspan=2)
-
-					/------|------|------|------\
-					|  A0  |  B0  |  C0  |  D0  |
-					|      |  B1  |  C1  |      |
-					|      |      |  C2  |  D2  |
-					\------|------|------|------/
-				*/
-				// A: add _hmerge cell for colspan. should reserve rowspan
-				arrTabRows.forEach(cells => {
-					for (let cIdx = 0; cIdx < cells.length;) {
-						const cell = cells[cIdx]
-						const colspan = cell.options?.colspan
-						const rowspan = cell.options?.rowspan
-						if (colspan && colspan > 1) {
-							const vMergeCells = new Array(colspan - 1).fill(undefined).map(() => {
-								return { _type: SLIDE_OBJECT_TYPES.tablecell, options: { rowspan }, _hmerge: true } as const
-							})
-							cells.splice(cIdx + 1, 0, ...vMergeCells)
-							cIdx += colspan
-						} else {
-							cIdx += 1
-						}
-					}
-				})
-				// B: add _vmerge cell for rowspan. should reserve colspan/_hmerge
-				arrTabRows.forEach((cells, rIdx) => {
-					const nextRow = arrTabRows[rIdx + 1]
-					if (!nextRow) return
-					cells.forEach((cell, cIdx) => {
-						const rowspan = cell._rowContinue || cell.options?.rowspan
-						const colspan = cell.options?.colspan
-						const _hmerge = cell._hmerge
-						if (rowspan && rowspan > 1) {
-							const hMergeCell = { _type: SLIDE_OBJECT_TYPES.tablecell, options: { colspan }, _rowContinue: rowspan - 1, _vmerge: true, _hmerge } as const
-							nextRow.splice(cIdx, 0, hMergeCell)
-						}
-					})
-				})
-
-				// STEP 4: Build table rows/cells
-				arrTabRows.forEach((cells, rIdx) => {
-					// A: Table Height provided without rowH? Then distribute rows
-					let intRowH = 0 // IMPORTANT: Default must be zero for auto-sizing to work
-					if (Array.isArray(objTabOpts.rowH) && objTabOpts.rowH[rIdx]) intRowH = inch2Emu(Number(objTabOpts.rowH[rIdx]))
-					else if (objTabOpts.rowH && !isNaN(Number(objTabOpts.rowH))) intRowH = inch2Emu(Number(objTabOpts.rowH))
-					else if (slideItemObj.options.cy || slideItemObj.options.h) {
-						intRowH = Math.round(
-							(slideItemObj.options.h ? inch2Emu(slideItemObj.options.h) : typeof slideItemObj.options.cy === 'number' ? slideItemObj.options.cy : 1) /
-							arrTabRows.length
-						)
-					}
-
-					// B: Start row
-					strXml += `<a:tr h="${intRowH}">`
-
-					// C: Loop over each CELL
-					cells.forEach(cellObj => {
-						const cell: TableCell = cellObj
-
-						const cellSpanAttrs = {
-							rowSpan: cell.options?.rowspan > 1 ? cell.options.rowspan : undefined,
-							gridSpan: cell.options?.colspan > 1 ? cell.options.colspan : undefined,
-							vMerge: cell._vmerge ? 1 : undefined,
-							hMerge: cell._hmerge ? 1 : undefined,
-						}
-						let cellSpanAttrStr = Object.keys(cellSpanAttrs)
-							.map(k => [k, cellSpanAttrs[k]])
-							.filter(([, v]) => !!v)
-							.map(([k, v]) => `${String(k)}="${String(v)}"`)
-							.join(' ')
-						if (cellSpanAttrStr) cellSpanAttrStr = ' ' + cellSpanAttrStr
-
-						// 1: COLSPAN/ROWSPAN: Add dummy cells for any active colspan/rowspan
-						if (cell._hmerge || cell._vmerge) {
-							strXml += `<a:tc${cellSpanAttrStr}><a:tcPr/></a:tc>`
-							return
-						}
-
-						// 2: OPTIONS: Build/set cell options
-						const cellOpts = cell.options || {}
-						cell.options = cellOpts
-
-						// B: Inherit some options from table when cell options dont exist
-						// @see: http://officeopenxml.com/drwTableCellProperties-alignment.php
-						;['align', 'bold', 'border', 'color', 'fill', 'fontFace', 'fontSize', 'margin', 'textDirection', 'underline', 'valign'].forEach(name => {
-							if (objTabOpts[name] && !cellOpts[name] && cellOpts[name] !== 0) cellOpts[name] = objTabOpts[name]
-						})
-
-						const cellValign = cellOpts.valign
-							? ` anchor="${cellOpts.valign.replace(/^c$/i, 'ctr').replace(/^m$/i, 'ctr').replace('center', 'ctr').replace('middle', 'ctr').replace('top', 't').replace('btm', 'b').replace('bottom', 'b')}"`
-							: ''
-						const cellTextDir = (cellOpts.textDirection && cellOpts.textDirection !== 'horz') ? ` vert="${cellOpts.textDirection}"` : ''
-
-						let fillColor =
-							cell._optImp?.fill?.color
-								? cell._optImp.fill.color
-								: cell._optImp?.fill && typeof cell._optImp.fill === 'string'
-									? cell._optImp.fill
-									: ''
-						fillColor = fillColor || cellOpts.fill ? cellOpts.fill : ''
-						const cellFill = fillColor ? genXmlColorSelection(fillColor) : ''
-
-						let cellMargin = cellOpts.margin === 0 || cellOpts.margin ? cellOpts.margin : DEF_CELL_MARGIN_IN
-						if (!Array.isArray(cellMargin) && typeof cellMargin === 'number') cellMargin = [cellMargin, cellMargin, cellMargin, cellMargin]
-						/** FUTURE: DEPRECATED:
-						 * - Backwards-Compat: Oops! Discovered we were still using points for cell margin before v3.8.0 (UGH!)
-						 * - We cant introduce a breaking change before v4.0, so...
-						 */
-						let cellMarginXml = ''
-						if (cellMargin[0] >= 1) {
-							cellMarginXml = ` marL="${valToPts(cellMargin[3])}" marR="${valToPts(cellMargin[1])}" marT="${valToPts(cellMargin[0])}" marB="${valToPts(
-								cellMargin[2]
-							)}"`
-						} else {
-							cellMarginXml = ` marL="${inch2Emu(cellMargin[3])}" marR="${inch2Emu(cellMargin[1])}" marT="${inch2Emu(cellMargin[0])}" marB="${inch2Emu(
-								cellMargin[2]
-							)}"`
-						}
-
-						// FUTURE: Cell NOWRAP property (textwrap: add to a:tcPr (horzOverflow="overflow" or whatever options exist)
-
-						// 4: Set CELL content and properties ==================================
-						strXml += `<a:tc${cellSpanAttrStr}>${genXmlTextBody(cell)}<a:tcPr${cellMarginXml}${cellValign}${cellTextDir}>`
-						// strXml += `<a:tc${cellColspan}${cellRowspan}>${genXmlTextBody(cell)}<a:tcPr${cellMarginXml}${cellValign}${cellTextDir}>`
-						// FIXME: 20200525: ^^^
-						// <a:tcPr marL="38100" marR="38100" marT="38100" marB="38100" vert="vert270">
-
-						// 5: Borders: Add any borders
-						if (cellOpts.border && Array.isArray(cellOpts.border)) {
-							// NOTE: *** IMPORTANT! *** LRTB order matters! (Reorder a line below to watch the borders go wonky in MS-PPT-2013!!)
-							[
-								{ idx: 3, name: 'lnL' },
-								{ idx: 1, name: 'lnR' },
-								{ idx: 0, name: 'lnT' },
-								{ idx: 2, name: 'lnB' },
-							].forEach(obj => {
-								if (cellOpts.border[obj.idx].type !== 'none') {
-									strXml += `<a:${obj.name} w="${valToPts(cellOpts.border[obj.idx].pt)}" cap="flat" cmpd="sng" algn="ctr">`
-									strXml += `<a:solidFill>${createColorElement(cellOpts.border[obj.idx].color)}</a:solidFill>`
-									strXml += `<a:prstDash val="${cellOpts.border[obj.idx].type === 'dash' ? 'sysDash' : 'solid'
-									}"/><a:round/><a:headEnd type="none" w="med" len="med"/><a:tailEnd type="none" w="med" len="med"/>`
-									strXml += `</a:${obj.name}>`
-								} else {
-									strXml += `<a:${obj.name} w="0" cap="flat" cmpd="sng" algn="ctr"><a:noFill/></a:${obj.name}>`
-								}
-							})
-						}
-
-						// 6: Close cell Properties & Cell
-						strXml += cellFill
-						strXml += '  </a:tcPr>'
-						strXml += ' </a:tc>'
-					})
-
-					// D: Complete row
-					strXml += '</a:tr>'
-				})
-
-				// STEP 5: Complete table
-				strXml += '      </a:tbl>'
-				strXml += '    </a:graphicData>'
-				strXml += '  </a:graphic>'
-				strXml += '</p:graphicFrame>'
-
-				// STEP 6: Set table XML
-				strSlideXml += strXml
-
-				// LAST: Increment counter
-				intTableNum++
-				break
-
-			case SLIDE_OBJECT_TYPES.text:
-			case SLIDE_OBJECT_TYPES.placeholder:
-				// Lines can have zero cy, but text should not
-				if (!slideItemObj.options.line && cy === 0) cy = EMU * 0.3
-
-				// Margin/Padding/Inset for textboxes
-				if (!slideItemObj.options._bodyProp) slideItemObj.options._bodyProp = {}
-				if (slideItemObj.options.margin && Array.isArray(slideItemObj.options.margin)) {
-					slideItemObj.options._bodyProp.lIns = valToPts(slideItemObj.options.margin[0] || 0)
-					slideItemObj.options._bodyProp.rIns = valToPts(slideItemObj.options.margin[1] || 0)
-					slideItemObj.options._bodyProp.bIns = valToPts(slideItemObj.options.margin[2] || 0)
-					slideItemObj.options._bodyProp.tIns = valToPts(slideItemObj.options.margin[3] || 0)
-				} else if (typeof slideItemObj.options.margin === 'number') {
-					slideItemObj.options._bodyProp.lIns = valToPts(slideItemObj.options.margin)
-					slideItemObj.options._bodyProp.rIns = valToPts(slideItemObj.options.margin)
-					slideItemObj.options._bodyProp.bIns = valToPts(slideItemObj.options.margin)
-					slideItemObj.options._bodyProp.tIns = valToPts(slideItemObj.options.margin)
-				}
-
-				// A: Start SHAPE =======================================================
-				strSlideXml += '<p:sp>'
-
-				// B: The addition of the "txBox" attribute is the sole determiner of if an object is a shape or textbox
-				strSlideXml += `<p:nvSpPr><p:cNvPr id="${idx + 2}" name="${slideItemObj.options.objectName}">`
-				// <Hyperlink>
-				if (slideItemObj.options.hyperlink?.url) {
-					strSlideXml += `<a:hlinkClick r:id="rId${slideItemObj.options.hyperlink._rId}" tooltip="${slideItemObj.options.hyperlink.tooltip ? encodeXmlEntities(slideItemObj.options.hyperlink.tooltip) : ''}"/>`
-				}
-				if (slideItemObj.options.hyperlink?.slide) {
-					strSlideXml += `<a:hlinkClick r:id="rId${slideItemObj.options.hyperlink._rId}" tooltip="${slideItemObj.options.hyperlink.tooltip ? encodeXmlEntities(slideItemObj.options.hyperlink.tooltip) : ''}" action="ppaction://hlinksldjump"/>`
-				}
-				// </Hyperlink>
-				strSlideXml += '</p:cNvPr>'
-				strSlideXml += '<p:cNvSpPr' + (slideItemObj.options?.isTextBox ? ' txBox="1"/>' : '/>')
-				strSlideXml += `<p:nvPr>${slideItemObj._type === 'placeholder' ? genXmlPlaceholder(slideItemObj) : genXmlPlaceholder(placeholderObj)}</p:nvPr>`
-				strSlideXml += '</p:nvSpPr><p:spPr>'
-				strSlideXml += `<a:xfrm${locationAttr}>`
-				strSlideXml += `<a:off x="${x}" y="${y}"/>`
-				strSlideXml += `<a:ext cx="${cx}" cy="${cy}"/></a:xfrm>`
-
-				if (slideItemObj.shape === 'custGeom') {
-					strSlideXml += '<a:custGeom><a:avLst />'
-					strSlideXml += '<a:gdLst>'
-					strSlideXml += '</a:gdLst>'
-					strSlideXml += '<a:ahLst />'
-					strSlideXml += '<a:cxnLst>'
-					strSlideXml += '</a:cxnLst>'
-					strSlideXml += '<a:rect l="l" t="t" r="r" b="b" />'
-
-					strSlideXml += '<a:pathLst>'
-					strSlideXml += `<a:path w="${cx}" h="${cy}">`
-
-					slideItemObj.options.points?.forEach((point, i) => {
-						if ('curve' in point) {
-							switch (point.curve.type) {
-								case 'arc':
-									strSlideXml += `<a:arcTo hR="${getSmartParseNumber(point.curve.hR, 'Y', slide._presLayout)}" wR="${getSmartParseNumber(
-										point.curve.wR,
-										'X',
-										slide._presLayout
-									)}" stAng="${convertRotationDegrees(point.curve.stAng)}" swAng="${convertRotationDegrees(point.curve.swAng)}" />`
-									break
-								case 'cubic':
-									strSlideXml += `<a:cubicBezTo>
-									<a:pt x="${getSmartParseNumber(point.curve.x1, 'X', slide._presLayout)}" y="${getSmartParseNumber(point.curve.y1, 'Y', slide._presLayout)}" />
-									<a:pt x="${getSmartParseNumber(point.curve.x2, 'X', slide._presLayout)}" y="${getSmartParseNumber(point.curve.y2, 'Y', slide._presLayout)}" />
-									<a:pt x="${getSmartParseNumber(point.x, 'X', slide._presLayout)}" y="${getSmartParseNumber(point.y, 'Y', slide._presLayout)}" />
-									</a:cubicBezTo>`
-									break
-								case 'quadratic':
-									strSlideXml += `<a:quadBezTo>
-									<a:pt x="${getSmartParseNumber(point.curve.x1, 'X', slide._presLayout)}" y="${getSmartParseNumber(point.curve.y1, 'Y', slide._presLayout)}" />
-									<a:pt x="${getSmartParseNumber(point.x, 'X', slide._presLayout)}" y="${getSmartParseNumber(point.y, 'Y', slide._presLayout)}" />
-									</a:quadBezTo>`
-									break
-								default:
-									break
-							}
-						} else if ('close' in point) {
-							strSlideXml += '<a:close />'
-						} else if (point.moveTo || i === 0) {
-							strSlideXml += `<a:moveTo><a:pt x="${getSmartParseNumber(point.x, 'X', slide._presLayout)}" y="${getSmartParseNumber(
-								point.y,
-								'Y',
-								slide._presLayout
-							)}" /></a:moveTo>`
-						} else {
-							strSlideXml += `<a:lnTo><a:pt x="${getSmartParseNumber(point.x, 'X', slide._presLayout)}" y="${getSmartParseNumber(
-								point.y,
-								'Y',
-								slide._presLayout
-							)}" /></a:lnTo>`
-						}
-					})
-
-					strSlideXml += '</a:path>'
-					strSlideXml += '</a:pathLst>'
-					strSlideXml += '</a:custGeom>'
-				} else {
-					strSlideXml += '<a:prstGeom prst="' + slideItemObj.shape + '"><a:avLst>'
-					if (slideItemObj.options.rectRadius) {
-						strSlideXml += `<a:gd name="adj" fmla="val ${Math.round((slideItemObj.options.rectRadius * EMU * 100000) / Math.min(cx, cy))}"/>`
-					} else if (slideItemObj.options.angleRange) {
-						for (let i = 0; i < 2; i++) {
-							const angle = slideItemObj.options.angleRange[i]
-							strSlideXml += `<a:gd name="adj${i + 1}" fmla="val ${convertRotationDegrees(angle)}" />`
-						}
-
-						if (slideItemObj.options.arcThicknessRatio) {
-							strSlideXml += `<a:gd name="adj3" fmla="val ${Math.round(slideItemObj.options.arcThicknessRatio * 50000)}" />`
-						}
-					}
-					strSlideXml += '</a:avLst></a:prstGeom>'
-				}
-
-				// Option: FILL
-				strSlideXml += slideItemObj.options.fill ? genXmlColorSelection(slideItemObj.options.fill) : '<a:noFill/>'
-
-				// shape Type: LINE: line color
-				if (slideItemObj.options.line) {
-					strSlideXml += slideItemObj.options.line.width ? `<a:ln w="${valToPts(slideItemObj.options.line.width)}">` : '<a:ln>'
-					if (slideItemObj.options.line.color) strSlideXml += genXmlColorSelection(slideItemObj.options.line)
-					if (slideItemObj.options.line.dashType) strSlideXml += `<a:prstDash val="${slideItemObj.options.line.dashType}"/>`
-					if (slideItemObj.options.line.beginArrowType) strSlideXml += `<a:headEnd type="${slideItemObj.options.line.beginArrowType}"/>`
-					if (slideItemObj.options.line.endArrowType) strSlideXml += `<a:tailEnd type="${slideItemObj.options.line.endArrowType}"/>`
-					// FUTURE: `endArrowSize` < a: headEnd type = "arrow" w = "lg" len = "lg" /> 'sm' | 'med' | 'lg'(values are 1 - 9, making a 3x3 grid of w / len possibilities)
-					strSlideXml += '</a:ln>'
-				}
-
-				// EFFECTS > SHADOW: REF: @see http://officeopenxml.com/drwSp-effects.php
-				if (slideItemObj.options.shadow && slideItemObj.options.shadow.type !== 'none') {
-					slideItemObj.options.shadow.type = slideItemObj.options.shadow.type || 'outer'
-					slideItemObj.options.shadow.blur = valToPts(slideItemObj.options.shadow.blur || 8)
-					slideItemObj.options.shadow.offset = valToPts(slideItemObj.options.shadow.offset || 4)
-					slideItemObj.options.shadow.angle = Math.round((slideItemObj.options.shadow.angle || 270) * 60000)
-					slideItemObj.options.shadow.opacity = Math.round((slideItemObj.options.shadow.opacity || 0.75) * 100000)
-					slideItemObj.options.shadow.color = slideItemObj.options.shadow.color || DEF_TEXT_SHADOW.color
-
-					strSlideXml += '<a:effectLst>'
-					strSlideXml += ` <a:${slideItemObj.options.shadow.type}Shdw ${slideItemObj.options.shadow.type === 'outer' ? 'sx="100000" sy="100000" kx="0" ky="0" algn="bl" rotWithShape="0"' : ''} blurRad="${slideItemObj.options.shadow.blur}" dist="${slideItemObj.options.shadow.offset}" dir="${slideItemObj.options.shadow.angle}">`
-					strSlideXml += ` <a:srgbClr val="${slideItemObj.options.shadow.color}">`
-					strSlideXml += ` <a:alpha val="${slideItemObj.options.shadow.opacity}"/></a:srgbClr>`
-					strSlideXml += ' </a:outerShdw>'
-					strSlideXml += '</a:effectLst>'
-				}
-
-				/* TODO: FUTURE: Text wrapping (copied from MS-PPTX export)
-					// Commented out b/c i'm not even sure this works - current code produces text that wraps in shapes and textboxes, so...
-					if ( slideItemObj.options.textWrap ) {
-						strSlideXml += '<a:extLst>'
-									+ '<a:ext uri="{C572A759-6A51-4108-AA02-DFA0A04FC94B}">'
-									+ '<ma14:wrappingTextBoxFlag xmlns:ma14="http://schemas.microsoft.com/office/mac/drawingml/2011/main" val="1"/>'
-									+ '</a:ext>'
-									+ '</a:extLst>';
-					}
-				*/
-
-				// B: Close shape Properties
-				strSlideXml += '</p:spPr>'
-
-				// C: Add formatted text (text body "bodyPr")
-				strSlideXml += genXmlTextBody(slideItemObj)
-
-				// LAST: Close SHAPE =======================================================
-				strSlideXml += '</p:sp>'
-				break
-
-			case SLIDE_OBJECT_TYPES.image:
-				strSlideXml += '<p:pic>'
-				strSlideXml += '  <p:nvPicPr>'
-				strSlideXml += `<p:cNvPr id="${idx + 2}" name="${slideItemObj.options.objectName}" descr="${encodeXmlEntities(
-					slideItemObj.options.altText || slideItemObj.image
-				)}">`
-				if (slideItemObj.hyperlink?.url) {
-					strSlideXml += `<a:hlinkClick r:id="rId${slideItemObj.hyperlink._rId}" tooltip="${slideItemObj.hyperlink.tooltip ? encodeXmlEntities(slideItemObj.hyperlink.tooltip) : ''
-					}"/>`
-				}
-				if (slideItemObj.hyperlink?.slide) {
-					strSlideXml += `<a:hlinkClick r:id="rId${slideItemObj.hyperlink._rId}" tooltip="${slideItemObj.hyperlink.tooltip ? encodeXmlEntities(slideItemObj.hyperlink.tooltip) : ''
-					}" action="ppaction://hlinksldjump"/>`
-				}
-				strSlideXml += '    </p:cNvPr>'
-				strSlideXml += '    <p:cNvPicPr><a:picLocks noChangeAspect="1"/></p:cNvPicPr>'
-				strSlideXml += '    <p:nvPr>' + genXmlPlaceholder(placeholderObj) + '</p:nvPr>'
-				strSlideXml += '  </p:nvPicPr>'
-				strSlideXml += '<p:blipFill>'
-				// NOTE: This works for both cases: either `path` or `data` contains the SVG
-				if (
-					(slide._relsMedia || []).filter(rel => rel.rId === slideItemObj.imageRid)[0] &&
-					(slide._relsMedia || []).filter(rel => rel.rId === slideItemObj.imageRid)[0].extn === 'svg'
-				) {
-					strSlideXml += `<a:blip r:embed="rId${slideItemObj.imageRid - 1}">`
-					strSlideXml += slideItemObj.options.transparency ? ` <a:alphaModFix amt="${Math.round((100 - slideItemObj.options.transparency) * 1000)}"/>` : ''
-					strSlideXml += ' <a:extLst>'
-					strSlideXml += '  <a:ext uri="{96DAC541-7B7A-43D3-8B79-37D633B846F1}">'
-					strSlideXml += `   <asvg:svgBlip xmlns:asvg="http://schemas.microsoft.com/office/drawing/2016/SVG/main" r:embed="rId${slideItemObj.imageRid}"/>`
-					strSlideXml += '  </a:ext>'
-					strSlideXml += ' </a:extLst>'
-					strSlideXml += '</a:blip>'
-				} else {
-					strSlideXml += `<a:blip r:embed="rId${slideItemObj.imageRid}">`
-					strSlideXml += slideItemObj.options.transparency ? `<a:alphaModFix amt="${Math.round((100 - slideItemObj.options.transparency) * 1000)}"/>` : ''
-					strSlideXml += '</a:blip>'
-				}
-				if (sizing?.type) {
-					const boxW = sizing.w ? getSmartParseNumber(sizing.w, 'X', slide._presLayout) : cx
-					const boxH = sizing.h ? getSmartParseNumber(sizing.h, 'Y', slide._presLayout) : cy
-					const boxX = getSmartParseNumber(sizing.x || 0, 'X', slide._presLayout)
-					const boxY = getSmartParseNumber(sizing.y || 0, 'Y', slide._presLayout)
-
-					strSlideXml += ImageSizingXml[sizing.type]({ w: imgWidth, h: imgHeight }, { w: boxW, h: boxH, x: boxX, y: boxY })
-					imgWidth = boxW
-					imgHeight = boxH
-				} else {
-					strSlideXml += '  <a:stretch><a:fillRect/></a:stretch>'
-				}
-				strSlideXml += '</p:blipFill>'
-				strSlideXml += '<p:spPr>'
-				strSlideXml += ' <a:xfrm' + locationAttr + '>'
-				strSlideXml += `  <a:off x="${x}" y="${y}"/>`
-				strSlideXml += `  <a:ext cx="${imgWidth}" cy="${imgHeight}"/>`
-				strSlideXml += ' </a:xfrm>'
-				strSlideXml += ` <a:prstGeom prst="${rounding ? 'ellipse' : 'rect'}"><a:avLst/></a:prstGeom>`
-
-				// EFFECTS > SHADOW: REF: @see http://officeopenxml.com/drwSp-effects.php
-				if (slideItemObj.options.shadow && slideItemObj.options.shadow.type !== 'none') {
-					slideItemObj.options.shadow.type = slideItemObj.options.shadow.type || 'outer'
-					slideItemObj.options.shadow.blur = valToPts(slideItemObj.options.shadow.blur || 8)
-					slideItemObj.options.shadow.offset = valToPts(slideItemObj.options.shadow.offset || 4)
-					slideItemObj.options.shadow.angle = Math.round((slideItemObj.options.shadow.angle || 270) * 60000)
-					slideItemObj.options.shadow.opacity = Math.round((slideItemObj.options.shadow.opacity || 0.75) * 100000)
-					slideItemObj.options.shadow.color = slideItemObj.options.shadow.color || DEF_TEXT_SHADOW.color
-
-					strSlideXml += '<a:effectLst>'
-					strSlideXml += `<a:${slideItemObj.options.shadow.type}Shdw ${slideItemObj.options.shadow.type === 'outer' ? 'sx="100000" sy="100000" kx="0" ky="0" algn="bl" rotWithShape="0"' : ''} blurRad="${slideItemObj.options.shadow.blur}" dist="${slideItemObj.options.shadow.offset}" dir="${slideItemObj.options.shadow.angle}">`
-					strSlideXml += `<a:srgbClr val="${slideItemObj.options.shadow.color}">`
-					strSlideXml += `<a:alpha val="${slideItemObj.options.shadow.opacity}"/></a:srgbClr>`
-					strSlideXml += `</a:${slideItemObj.options.shadow.type}Shdw>`
-					strSlideXml += '</a:effectLst>'
-				}
-				strSlideXml += '</p:spPr>'
-				strSlideXml += '</p:pic>'
-				break
-
-			case SLIDE_OBJECT_TYPES.media:
-				if (slideItemObj.mtype === 'online') {
-					strSlideXml += '<p:pic>'
-					strSlideXml += ' <p:nvPicPr>'
-					// IMPORTANT: <p:cNvPr id="" value is critical - if its not the same number as preview image `rId`, PowerPoint throws error!
-					strSlideXml += `<p:cNvPr id="${slideItemObj.mediaRid + 2}" name="${slideItemObj.options.objectName}"/>`
-					strSlideXml += ' <p:cNvPicPr/>'
-					strSlideXml += ' <p:nvPr>'
-					strSlideXml += `  <a:videoFile r:link="rId${slideItemObj.mediaRid}"/>`
-					strSlideXml += ' </p:nvPr>'
-					strSlideXml += ' </p:nvPicPr>'
-					// NOTE: `blip` is diferent than videos; also there's no preview "p:extLst" above but exists in videos
-					strSlideXml += ` <p:blipFill><a:blip r:embed="rId${slideItemObj.mediaRid + 1}"/><a:stretch><a:fillRect/></a:stretch></p:blipFill>` // NOTE: Preview image is required!
-					strSlideXml += ' <p:spPr>'
-					strSlideXml += `  <a:xfrm${locationAttr}><a:off x="${x}" y="${y}"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm>`
-					strSlideXml += '  <a:prstGeom prst="rect"><a:avLst/></a:prstGeom>'
-					strSlideXml += ' </p:spPr>'
-					strSlideXml += '</p:pic>'
-				} else {
-					strSlideXml += '<p:pic>'
-					strSlideXml += ' <p:nvPicPr>'
-					// IMPORTANT: <p:cNvPr id="" value is critical - if not the same number as preiew image rId, PowerPoint throws error!
-					strSlideXml += `<p:cNvPr id="${slideItemObj.mediaRid + 2}" name="${slideItemObj.options.objectName
-					}"><a:hlinkClick r:id="" action="ppaction://media"/></p:cNvPr>`
-					strSlideXml += ' <p:cNvPicPr><a:picLocks noChangeAspect="1"/></p:cNvPicPr>'
-					strSlideXml += ' <p:nvPr>'
-					strSlideXml += `  <a:videoFile r:link="rId${slideItemObj.mediaRid}"/>`
-					strSlideXml += '  <p:extLst>'
-					strSlideXml += '   <p:ext uri="{DAA4B4D4-6D71-4841-9C94-3DE7FCFB9230}">'
-					strSlideXml += `    <p14:media xmlns:p14="http://schemas.microsoft.com/office/powerpoint/2010/main" r:embed="rId${slideItemObj.mediaRid + 1}"/>`
-					strSlideXml += '   </p:ext>'
-					strSlideXml += '  </p:extLst>'
-					strSlideXml += ' </p:nvPr>'
-					strSlideXml += ' </p:nvPicPr>'
-					strSlideXml += ` <p:blipFill><a:blip r:embed="rId${slideItemObj.mediaRid + 2}"/><a:stretch><a:fillRect/></a:stretch></p:blipFill>` // NOTE: Preview image is required!
-					strSlideXml += ' <p:spPr>'
-					strSlideXml += `  <a:xfrm${locationAttr}><a:off x="${x}" y="${y}"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm>`
-					strSlideXml += '  <a:prstGeom prst="rect"><a:avLst/></a:prstGeom>'
-					strSlideXml += ' </p:spPr>'
-					strSlideXml += '</p:pic>'
-				}
-				break
-
-			case SLIDE_OBJECT_TYPES.chart:
-				strSlideXml += '<p:graphicFrame>'
-				strSlideXml += ' <p:nvGraphicFramePr>'
-				strSlideXml += `   <p:cNvPr id="${idx + 2}" name="${slideItemObj.options.objectName}" descr="${encodeXmlEntities(slideItemObj.options.altText || '')}"/>`
-				strSlideXml += '   <p:cNvGraphicFramePr/>'
-				strSlideXml += `   <p:nvPr>${genXmlPlaceholder(placeholderObj)}</p:nvPr>`
-				strSlideXml += ' </p:nvGraphicFramePr>'
-				strSlideXml += ` <p:xfrm><a:off x="${x}" y="${y}"/><a:ext cx="${cx}" cy="${cy}"/></p:xfrm>`
-				strSlideXml += ' <a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">'
-				strSlideXml += '  <a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/chart">'
-				strSlideXml += `   <c:chart r:id="rId${slideItemObj.chartRid}" xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart"/>`
-				strSlideXml += '  </a:graphicData>'
-				strSlideXml += ' </a:graphic>'
-				strSlideXml += '</p:graphicFrame>'
-				break
-
-			default:
-				strSlideXml += ''
-				break
-		}
-	})
-
-	// STEP 4: Add slide numbers (if any) last
-	if (slide._slideNumberProps) {
-		// Set some defaults (done here b/c SlideNumber canbe added to masters or slides and has numerous entry points)
-		if (!slide._slideNumberProps.align) slide._slideNumberProps.align = 'left'
-
-		strSlideXml += '<p:sp>'
-		strSlideXml += ' <p:nvSpPr>'
-		strSlideXml += '  <p:cNvPr id="25" name="Slide Number Placeholder 0"/><p:cNvSpPr><a:spLocks noGrp="1"/></p:cNvSpPr>'
-		strSlideXml += '  <p:nvPr><p:ph type="sldNum" sz="quarter" idx="4294967295"/></p:nvPr>'
-		strSlideXml += ' </p:nvSpPr>'
-		strSlideXml += ' <p:spPr>'
-		strSlideXml += '<a:xfrm>' +
-			`<a:off x="${getSmartParseNumber(slide._slideNumberProps.x, 'X', slide._presLayout)}" y="${getSmartParseNumber(slide._slideNumberProps.y, 'Y', slide._presLayout)}"/>` +
-			`<a:ext cx="${slide._slideNumberProps.w ? getSmartParseNumber(slide._slideNumberProps.w, 'X', slide._presLayout) : '800000'}" cy="${slide._slideNumberProps.h ? getSmartParseNumber(slide._slideNumberProps.h, 'Y', slide._presLayout) : '300000'}"/>` +
-			'</a:xfrm>' +
-			' <a:prstGeom prst="rect"><a:avLst/></a:prstGeom>' +
-			' <a:extLst><a:ext uri="{C572A759-6A51-4108-AA02-DFA0A04FC94B}"><ma14:wrappingTextBoxFlag val="0" xmlns:ma14="http://schemas.microsoft.com/office/mac/drawingml/2011/main"/></a:ext></a:extLst>' +
-			'</p:spPr>'
-		strSlideXml += '<p:txBody>'
-		strSlideXml += '<a:bodyPr'
-		if (slide._slideNumberProps.margin && Array.isArray(slide._slideNumberProps.margin)) {
-			strSlideXml += ` lIns="${valToPts(slide._slideNumberProps.margin[3] || 0)}"`
-			strSlideXml += ` tIns="${valToPts(slide._slideNumberProps.margin[0] || 0)}"`
-			strSlideXml += ` rIns="${valToPts(slide._slideNumberProps.margin[1] || 0)}"`
-			strSlideXml += ` bIns="${valToPts(slide._slideNumberProps.margin[2] || 0)}"`
-		} else if (typeof slide._slideNumberProps.margin === 'number') {
-			strSlideXml += ` lIns="${valToPts(slide._slideNumberProps.margin || 0)}"`
-			strSlideXml += ` tIns="${valToPts(slide._slideNumberProps.margin || 0)}"`
-			strSlideXml += ` rIns="${valToPts(slide._slideNumberProps.margin || 0)}"`
-			strSlideXml += ` bIns="${valToPts(slide._slideNumberProps.margin || 0)}"`
-		}
-		if (slide._slideNumberProps.valign) {
-			strSlideXml += ` anchor="${slide._slideNumberProps.valign.replace('top', 't').replace('middle', 'ctr').replace('bottom', 'b')}"`
-		}
-		strSlideXml += '/>'
-		strSlideXml += '  <a:lstStyle><a:lvl1pPr>'
-		if (slide._slideNumberProps.fontFace || slide._slideNumberProps.fontSize || slide._slideNumberProps.color) {
-			strSlideXml += `<a:defRPr sz="${Math.round((slide._slideNumberProps.fontSize || 12) * 100)}">`
-			if (slide._slideNumberProps.color) strSlideXml += genXmlColorSelection(slide._slideNumberProps.color)
-			if (slide._slideNumberProps.fontFace) { strSlideXml += `<a:latin typeface="${slide._slideNumberProps.fontFace}"/><a:ea typeface="${slide._slideNumberProps.fontFace}"/><a:cs typeface="${slide._slideNumberProps.fontFace}"/>` }
-			strSlideXml += '</a:defRPr>'
-		}
-		strSlideXml += '</a:lvl1pPr></a:lstStyle>'
-		strSlideXml += '<a:p>'
-		if (slide._slideNumberProps.align.startsWith('l')) strSlideXml += '<a:pPr algn="l"/>'
-		else if (slide._slideNumberProps.align.startsWith('c')) strSlideXml += '<a:pPr algn="ctr"/>'
-		else if (slide._slideNumberProps.align.startsWith('r')) strSlideXml += '<a:pPr algn="r"/>'
-		else strSlideXml += '<a:pPr algn="l"/>'
-		strSlideXml += `<a:fld id="${SLDNUMFLDID}" type="slidenum"><a:rPr b="${slide._slideNumberProps.bold ? 1 : 0}" lang="en-US"/>`
-		strSlideXml += `<a:t>${slide._slideNum}</a:t></a:fld><a:endParaRPr lang="en-US"/></a:p>`
-		strSlideXml += '</p:txBody></p:sp>'
-	}
-
-	// STEP 5: Close spTree and finalize slide XML
-	strSlideXml += '</p:spTree>'
-	strSlideXml += '</p:cSld>'
-
-	// LAST: Return
-	return strSlideXml
-}
-
+// Note: slideObjectToXml has been moved to gen-xml-slide-objects.ts
 /**
  * Transforms slide relations to XML string.
  * Extra relations that are not dynamic can be passed using the 2nd arg (e.g. theme relation in master file).
@@ -772,62 +95,119 @@ function slideObjectToXml (slide: PresSlide | SlideLayout): string {
  * @return {string} XML
  */
 function slideObjectRelationsToXml (slide: PresSlide | SlideLayout, defaultRels: Array<{ target: string, type: string }>): string {
+	const doc = create({ version: '1.0', encoding: 'UTF-8', standalone: 'yes' })
+		.ele('Relationships', { xmlns: NS_RELATIONSHIPS })
+
 	let lastRid = 0 // stores maximum rId used for dynamic relations
-	let strXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' + CRLF + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+	const seenTargets = new Set<string>() // track targets to detect duplicates for media
 
 	// STEP 1: Add all rels for this Slide
 	slide._rels.forEach((rel: ISlideRel) => {
 		lastRid = Math.max(lastRid, rel.rId)
 		if (rel.type.toLowerCase().includes('hyperlink')) {
 			if (rel.data === 'slide') {
-				strXml += `<Relationship Id="rId${rel.rId}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slide" Target="slide${rel.Target}.xml"/>`
+				doc.ele('Relationship', {
+					Id: `rId${rel.rId}`,
+					Type: REL_TYPE_SLIDE,
+					Target: `slide${rel.Target}.xml`,
+				}).up()
 			} else {
-				strXml += `<Relationship Id="rId${rel.rId}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink" Target="${rel.Target}" TargetMode="External"/>`
+				doc.ele('Relationship', {
+					Id: `rId${rel.rId}`,
+					Type: REL_TYPE_HYPERLINK,
+					Target: rel.Target,
+					TargetMode: 'External',
+				}).up()
 			}
 		} else if (rel.type.toLowerCase().includes('notesSlide')) {
-			strXml += `<Relationship Id="rId${rel.rId}" Target="${rel.Target}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/notesSlide"/>`
+			doc.ele('Relationship', {
+				Id: `rId${rel.rId}`,
+				Target: rel.Target,
+				Type: REL_TYPE_NOTES_SLIDE,
+			}).up()
 		}
 	})
-	; (slide._relsChart || []).forEach((rel: ISlideRelChart) => {
+
+	;(slide._relsChart || []).forEach((rel: ISlideRelChart) => {
 		lastRid = Math.max(lastRid, rel.rId)
-		strXml += `<Relationship Id="rId${rel.rId}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/chart" Target="${rel.Target}"/>`
+		doc.ele('Relationship', {
+			Id: `rId${rel.rId}`,
+			Type: REL_TYPE_CHART,
+			Target: rel.Target,
+		}).up()
 	})
-	; (slide._relsMedia || []).forEach((rel: ISlideRelMedia) => {
-		const relRid = rel.rId.toString()
+
+	;(slide._relsMedia || []).forEach((rel: ISlideRelMedia) => {
 		lastRid = Math.max(lastRid, rel.rId)
-		if (rel.type.toLowerCase().includes('image')) {
-			strXml += '<Relationship Id="rId' + relRid + '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="' + rel.Target + '"/>'
-		} else if (rel.type.toLowerCase().includes('audio')) {
+		const relTypeLower = rel.type.toLowerCase()
+		const targetAlreadySeen = seenTargets.has(rel.Target)
+		seenTargets.add(rel.Target)
+
+		if (relTypeLower.includes('image')) {
+			doc.ele('Relationship', {
+				Id: `rId${rel.rId}`,
+				Type: REL_TYPE_IMAGE,
+				Target: rel.Target,
+			}).up()
+		} else if (relTypeLower.includes('audio')) {
 			// As media has *TWO* rel entries per item, check for first one, if found add second rel with alt style
-			if (strXml.includes(' Target="' + rel.Target + '"')) {
-				strXml += '<Relationship Id="rId' + relRid + '" Type="http://schemas.microsoft.com/office/2007/relationships/media" Target="' + rel.Target + '"/>'
+			if (targetAlreadySeen) {
+				doc.ele('Relationship', {
+					Id: `rId${rel.rId}`,
+					Type: REL_TYPE_MEDIA,
+					Target: rel.Target,
+				}).up()
 			} else {
-				strXml += '<Relationship Id="rId' + relRid + '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/audio" Target="' + rel.Target + '"/>'
+				doc.ele('Relationship', {
+					Id: `rId${rel.rId}`,
+					Type: REL_TYPE_AUDIO,
+					Target: rel.Target,
+				}).up()
 			}
-		} else if (rel.type.toLowerCase().includes('video')) {
+		} else if (relTypeLower.includes('video')) {
 			// As media has *TWO* rel entries per item, check for first one, if found add second rel with alt style
-			if (strXml.includes(' Target="' + rel.Target + '"')) {
-				strXml += '<Relationship Id="rId' + relRid + '" Type="http://schemas.microsoft.com/office/2007/relationships/media" Target="' + rel.Target + '"/>'
+			if (targetAlreadySeen) {
+				doc.ele('Relationship', {
+					Id: `rId${rel.rId}`,
+					Type: REL_TYPE_MEDIA,
+					Target: rel.Target,
+				}).up()
 			} else {
-				strXml += '<Relationship Id="rId' + relRid + '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/video" Target="' + rel.Target + '"/>'
+				doc.ele('Relationship', {
+					Id: `rId${rel.rId}`,
+					Type: REL_TYPE_VIDEO,
+					Target: rel.Target,
+				}).up()
 			}
-		} else if (rel.type.toLowerCase().includes('online')) {
+		} else if (relTypeLower.includes('online')) {
 			// As media has *TWO* rel entries per item, check for first one, if found add second rel with alt style
-			if (strXml.includes(' Target="' + rel.Target + '"')) {
-				strXml += '<Relationship Id="rId' + relRid + '" Type="http://schemas.microsoft.com/office/2007/relationships/image" Target="' + rel.Target + '"/>'
+			if (targetAlreadySeen) {
+				doc.ele('Relationship', {
+					Id: `rId${rel.rId}`,
+					Type: 'http://schemas.microsoft.com/office/2007/relationships/image',
+					Target: rel.Target,
+				}).up()
 			} else {
-				strXml += '<Relationship Id="rId' + relRid + '" Target="' + rel.Target + '" TargetMode="External" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/video"/>'
+				doc.ele('Relationship', {
+					Id: `rId${rel.rId}`,
+					Target: rel.Target,
+					TargetMode: 'External',
+					Type: REL_TYPE_VIDEO,
+				}).up()
 			}
 		}
 	})
 
 	// STEP 2: Add default rels
 	defaultRels.forEach((rel, idx) => {
-		strXml += `<Relationship Id="rId${lastRid + idx + 1}" Type="${rel.type}" Target="${rel.target}"/>`
+		doc.ele('Relationship', {
+			Id: `rId${lastRid + idx + 1}`,
+			Type: rel.type,
+			Target: rel.target,
+		}).up()
 	})
 
-	strXml += '</Relationships>'
-	return strXml
+	return doc.end({ prettyPrint: false })
 }
 
 // Text XML generation functions moved to gen-xml-text.ts
@@ -847,74 +227,132 @@ function slideObjectRelationsToXml (slide: PresSlide | SlideLayout, defaultRels:
  * @returns XML
  */
 export function makeXmlContTypes (slides: PresSlide[], slideLayouts: SlideLayout[], masterSlide?: PresSlide): string {
-	let strXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' + CRLF
-	strXml += '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
-	strXml += '<Default Extension="xml" ContentType="application/xml"/>'
-	strXml += '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
-	strXml += '<Default Extension="jpeg" ContentType="image/jpeg"/>'
-	strXml += '<Default Extension="jpg" ContentType="image/jpg"/>'
-	strXml += '<Default Extension="svg" ContentType="image/svg+xml"/>'
+	const doc = create({ version: '1.0', encoding: 'UTF-8', standalone: 'yes' })
+		.ele('Types', { xmlns: NS_CONTENT_TYPES })
+
+	// Track added content types to avoid duplicates
+	const addedContentTypes = new Set<string>()
+
+	// Standard defaults
+	doc.ele('Default', { Extension: 'xml', ContentType: 'application/xml' }).up()
+	doc.ele('Default', { Extension: 'rels', ContentType: 'application/vnd.openxmlformats-package.relationships+xml' }).up()
+	doc.ele('Default', { Extension: 'jpeg', ContentType: 'image/jpeg' }).up()
+	doc.ele('Default', { Extension: 'jpg', ContentType: 'image/jpg' }).up()
+	doc.ele('Default', { Extension: 'svg', ContentType: 'image/svg+xml' }).up()
 
 	// STEP 1: Add standard/any media types used in Presentation
-	strXml += '<Default Extension="png" ContentType="image/png"/>'
-	strXml += '<Default Extension="gif" ContentType="image/gif"/>'
-	strXml += '<Default Extension="m4v" ContentType="video/mp4"/>' // NOTE: Hard-Code this extension as it wont be created in loop below (as extn !== type)
-	strXml += '<Default Extension="mp4" ContentType="video/mp4"/>' // NOTE: Hard-Code this extension as it wont be created in loop below (as extn !== type)
+	doc.ele('Default', { Extension: 'png', ContentType: 'image/png' }).up()
+	doc.ele('Default', { Extension: 'gif', ContentType: 'image/gif' }).up()
+	doc.ele('Default', { Extension: 'm4v', ContentType: 'video/mp4' }).up() // NOTE: Hard-Code this extension as it wont be created in loop below (as extn !== type)
+	doc.ele('Default', { Extension: 'mp4', ContentType: 'video/mp4' }).up() // NOTE: Hard-Code this extension as it wont be created in loop below (as extn !== type)
+
 	slides.forEach(slide => {
 		(slide._relsMedia || []).forEach(rel => {
-			if (rel.type !== 'image' && rel.type !== 'online' && rel.type !== 'chart' && rel.extn !== 'm4v' && !strXml.includes(rel.type)) {
-				strXml += '<Default Extension="' + rel.extn + '" ContentType="' + rel.type + '"/>'
+			if (rel.type !== 'image' && rel.type !== 'online' && rel.type !== 'chart' && rel.extn !== 'm4v' && !addedContentTypes.has(rel.type)) {
+				doc.ele('Default', { Extension: rel.extn, ContentType: rel.type }).up()
+				addedContentTypes.add(rel.type)
 			}
 		})
 	})
-	strXml += '<Default Extension="vml" ContentType="application/vnd.openxmlformats-officedocument.vmlDrawing"/>'
-	strXml += '<Default Extension="xlsx" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"/>'
+
+	doc.ele('Default', { Extension: 'vml', ContentType: 'application/vnd.openxmlformats-officedocument.vmlDrawing' }).up()
+	doc.ele('Default', { Extension: 'xlsx', ContentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }).up()
 
 	// STEP 2: Add presentation and slide master(s)/slide(s)
-	strXml += '<Override PartName="/ppt/presentation.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.presentation.main+xml"/>'
-	strXml += '<Override PartName="/ppt/notesMasters/notesMaster1.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.notesMaster+xml"/>'
+	doc.ele('Override', {
+		PartName: '/ppt/presentation.xml',
+		ContentType: 'application/vnd.openxmlformats-officedocument.presentationml.presentation.main+xml',
+	}).up()
+	doc.ele('Override', {
+		PartName: '/ppt/notesMasters/notesMaster1.xml',
+		ContentType: 'application/vnd.openxmlformats-officedocument.presentationml.notesMaster+xml',
+	}).up()
+
 	slides.forEach((slide, idx) => {
-		strXml += `<Override PartName="/ppt/slideMasters/slideMaster${idx + 1}.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slideMaster+xml"/>`
-		strXml += `<Override PartName="/ppt/slides/slide${idx + 1}.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slide+xml"/>`
+		doc.ele('Override', {
+			PartName: `/ppt/slideMasters/slideMaster${idx + 1}.xml`,
+			ContentType: 'application/vnd.openxmlformats-officedocument.presentationml.slideMaster+xml',
+		}).up()
+		doc.ele('Override', {
+			PartName: `/ppt/slides/slide${idx + 1}.xml`,
+			ContentType: 'application/vnd.openxmlformats-officedocument.presentationml.slide+xml',
+		}).up()
 		// Add charts if any
 		slide._relsChart.forEach(rel => {
-			strXml += `<Override PartName="${rel.Target}" ContentType="application/vnd.openxmlformats-officedocument.drawingml.chart+xml"/>`
+			doc.ele('Override', {
+				PartName: rel.Target,
+				ContentType: 'application/vnd.openxmlformats-officedocument.drawingml.chart+xml',
+			}).up()
 		})
 	})
 
 	// STEP 3: Core PPT
-	strXml += '<Override PartName="/ppt/presProps.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.presProps+xml"/>'
-	strXml += '<Override PartName="/ppt/viewProps.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.viewProps+xml"/>'
-	strXml += '<Override PartName="/ppt/theme/theme1.xml" ContentType="application/vnd.openxmlformats-officedocument.theme+xml"/>'
-	strXml += '<Override PartName="/ppt/tableStyles.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.tableStyles+xml"/>'
+	doc.ele('Override', {
+		PartName: '/ppt/presProps.xml',
+		ContentType: 'application/vnd.openxmlformats-officedocument.presentationml.presProps+xml',
+	}).up()
+	doc.ele('Override', {
+		PartName: '/ppt/viewProps.xml',
+		ContentType: 'application/vnd.openxmlformats-officedocument.presentationml.viewProps+xml',
+	}).up()
+	doc.ele('Override', {
+		PartName: '/ppt/theme/theme1.xml',
+		ContentType: 'application/vnd.openxmlformats-officedocument.theme+xml',
+	}).up()
+	doc.ele('Override', {
+		PartName: '/ppt/tableStyles.xml',
+		ContentType: 'application/vnd.openxmlformats-officedocument.presentationml.tableStyles+xml',
+	}).up()
 
 	// STEP 4: Add Slide Layouts
 	slideLayouts.forEach((layout, idx) => {
-		strXml += `<Override PartName="/ppt/slideLayouts/slideLayout${idx + 1}.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slideLayout+xml"/>`
-		; (layout._relsChart || []).forEach(rel => {
-			strXml += ' <Override PartName="' + rel.Target + '" ContentType="application/vnd.openxmlformats-officedocument.drawingml.chart+xml"/>'
+		doc.ele('Override', {
+			PartName: `/ppt/slideLayouts/slideLayout${idx + 1}.xml`,
+			ContentType: 'application/vnd.openxmlformats-officedocument.presentationml.slideLayout+xml',
+		}).up()
+		;(layout._relsChart || []).forEach(rel => {
+			doc.ele('Override', {
+				PartName: rel.Target,
+				ContentType: 'application/vnd.openxmlformats-officedocument.drawingml.chart+xml',
+			}).up()
 		})
 	})
 
 	// STEP 5: Add notes slide(s)
 	slides.forEach((_slide, idx) => {
-		strXml += `<Override PartName="/ppt/notesSlides/notesSlide${idx + 1}.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.notesSlide+xml"/>`
+		doc.ele('Override', {
+			PartName: `/ppt/notesSlides/notesSlide${idx + 1}.xml`,
+			ContentType: 'application/vnd.openxmlformats-officedocument.presentationml.notesSlide+xml',
+		}).up()
 	})
 
 	// STEP 6: Add rels
-	masterSlide._relsChart.forEach(rel => {
-		strXml += ' <Override PartName="' + rel.Target + '" ContentType="application/vnd.openxmlformats-officedocument.drawingml.chart+xml"/>'
-	})
-	masterSlide._relsMedia.forEach(rel => {
-		if (rel.type !== 'image' && rel.type !== 'online' && rel.type !== 'chart' && rel.extn !== 'm4v' && !strXml.includes(rel.type)) { strXml += ' <Default Extension="' + rel.extn + '" ContentType="' + rel.type + '"/>' }
-	})
+	if (masterSlide) {
+		masterSlide._relsChart.forEach(rel => {
+			doc.ele('Override', {
+				PartName: rel.Target,
+				ContentType: 'application/vnd.openxmlformats-officedocument.drawingml.chart+xml',
+			}).up()
+		})
+		masterSlide._relsMedia.forEach(rel => {
+			if (rel.type !== 'image' && rel.type !== 'online' && rel.type !== 'chart' && rel.extn !== 'm4v' && !addedContentTypes.has(rel.type)) {
+				doc.ele('Default', { Extension: rel.extn, ContentType: rel.type }).up()
+				addedContentTypes.add(rel.type)
+			}
+		})
+	}
 
 	// LAST: Finish XML (Resume core)
-	strXml += ' <Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/>'
-	strXml += ' <Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/>'
-	strXml += '</Types>'
+	doc.ele('Override', {
+		PartName: '/docProps/core.xml',
+		ContentType: 'application/vnd.openxmlformats-package.core-properties+xml',
+	}).up()
+	doc.ele('Override', {
+		PartName: '/docProps/app.xml',
+		ContentType: 'application/vnd.openxmlformats-officedocument.extended-properties+xml',
+	}).up()
 
-	return strXml
+	return doc.end({ prettyPrint: false })
 }
 
 /**
@@ -922,11 +360,26 @@ export function makeXmlContTypes (slides: PresSlide[], slideLayouts: SlideLayout
  * @returns XML
  */
 export function makeXmlRootRels (): string {
-	return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>${CRLF}<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-		<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties" Target="docProps/app.xml"/>
-		<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/>
-		<Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="ppt/presentation.xml"/>
-		</Relationships>`
+	const doc = create({ version: '1.0', encoding: 'UTF-8', standalone: 'yes' })
+		.ele('Relationships', { xmlns: NS_RELATIONSHIPS })
+			.ele('Relationship', {
+				Id: 'rId1',
+				Type: REL_TYPE_EXTENDED_PROPERTIES,
+				Target: 'docProps/app.xml',
+			}).up()
+			.ele('Relationship', {
+				Id: 'rId2',
+				Type: REL_TYPE_CORE_PROPERTIES,
+				Target: 'docProps/core.xml',
+			}).up()
+			.ele('Relationship', {
+				Id: 'rId3',
+				Type: REL_TYPE_OFFICE_DOCUMENT,
+				Target: 'ppt/presentation.xml',
+			}).up()
+		.up()
+
+	return doc.end({ prettyPrint: false })
 }
 
 /**
@@ -936,41 +389,49 @@ export function makeXmlRootRels (): string {
  * @returns XML
  */
 export function makeXmlApp (slides: PresSlide[], company: string): string {
-	return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>${CRLF}<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties" xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes">
-	<TotalTime>0</TotalTime>
-	<Words>0</Words>
-	<Application>Microsoft Office PowerPoint</Application>
-	<PresentationFormat>On-screen Show (16:9)</PresentationFormat>
-	<Paragraphs>0</Paragraphs>
-	<Slides>${slides.length}</Slides>
-	<Notes>${slides.length}</Notes>
-	<HiddenSlides>0</HiddenSlides>
-	<MMClips>0</MMClips>
-	<ScaleCrop>false</ScaleCrop>
-	<HeadingPairs>
-		<vt:vector size="6" baseType="variant">
-			<vt:variant><vt:lpstr>Fonts Used</vt:lpstr></vt:variant>
-			<vt:variant><vt:i4>2</vt:i4></vt:variant>
-			<vt:variant><vt:lpstr>Theme</vt:lpstr></vt:variant>
-			<vt:variant><vt:i4>1</vt:i4></vt:variant>
-			<vt:variant><vt:lpstr>Slide Titles</vt:lpstr></vt:variant>
-			<vt:variant><vt:i4>${slides.length}</vt:i4></vt:variant>
-		</vt:vector>
-	</HeadingPairs>
-	<TitlesOfParts>
-		<vt:vector size="${slides.length + 1 + 2}" baseType="lpstr">
-			<vt:lpstr>Arial</vt:lpstr>
-			<vt:lpstr>Calibri</vt:lpstr>
-			<vt:lpstr>Office Theme</vt:lpstr>
-			${slides.map((_slideObj, idx) => `<vt:lpstr>Slide ${idx + 1}</vt:lpstr>`).join('')}
-		</vt:vector>
-	</TitlesOfParts>
-	<Company>${company}</Company>
-	<LinksUpToDate>false</LinksUpToDate>
-	<SharedDoc>false</SharedDoc>
-	<HyperlinksChanged>false</HyperlinksChanged>
-	<AppVersion>16.0000</AppVersion>
-	</Properties>`
+	const doc = create({ version: '1.0', encoding: 'UTF-8', standalone: 'yes' })
+		.ele('Properties', { xmlns: NS_EXTENDED_PROPERTIES, 'xmlns:vt': NS_VT })
+
+	doc.ele('TotalTime').txt('0').up()
+	doc.ele('Words').txt('0').up()
+	doc.ele('Application').txt('Microsoft Office PowerPoint').up()
+	doc.ele('PresentationFormat').txt('On-screen Show (16:9)').up()
+	doc.ele('Paragraphs').txt('0').up()
+	doc.ele('Slides').txt(String(slides.length)).up()
+	doc.ele('Notes').txt(String(slides.length)).up()
+	doc.ele('HiddenSlides').txt('0').up()
+	doc.ele('MMClips').txt('0').up()
+	doc.ele('ScaleCrop').txt('false').up()
+
+	// HeadingPairs
+	const headingPairs = doc.ele('HeadingPairs')
+	const headingVector = headingPairs.ele('vt:vector', { size: '6', baseType: 'variant' })
+	headingVector.ele('vt:variant').ele('vt:lpstr').txt('Fonts Used').up().up()
+	headingVector.ele('vt:variant').ele('vt:i4').txt('2').up().up()
+	headingVector.ele('vt:variant').ele('vt:lpstr').txt('Theme').up().up()
+	headingVector.ele('vt:variant').ele('vt:i4').txt('1').up().up()
+	headingVector.ele('vt:variant').ele('vt:lpstr').txt('Slide Titles').up().up()
+	headingVector.ele('vt:variant').ele('vt:i4').txt(String(slides.length)).up().up()
+	headingPairs.up()
+
+	// TitlesOfParts
+	const titlesOfParts = doc.ele('TitlesOfParts')
+	const titlesVector = titlesOfParts.ele('vt:vector', { size: String(slides.length + 3), baseType: 'lpstr' })
+	titlesVector.ele('vt:lpstr').txt('Arial').up()
+	titlesVector.ele('vt:lpstr').txt('Calibri').up()
+	titlesVector.ele('vt:lpstr').txt('Office Theme').up()
+	slides.forEach((_slideObj, idx) => {
+		titlesVector.ele('vt:lpstr').txt(`Slide ${idx + 1}`).up()
+	})
+	titlesOfParts.up()
+
+	doc.ele('Company').txt(company).up()
+	doc.ele('LinksUpToDate').txt('false').up()
+	doc.ele('SharedDoc').txt('false').up()
+	doc.ele('HyperlinksChanged').txt('false').up()
+	doc.ele('AppVersion').txt('16.0000').up()
+
+	return doc.end({ prettyPrint: false })
 }
 
 /**
@@ -982,16 +443,26 @@ export function makeXmlApp (slides: PresSlide[], company: string): string {
  * @returns XML
  */
 export function makeXmlCore (title: string, subject: string, author: string, revision: string): string {
-	return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-	<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:dcmitype="http://purl.org/dc/dcmitype/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-		<dc:title>${encodeXmlEntities(title)}</dc:title>
-		<dc:subject>${encodeXmlEntities(subject)}</dc:subject>
-		<dc:creator>${encodeXmlEntities(author)}</dc:creator>
-		<cp:lastModifiedBy>${encodeXmlEntities(author)}</cp:lastModifiedBy>
-		<cp:revision>${revision}</cp:revision>
-		<dcterms:created xsi:type="dcterms:W3CDTF">${new Date().toISOString().replace(/\.\d\d\dZ/, 'Z')}</dcterms:created>
-		<dcterms:modified xsi:type="dcterms:W3CDTF">${new Date().toISOString().replace(/\.\d\d\dZ/, 'Z')}</dcterms:modified>
-	</cp:coreProperties>`
+	const isoTimestamp = new Date().toISOString().replace(/\.\d\d\dZ/, 'Z')
+
+	const doc = create({ version: '1.0', encoding: 'UTF-8', standalone: 'yes' })
+		.ele('cp:coreProperties', {
+			'xmlns:cp': NS_CP,
+			'xmlns:dc': NS_DC,
+			'xmlns:dcterms': NS_DCTERMS,
+			'xmlns:dcmitype': 'http://purl.org/dc/dcmitype/',
+			'xmlns:xsi': NS_XSI,
+		})
+
+	doc.ele('dc:title').txt(title).up()
+	doc.ele('dc:subject').txt(subject).up()
+	doc.ele('dc:creator').txt(author).up()
+	doc.ele('cp:lastModifiedBy').txt(author).up()
+	doc.ele('cp:revision').txt(revision).up()
+	doc.ele('dcterms:created', { 'xsi:type': 'dcterms:W3CDTF' }).txt(isoTimestamp).up()
+	doc.ele('dcterms:modified', { 'xsi:type': 'dcterms:W3CDTF' }).txt(isoTimestamp).up()
+
+	return doc.end({ prettyPrint: false })
 }
 
 /**
@@ -1000,23 +471,65 @@ export function makeXmlCore (title: string, subject: string, author: string, rev
  * @returns XML
  */
 export function makeXmlPresentationRels (slides: PresSlide[]): string {
-	let intRelNum = 1
-	let strXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' + CRLF
-	strXml += '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
-	strXml += '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideMaster" Target="slideMasters/slideMaster1.xml"/>'
-	for (let idx = 1; idx <= slides.length; idx++) {
-		strXml += `<Relationship Id="rId${++intRelNum}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slide" Target="slides/slide${idx}.xml"/>`
-	}
-	intRelNum++
-	strXml +=
-		`<Relationship Id="rId${intRelNum + 0}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/notesMaster" Target="notesMasters/notesMaster1.xml"/>` +
-		`<Relationship Id="rId${intRelNum + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/presProps" Target="presProps.xml"/>` +
-		`<Relationship Id="rId${intRelNum + 2}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/viewProps" Target="viewProps.xml"/>` +
-		`<Relationship Id="rId${intRelNum + 3}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme" Target="theme/theme1.xml"/>` +
-		`<Relationship Id="rId${intRelNum + 4}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/tableStyles" Target="tableStyles.xml"/>` +
-		'</Relationships>'
+	const doc = create({ version: '1.0', encoding: 'UTF-8', standalone: 'yes' })
+		.ele('Relationships', { xmlns: NS_RELATIONSHIPS })
 
-	return strXml
+	let relNum = 1
+
+	// Slide Master
+	doc.ele('Relationship', {
+		Id: `rId${relNum}`,
+		Type: REL_TYPE_SLIDE_MASTER,
+		Target: 'slideMasters/slideMaster1.xml',
+	}).up()
+
+	// Slides
+	for (let idx = 1; idx <= slides.length; idx++) {
+		relNum++
+		doc.ele('Relationship', {
+			Id: `rId${relNum}`,
+			Type: REL_TYPE_SLIDE,
+			Target: `slides/slide${idx}.xml`,
+		}).up()
+	}
+
+	relNum++
+	// Notes Master
+	doc.ele('Relationship', {
+		Id: `rId${relNum}`,
+		Type: REL_TYPE_NOTES_MASTER,
+		Target: 'notesMasters/notesMaster1.xml',
+	}).up()
+
+	// Presentation Properties
+	doc.ele('Relationship', {
+		Id: `rId${relNum + 1}`,
+		Type: REL_TYPE_PRES_PROPS,
+		Target: 'presProps.xml',
+	}).up()
+
+	// View Properties
+	doc.ele('Relationship', {
+		Id: `rId${relNum + 2}`,
+		Type: REL_TYPE_VIEW_PROPS,
+		Target: 'viewProps.xml',
+	}).up()
+
+	// Theme
+	doc.ele('Relationship', {
+		Id: `rId${relNum + 3}`,
+		Type: REL_TYPE_THEME,
+		Target: 'theme/theme1.xml',
+	}).up()
+
+	// Table Styles
+	doc.ele('Relationship', {
+		Id: `rId${relNum + 4}`,
+		Type: REL_TYPE_TABLE_STYLES,
+		Target: 'tableStyles.xml',
+	}).up()
+
+	return doc.end({ prettyPrint: false })
 }
 
 // XML-GEN: Functions that run 1-N times (once for each Slide)
@@ -1370,7 +883,7 @@ export function makeXmlSlide (slide: PresSlide): string {
 export function getNotesFromSlide (slide: PresSlide): string {
 	let notesText = ''
 
-	slide._slideObjects.forEach(data => {
+	;(slide._slideObjects || []).forEach(data => {
 		if (data._type === SLIDE_OBJECT_TYPES.notes) notesText += data?.text && data.text[0] ? data.text[0].text : ''
 	})
 
@@ -1501,11 +1014,21 @@ export function makeXmlSlideRel (slides: PresSlide[], slideLayouts: SlideLayout[
  * @return {string} XML
  */
 export function makeXmlNotesSlideRel (slideNumber: number): string {
-	return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-		<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-			<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/notesMaster" Target="../notesMasters/notesMaster1.xml"/>
-			<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slide" Target="../slides/slide${slideNumber}.xml"/>
-		</Relationships>`
+	const doc = create({ version: '1.0', encoding: 'UTF-8', standalone: 'yes' })
+		.ele('Relationships', { xmlns: NS_RELATIONSHIPS })
+			.ele('Relationship', {
+				Id: 'rId1',
+				Type: REL_TYPE_NOTES_MASTER,
+				Target: '../notesMasters/notesMaster1.xml',
+			}).up()
+			.ele('Relationship', {
+				Id: 'rId2',
+				Type: REL_TYPE_SLIDE,
+				Target: `../slides/slide${slideNumber}.xml`,
+			}).up()
+		.up()
+
+	return doc.end({ prettyPrint: false })
 }
 
 /**
@@ -1529,9 +1052,16 @@ export function makeXmlMasterRel (masterSlide: PresSlide, slideLayouts: SlideLay
  * @return {string} XML
  */
 export function makeXmlNotesMasterRel (): string {
-	return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>${CRLF}<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-		<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme" Target="../theme/theme1.xml"/>
-		</Relationships>`
+	const doc = create({ version: '1.0', encoding: 'UTF-8', standalone: 'yes' })
+		.ele('Relationships', { xmlns: NS_RELATIONSHIPS })
+			.ele('Relationship', {
+				Id: 'rId1',
+				Type: REL_TYPE_THEME,
+				Target: '../theme/theme1.xml',
+			}).up()
+		.up()
+
+	return doc.end({ prettyPrint: false })
 }
 
 /**
@@ -1543,7 +1073,7 @@ export function makeXmlNotesMasterRel (): string {
  */
 function getLayoutIdxForSlide (slides: PresSlide[], slideLayouts: SlideLayout[], slideNumber: number): number {
 	for (let i = 0; i < slideLayouts.length; i++) {
-		if (slideLayouts[i]._name === slides[slideNumber - 1]._slideLayout._name) {
+		if (slideLayouts[i]._name === slides[slideNumber - 1]?._slideLayout?._name) {
 			return i + 1
 		}
 	}
@@ -1573,57 +1103,96 @@ export function makeXmlTheme (pres: IPresentationProps): string {
  * @return {string} XML
  */
 export function makeXmlPresentation (pres: IPresentationProps): string {
-	let strXml =
-		`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>${CRLF}` +
-		'<p:presentation xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" ' +
-		`xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main" ${pres.rtlMode ? 'rtl="1"' : ''} saveSubsetFonts="1" autoCompressPictures="0">`
+	const rootAttrs: Record<string, string> = {
+		'xmlns:a': NS_A,
+		'xmlns:r': NS_R,
+		'xmlns:p': NS_P,
+		saveSubsetFonts: '1',
+		autoCompressPictures: '0',
+	}
+	if (pres.rtlMode) {
+		rootAttrs.rtl = '1'
+	}
+
+	const doc = create({ version: '1.0', encoding: 'UTF-8', standalone: 'yes' })
+		.ele('p:presentation', rootAttrs)
 
 	// STEP 1: Add slide master (SPEC: tag 1 under <presentation>)
-	strXml += '<p:sldMasterIdLst><p:sldMasterId id="2147483648" r:id="rId1"/></p:sldMasterIdLst>'
+	doc.ele('p:sldMasterIdLst')
+		.ele('p:sldMasterId', { id: '2147483648', 'r:id': 'rId1' }).up()
+		.up()
 
 	// STEP 2: Add all Slides (SPEC: tag 3 under <presentation>)
-	strXml += '<p:sldIdLst>'
-	pres.slides.forEach(slide => (strXml += `<p:sldId id="${slide._slideId}" r:id="rId${slide._rId}"/>`))
-	strXml += '</p:sldIdLst>'
+	const sldIdLst = doc.ele('p:sldIdLst')
+	pres.slides.forEach(slide => {
+		sldIdLst.ele('p:sldId', { id: String(slide._slideId), 'r:id': `rId${slide._rId}` }).up()
+	})
+	sldIdLst.up()
 
 	// STEP 3: Add Notes Master (SPEC: tag 2 under <presentation>)
 	// (NOTE: length+2 is from `presentation.xml.rels` func (since we have to match this rId, we just use same logic))
 	// IMPORTANT: In this order (matches PPT2019) PPT will give corruption message on open!
 	// IMPORTANT: Placing this before `<p:sldIdLst>` causes warning in modern powerpoint!
 	// IMPORTANT: Presentations open without warning Without this line, however, the pres isnt preview in Finder anymore or viewable in iOS!
-	strXml += `<p:notesMasterIdLst><p:notesMasterId r:id="rId${pres.slides.length + 2}"/></p:notesMasterIdLst>`
+	doc.ele('p:notesMasterIdLst')
+		.ele('p:notesMasterId', { 'r:id': `rId${pres.slides.length + 2}` }).up()
+		.up()
 
 	// STEP 4: Add sizes
-	strXml += `<p:sldSz cx="${pres.presLayout.width}" cy="${pres.presLayout.height}"/>`
-	strXml += `<p:notesSz cx="${pres.presLayout.height}" cy="${pres.presLayout.width}"/>`
+	doc.ele('p:sldSz', { cx: String(pres.presLayout.width), cy: String(pres.presLayout.height) }).up()
+	doc.ele('p:notesSz', { cx: String(pres.presLayout.height), cy: String(pres.presLayout.width) }).up()
 
 	// STEP 5: Add text styles
-	strXml += '<p:defaultTextStyle>'
+	const defaultTextStyle = doc.ele('p:defaultTextStyle')
 	for (let idy = 1; idy < 10; idy++) {
-		strXml +=
-			`<a:lvl${idy}pPr marL="${(idy - 1) * 457200}" algn="l" defTabSz="914400" rtl="0" eaLnBrk="1" latinLnBrk="0" hangingPunct="1">` +
-			'<a:defRPr sz="1800" kern="1200"><a:solidFill><a:schemeClr val="tx1"/></a:solidFill><a:latin typeface="+mn-lt"/><a:ea typeface="+mn-ea"/><a:cs typeface="+mn-cs"/>' +
-			`</a:defRPr></a:lvl${idy}pPr>`
+		const lvlPPr = defaultTextStyle.ele(`a:lvl${idy}pPr`, {
+			marL: String((idy - 1) * 457200),
+			algn: 'l',
+			defTabSz: '914400',
+			rtl: '0',
+			eaLnBrk: '1',
+			latinLnBrk: '0',
+			hangingPunct: '1',
+		})
+		const defRPr = lvlPPr.ele('a:defRPr', { sz: '1800', kern: '1200' })
+		defRPr.ele('a:solidFill').ele('a:schemeClr', { val: 'tx1' }).up().up()
+		defRPr.ele('a:latin', { typeface: '+mn-lt' }).up()
+		defRPr.ele('a:ea', { typeface: '+mn-ea' }).up()
+		defRPr.ele('a:cs', { typeface: '+mn-cs' }).up()
+		defRPr.up()
+		lvlPPr.up()
 	}
-	strXml += '</p:defaultTextStyle>'
+	defaultTextStyle.up()
 
 	// STEP 6: Add Sections (if any)
 	if (pres.sections && pres.sections.length > 0) {
-		strXml += '<p:extLst><p:ext uri="{521415D9-36F7-43E2-AB2F-B90AF26B5E84}">'
-		strXml += '<p14:sectionLst xmlns:p14="http://schemas.microsoft.com/office/powerpoint/2010/main">'
+		const extLst = doc.ele('p:extLst')
+		const ext1 = extLst.ele('p:ext', { uri: '{521415D9-36F7-43E2-AB2F-B90AF26B5E84}' })
+		const sectionLst = ext1.ele('p14:sectionLst', { 'xmlns:p14': NS_P14 })
+
 		pres.sections.forEach(sect => {
-			strXml += `<p14:section name="${encodeXmlEntities(sect.title)}" id="{${getUuid('xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx')}}"><p14:sldIdLst>`
-			sect._slides.forEach(slide => (strXml += `<p14:sldId id="${slide._slideId}"/>`))
-			strXml += '</p14:sldIdLst></p14:section>'
+			const section = sectionLst.ele('p14:section', {
+				name: sect.title,
+				id: `{${getUuid('xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx')}}`,
+			})
+			const sldIdLstSect = section.ele('p14:sldIdLst')
+			sect._slides.forEach(slide => {
+				sldIdLstSect.ele('p14:sldId', { id: String(slide._slideId) }).up()
+			})
+			sldIdLstSect.up()
+			section.up()
 		})
-		strXml += '</p14:sectionLst></p:ext>'
-		strXml += '<p:ext uri="{EFAFB233-063F-42B5-8137-9DF3F51BA10A}"><p15:sldGuideLst xmlns:p15="http://schemas.microsoft.com/office/powerpoint/2012/main"/></p:ext>'
-		strXml += '</p:extLst>'
+
+		sectionLst.up()
+		ext1.up()
+
+		extLst.ele('p:ext', { uri: '{EFAFB233-063F-42B5-8137-9DF3F51BA10A}' })
+			.ele('p15:sldGuideLst', { 'xmlns:p15': NS_P15 }).up()
+			.up()
+		extLst.up()
 	}
 
-	// Done
-	strXml += '</p:presentation>'
-	return strXml
+	return doc.end({ prettyPrint: false })
 }
 
 /**
@@ -1631,7 +1200,14 @@ export function makeXmlPresentation (pres: IPresentationProps): string {
  * @return {string} XML
  */
 export function makeXmlPresProps (): string {
-	return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>${CRLF}<p:presentationPr xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main"/>`
+	const doc = create({ version: '1.0', encoding: 'UTF-8', standalone: 'yes' })
+		.ele('p:presentationPr', {
+			'xmlns:a': NS_A,
+			'xmlns:r': NS_R,
+			'xmlns:p': NS_P,
+		})
+
+	return doc.end({ prettyPrint: false })
 }
 
 /**
@@ -1640,7 +1216,13 @@ export function makeXmlPresProps (): string {
  * @return {string} XML
  */
 export function makeXmlTableStyles (): string {
-	return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>${CRLF}<a:tblStyleLst xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" def="{5C22544A-7EE6-4342-B048-85BDC9FD1C3A}"/>`
+	const doc = create({ version: '1.0', encoding: 'UTF-8', standalone: 'yes' })
+		.ele('a:tblStyleLst', {
+			'xmlns:a': NS_A,
+			def: '{5C22544A-7EE6-4342-B048-85BDC9FD1C3A}',
+		})
+
+	return doc.end({ prettyPrint: false })
 }
 
 /**

@@ -2,7 +2,7 @@
  * PptxGenJS: Slide Class
  */
 
-import { ANIMATION_DIRECTIONS, ANIMATION_PRESETS, CHART_NAME, SHAPE_NAME } from './core-enums'
+import { ANIMATION_DIRECTIONS, ANIMATION_PRESETS, CHART_NAME, SHAPE_NAME, ShapeType } from './core-enums'
 import {
 	AddSlideProps,
 	AnimationProps,
@@ -32,6 +32,10 @@ import {
 	TransitionProps,
 } from './core-interfaces'
 import * as genObj from './gen-objects'
+import { calculateGridLayout } from './layout'
+import type { GridLayoutOptions, GapValue } from './layout'
+import { resolveCardConfig } from './components'
+import type { CardOptions } from './components'
 
 export default class Slide {
 	private readonly _setSlideNum: (value: SlideNumberProps) => void
@@ -320,5 +324,168 @@ export default class Slide {
 			_shapeIndex: this._slideObjects.length - 1,
 			_slideRef: this as unknown as PresSlide,
 		}
+	}
+
+	// ============================================================================
+	// COMPOSITIONAL API - High-level components and layouts
+	// ============================================================================
+
+	/**
+	 * Add a card component to the slide.
+	 * A card is a rounded rectangle with optional shadow, heading, and body text.
+	 *
+	 * @since v5.0.0
+	 * @param options - Card configuration
+	 * @returns ShapeRef to the card's background shape
+	 *
+	 * @example
+	 * slide.addCard({
+	 *   x: 0.5, y: 1.0, w: 4, h: 2,
+	 *   heading: '1. LEARNING',
+	 *   headingColor: 'C5A636',
+	 *   body: 'How machines acquire knowledge from data.',
+	 *   shadow: 'sm',
+	 * })
+	 */
+	addCard(options: CardOptions): ShapeRef {
+		const config = resolveCardConfig(options)
+
+		// Add background shape (rounded rectangle)
+		this.addShape(ShapeType.roundRect, {
+			x: config.x,
+			y: config.y,
+			w: config.w,
+			h: config.h,
+			fill: config.backgroundFill,
+			line: { color: config.borderColor, width: config.borderWidth },
+			rectRadius: config.borderRadius,
+			shadow: config.shadow,
+		})
+
+		// Store reference to the background shape
+		const backgroundShapeRef = this._createShapeRef()
+
+		// Add heading text if provided
+		if (config.heading) {
+			this.addText(config.heading, {
+				x: config.headingX,
+				y: config.headingY,
+				w: config.headingW,
+				h: config.headingFontSize / 72 * 1.5, // Approximate height
+				fontSize: config.headingFontSize,
+				fontFace: config.headingFontFace,
+				bold: config.headingBold,
+				color: config.headingColor,
+			})
+		}
+
+		// Add body text if provided
+		if (config.body) {
+			this.addText(config.body, {
+				x: config.bodyX,
+				y: config.bodyY,
+				w: config.bodyW,
+				h: config.bodyH,
+				fontSize: config.bodyFontSize,
+				fontFace: config.bodyFontFace,
+				color: config.bodyColor,
+				valign: 'top',
+			})
+		}
+
+		return backgroundShapeRef
+	}
+
+	/**
+	 * Options for grid layout children.
+	 * Each child can be a CardOptions (for cards) or a render function.
+	 */
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	addGrid<T extends Record<string, any>>(
+		options: {
+			/** X position of the grid */
+			x: number
+			/** Y position of the grid */
+			y: number
+			/** Number of columns */
+			cols: number
+			/** Number of rows (optional - calculated from children count) */
+			rows?: number
+			/** Gap between cells */
+			gap?: GapValue
+			/** Width of each cell */
+			cellWidth?: number
+			/** Height of each cell */
+			cellHeight?: number
+			/** Total width (alternative to cellWidth) */
+			w?: number
+			/** Total height (alternative to cellHeight) */
+			h?: number
+			/** Children to place in the grid */
+			children: T[]
+			/** Render function to create each child. Receives child data and computed bounds. */
+			render: (child: T, bounds: { x: number; y: number; w: number; h: number }, index: number) => void
+		}
+	): Slide {
+		const { children, render, ...layoutOptions } = options
+
+		// Calculate positions for all children
+		const positions = calculateGridLayout(
+			layoutOptions as GridLayoutOptions,
+			children.length
+		)
+
+		// Render each child at its computed position
+		for (let i = 0; i < children.length; i++) {
+			render(children[i], positions[i], i)
+		}
+
+		return this
+	}
+
+	/**
+	 * Convenience method to add a grid of cards.
+	 * Simpler than addGrid when all children are cards.
+	 *
+	 * @since v5.0.0
+	 * @example
+	 * slide.addCardGrid({
+	 *   x: 0.5, y: 1.0,
+	 *   cols: 2, gap: 0.3,
+	 *   cellWidth: 4, cellHeight: 1.5,
+	 *   cards: [
+	 *     { heading: '1. LEARNING', body: '...' },
+	 *     { heading: '2. REASONING', body: '...' },
+	 *   ]
+	 * })
+	 */
+	addCardGrid(options: {
+		x: number
+		y: number
+		cols: number
+		rows?: number
+		gap?: GapValue
+		cellWidth?: number
+		cellHeight?: number
+		w?: number
+		h?: number
+		/** Card options without position (x, y, w, h will be set by grid) */
+		cards: Array<Omit<CardOptions, 'x' | 'y' | 'w' | 'h'>>
+	}): Slide {
+		const { cards, ...gridOptions } = options
+
+		return this.addGrid({
+			...gridOptions,
+			children: cards,
+			render: (cardOptions, bounds) => {
+				this.addCard({
+					...cardOptions,
+					x: bounds.x,
+					y: bounds.y,
+					w: bounds.w,
+					h: bounds.h,
+				})
+			},
+		})
 	}
 }

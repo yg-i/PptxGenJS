@@ -16290,12 +16290,12 @@ var PptxGenJS = (() => {
           if (util_1.Guard.isDocumentNode(newParent) || util_1.Guard.isDocumentTypeNode(newParent) || util_1.Guard.isDocumentFragmentNode(newParent)) {
             throw new DOMException_1.InvalidNodeTypeError();
           }
-          const fragment2 = (0, algorithm_1.range_extract)(this);
+          const fragment3 = (0, algorithm_1.range_extract)(this);
           if (newParent._children.size !== 0) {
             (0, algorithm_1.mutation_replaceAll)(null, newParent);
           }
           (0, algorithm_1.range_insert)(newParent, this);
-          (0, algorithm_1.mutation_append)(fragment2, newParent);
+          (0, algorithm_1.mutation_append)(fragment3, newParent);
           (0, algorithm_1.range_select)(newParent, this);
         }
         /** @inheritdoc */
@@ -20578,9 +20578,9 @@ var PptxGenJS = (() => {
         range._end = [parent, index + 1];
       }
       function range_extract(range) {
-        const fragment2 = (0, CreateAlgorithm_1.create_documentFragment)(range._startNode._nodeDocument);
+        const fragment3 = (0, CreateAlgorithm_1.create_documentFragment)(range._startNode._nodeDocument);
         if (range_collapsed(range))
-          return fragment2;
+          return fragment3;
         const originalStartNode = range._startNode;
         const originalStartOffset = range._startOffset;
         const originalEndNode = range._endNode;
@@ -20588,9 +20588,9 @@ var PptxGenJS = (() => {
         if (originalStartNode === originalEndNode && util_1.Guard.isCharacterDataNode(originalStartNode)) {
           const clone = (0, NodeAlgorithm_1.node_clone)(originalStartNode);
           clone._data = (0, CharacterDataAlgorithm_1.characterData_substringData)(originalStartNode, originalStartOffset, originalEndOffset - originalStartOffset);
-          (0, MutationAlgorithm_1.mutation_append)(clone, fragment2);
+          (0, MutationAlgorithm_1.mutation_append)(clone, fragment3);
           (0, CharacterDataAlgorithm_1.characterData_replaceData)(originalStartNode, originalStartOffset, originalEndOffset - originalStartOffset, "");
-          return fragment2;
+          return fragment3;
         }
         let commonAncestor = originalStartNode;
         while (!(0, TreeAlgorithm_1.tree_isAncestorOf)(originalEndNode, commonAncestor, true)) {
@@ -20647,38 +20647,38 @@ var PptxGenJS = (() => {
         if (util_1.Guard.isCharacterDataNode(firstPartiallyContainedChild)) {
           const clone = (0, NodeAlgorithm_1.node_clone)(originalStartNode);
           clone._data = (0, CharacterDataAlgorithm_1.characterData_substringData)(originalStartNode, originalStartOffset, (0, TreeAlgorithm_1.tree_nodeLength)(originalStartNode) - originalStartOffset);
-          (0, MutationAlgorithm_1.mutation_append)(clone, fragment2);
+          (0, MutationAlgorithm_1.mutation_append)(clone, fragment3);
           (0, CharacterDataAlgorithm_1.characterData_replaceData)(originalStartNode, originalStartOffset, (0, TreeAlgorithm_1.tree_nodeLength)(originalStartNode) - originalStartOffset, "");
         } else if (firstPartiallyContainedChild !== null) {
           const clone = (0, NodeAlgorithm_1.node_clone)(firstPartiallyContainedChild);
-          (0, MutationAlgorithm_1.mutation_append)(clone, fragment2);
+          (0, MutationAlgorithm_1.mutation_append)(clone, fragment3);
           const subrange = (0, CreateAlgorithm_1.create_range)([originalStartNode, originalStartOffset], [firstPartiallyContainedChild, (0, TreeAlgorithm_1.tree_nodeLength)(firstPartiallyContainedChild)]);
           const subfragment = range_extract(subrange);
           (0, MutationAlgorithm_1.mutation_append)(subfragment, clone);
         }
         for (const child of containedChildren) {
-          (0, MutationAlgorithm_1.mutation_append)(child, fragment2);
+          (0, MutationAlgorithm_1.mutation_append)(child, fragment3);
         }
         if (util_1.Guard.isCharacterDataNode(lastPartiallyContainedChild)) {
           const clone = (0, NodeAlgorithm_1.node_clone)(originalEndNode);
           clone._data = (0, CharacterDataAlgorithm_1.characterData_substringData)(originalEndNode, 0, originalEndOffset);
-          (0, MutationAlgorithm_1.mutation_append)(clone, fragment2);
+          (0, MutationAlgorithm_1.mutation_append)(clone, fragment3);
           (0, CharacterDataAlgorithm_1.characterData_replaceData)(originalEndNode, 0, originalEndOffset, "");
         } else if (lastPartiallyContainedChild !== null) {
           const clone = (0, NodeAlgorithm_1.node_clone)(lastPartiallyContainedChild);
-          (0, MutationAlgorithm_1.mutation_append)(clone, fragment2);
+          (0, MutationAlgorithm_1.mutation_append)(clone, fragment3);
           const subrange = (0, CreateAlgorithm_1.create_range)([lastPartiallyContainedChild, 0], [originalEndNode, originalEndOffset]);
           const subfragment = range_extract(subrange);
           (0, MutationAlgorithm_1.mutation_append)(subfragment, clone);
         }
         range._start = [newNode, newOffset];
         range._end = [newNode, newOffset];
-        return fragment2;
+        return fragment3;
       }
       function range_cloneTheContents(range) {
-        const fragment2 = (0, CreateAlgorithm_1.create_documentFragment)(range._startNode._nodeDocument);
+        const fragment3 = (0, CreateAlgorithm_1.create_documentFragment)(range._startNode._nodeDocument);
         if (range_collapsed(range))
-          return fragment2;
+          return fragment3;
         const originalStartNode = range._startNode;
         const originalStartOffset = range._startOffset;
         const originalEndNode = range._endNode;
@@ -20686,7 +20686,7 @@ var PptxGenJS = (() => {
         if (originalStartNode === originalEndNode && util_1.Guard.isCharacterDataNode(originalStartNode)) {
           const clone = (0, NodeAlgorithm_1.node_clone)(originalStartNode);
           clone._data = (0, CharacterDataAlgorithm_1.characterData_substringData)(originalStartNode, originalStartOffset, originalEndOffset - originalStartOffset);
-          (0, MutationAlgorithm_1.mutation_append)(clone, fragment2);
+          (0, MutationAlgorithm_1.mutation_append)(clone, fragment3);
         }
         let commonAncestor = originalStartNode;
         while (!(0, TreeAlgorithm_1.tree_isAncestorOf)(originalEndNode, commonAncestor, true)) {
@@ -20727,30 +20727,30 @@ var PptxGenJS = (() => {
         if (util_1.Guard.isCharacterDataNode(firstPartiallyContainedChild)) {
           const clone = (0, NodeAlgorithm_1.node_clone)(originalStartNode);
           clone._data = (0, CharacterDataAlgorithm_1.characterData_substringData)(originalStartNode, originalStartOffset, (0, TreeAlgorithm_1.tree_nodeLength)(originalStartNode) - originalStartOffset);
-          (0, MutationAlgorithm_1.mutation_append)(clone, fragment2);
+          (0, MutationAlgorithm_1.mutation_append)(clone, fragment3);
         } else if (firstPartiallyContainedChild !== null) {
           const clone = (0, NodeAlgorithm_1.node_clone)(firstPartiallyContainedChild);
-          (0, MutationAlgorithm_1.mutation_append)(clone, fragment2);
+          (0, MutationAlgorithm_1.mutation_append)(clone, fragment3);
           const subrange = (0, CreateAlgorithm_1.create_range)([originalStartNode, originalStartOffset], [firstPartiallyContainedChild, (0, TreeAlgorithm_1.tree_nodeLength)(firstPartiallyContainedChild)]);
           const subfragment = range_cloneTheContents(subrange);
           (0, MutationAlgorithm_1.mutation_append)(subfragment, clone);
         }
         for (const child of containedChildren) {
           const clone = (0, NodeAlgorithm_1.node_clone)(child);
-          (0, MutationAlgorithm_1.mutation_append)(clone, fragment2);
+          (0, MutationAlgorithm_1.mutation_append)(clone, fragment3);
         }
         if (util_1.Guard.isCharacterDataNode(lastPartiallyContainedChild)) {
           const clone = (0, NodeAlgorithm_1.node_clone)(originalEndNode);
           clone._data = (0, CharacterDataAlgorithm_1.characterData_substringData)(originalEndNode, 0, originalEndOffset);
-          (0, MutationAlgorithm_1.mutation_append)(clone, fragment2);
+          (0, MutationAlgorithm_1.mutation_append)(clone, fragment3);
         } else if (lastPartiallyContainedChild !== null) {
           const clone = (0, NodeAlgorithm_1.node_clone)(lastPartiallyContainedChild);
-          fragment2.append(clone);
+          fragment3.append(clone);
           const subrange = (0, CreateAlgorithm_1.create_range)([lastPartiallyContainedChild, 0], [originalEndNode, originalEndOffset]);
           const subfragment = range_extract(subrange);
           (0, MutationAlgorithm_1.mutation_append)(subfragment, clone);
         }
-        return fragment2;
+        return fragment3;
       }
       function range_insert(node, range) {
         if (util_1.Guard.isProcessingInstructionNode(range._startNode) || util_1.Guard.isCommentNode(range._startNode) || util_1.Guard.isTextNode(range._startNode) && range._startNode._parent === null || range._startNode === node) {
@@ -28509,7 +28509,7 @@ var PptxGenJS = (() => {
       Object.defineProperty(exports, "__esModule", { value: true });
       exports.builder = builder;
       exports.create = create2;
-      exports.fragment = fragment2;
+      exports.fragment = fragment3;
       exports.convert = convert;
       var interfaces_1 = require_interfaces();
       var util_1 = require_lib4();
@@ -28547,7 +28547,7 @@ var PptxGenJS = (() => {
         }
         return builder2;
       }
-      function fragment2(p1, p2) {
+      function fragment3(p1, p2) {
         const options = formatBuilderOptions(p1 === void 0 || isXMLBuilderCreateOptions(p1) ? p1 : interfaces_1.DefaultBuilderOptions);
         const contents = isXMLBuilderCreateOptions(p1) ? p2 : p1;
         const doc = (0, dom_1.createDocument)();
@@ -29068,7 +29068,7 @@ var PptxGenJS = (() => {
          *
          * @returns XML stream
          */
-        constructor(options, fragment2 = false) {
+        constructor(options, fragment3 = false) {
           super();
           __publicField(this, "_options");
           __publicField(this, "_builderOptions");
@@ -29083,7 +29083,7 @@ var PptxGenJS = (() => {
           __publicField(this, "_prefixMap");
           __publicField(this, "_prefixIndex");
           __publicField(this, "_ended", false);
-          this._fragment = fragment2;
+          this._fragment = fragment3;
           this._options = (0, util_1.applyDefaults)(options || {}, interfaces_1.DefaultXMLBuilderCBOptions);
           this._builderOptions = {
             defaultNamespace: this._options.defaultNamespace,
@@ -33659,7 +33659,7 @@ ${String(ex)}`);
   }
 
   // src/gen-xml.ts
-  var import_xmlbuilder2 = __toESM(require_lib7(), 1);
+  var import_xmlbuilder22 = __toESM(require_lib7(), 1);
 
   // src/xml-namespaces.ts
   var NS_A = "http://schemas.openxmlformats.org/drawingml/2006/main";
@@ -33977,7 +33977,8 @@ ${String(ex)}`);
 		/>`;
   }
 
-  // src/gen-xml.ts
+  // src/gen-xml-slide-objects.ts
+  var import_xmlbuilder2 = __toESM(require_lib7(), 1);
   function computeShadowXmlValues(shadow) {
     if (!shadow || shadow.type === "none") {
       return void 0;
@@ -34514,8 +34515,10 @@ ${String(ex)}`);
     strSlideXml += "</p:cSld>";
     return strSlideXml;
   }
+
+  // src/gen-xml.ts
   function slideObjectRelationsToXml(slide, defaultRels) {
-    const doc = (0, import_xmlbuilder2.create)({ version: "1.0", encoding: "UTF-8", standalone: "yes" }).ele("Relationships", { xmlns: NS_RELATIONSHIPS });
+    const doc = (0, import_xmlbuilder22.create)({ version: "1.0", encoding: "UTF-8", standalone: "yes" }).ele("Relationships", { xmlns: NS_RELATIONSHIPS });
     let lastRid = 0;
     const seenTargets = /* @__PURE__ */ new Set();
     slide._rels.forEach((rel) => {
@@ -34617,7 +34620,7 @@ ${String(ex)}`);
     return doc.end({ prettyPrint: false });
   }
   function makeXmlContTypes(slides, slideLayouts, masterSlide) {
-    const doc = (0, import_xmlbuilder2.create)({ version: "1.0", encoding: "UTF-8", standalone: "yes" }).ele("Types", { xmlns: NS_CONTENT_TYPES });
+    const doc = (0, import_xmlbuilder22.create)({ version: "1.0", encoding: "UTF-8", standalone: "yes" }).ele("Types", { xmlns: NS_CONTENT_TYPES });
     const addedContentTypes = /* @__PURE__ */ new Set();
     doc.ele("Default", { Extension: "xml", ContentType: "application/xml" }).up();
     doc.ele("Default", { Extension: "rels", ContentType: "application/vnd.openxmlformats-package.relationships+xml" }).up();
@@ -34721,7 +34724,7 @@ ${String(ex)}`);
     return doc.end({ prettyPrint: false });
   }
   function makeXmlRootRels() {
-    const doc = (0, import_xmlbuilder2.create)({ version: "1.0", encoding: "UTF-8", standalone: "yes" }).ele("Relationships", { xmlns: NS_RELATIONSHIPS }).ele("Relationship", {
+    const doc = (0, import_xmlbuilder22.create)({ version: "1.0", encoding: "UTF-8", standalone: "yes" }).ele("Relationships", { xmlns: NS_RELATIONSHIPS }).ele("Relationship", {
       Id: "rId1",
       Type: REL_TYPE_EXTENDED_PROPERTIES,
       Target: "docProps/app.xml"
@@ -34737,7 +34740,7 @@ ${String(ex)}`);
     return doc.end({ prettyPrint: false });
   }
   function makeXmlApp(slides, company) {
-    const doc = (0, import_xmlbuilder2.create)({ version: "1.0", encoding: "UTF-8", standalone: "yes" }).ele("Properties", { xmlns: NS_EXTENDED_PROPERTIES, "xmlns:vt": NS_VT });
+    const doc = (0, import_xmlbuilder22.create)({ version: "1.0", encoding: "UTF-8", standalone: "yes" }).ele("Properties", { xmlns: NS_EXTENDED_PROPERTIES, "xmlns:vt": NS_VT });
     doc.ele("TotalTime").txt("0").up();
     doc.ele("Words").txt("0").up();
     doc.ele("Application").txt("Microsoft Office PowerPoint").up();
@@ -34775,7 +34778,7 @@ ${String(ex)}`);
   }
   function makeXmlCore(title, subject, author, revision) {
     const isoTimestamp = (/* @__PURE__ */ new Date()).toISOString().replace(/\.\d\d\dZ/, "Z");
-    const doc = (0, import_xmlbuilder2.create)({ version: "1.0", encoding: "UTF-8", standalone: "yes" }).ele("cp:coreProperties", {
+    const doc = (0, import_xmlbuilder22.create)({ version: "1.0", encoding: "UTF-8", standalone: "yes" }).ele("cp:coreProperties", {
       "xmlns:cp": NS_CP,
       "xmlns:dc": NS_DC,
       "xmlns:dcterms": NS_DCTERMS,
@@ -34792,7 +34795,7 @@ ${String(ex)}`);
     return doc.end({ prettyPrint: false });
   }
   function makeXmlPresentationRels(slides) {
-    const doc = (0, import_xmlbuilder2.create)({ version: "1.0", encoding: "UTF-8", standalone: "yes" }).ele("Relationships", { xmlns: NS_RELATIONSHIPS });
+    const doc = (0, import_xmlbuilder22.create)({ version: "1.0", encoding: "UTF-8", standalone: "yes" }).ele("Relationships", { xmlns: NS_RELATIONSHIPS });
     let relNum = 1;
     doc.ele("Relationship", {
       Id: `rId${relNum}`,
@@ -35062,7 +35065,7 @@ ${String(ex)}`);
   }
   function getNotesFromSlide(slide) {
     let notesText = "";
-    slide._slideObjects.forEach((data) => {
+    (slide._slideObjects || []).forEach((data) => {
       if (data._type === "notes" /* notes */) notesText += (data == null ? void 0 : data.text) && data.text[0] ? data.text[0].text : "";
     });
     return notesText.replace(/\r*\n/g, CRLF);
@@ -35112,7 +35115,7 @@ ${String(ex)}`);
     ]);
   }
   function makeXmlNotesSlideRel(slideNumber) {
-    const doc = (0, import_xmlbuilder2.create)({ version: "1.0", encoding: "UTF-8", standalone: "yes" }).ele("Relationships", { xmlns: NS_RELATIONSHIPS }).ele("Relationship", {
+    const doc = (0, import_xmlbuilder22.create)({ version: "1.0", encoding: "UTF-8", standalone: "yes" }).ele("Relationships", { xmlns: NS_RELATIONSHIPS }).ele("Relationship", {
       Id: "rId1",
       Type: REL_TYPE_NOTES_MASTER,
       Target: "../notesMasters/notesMaster1.xml"
@@ -35132,7 +35135,7 @@ ${String(ex)}`);
     return slideObjectRelationsToXml(masterSlide, defaultRels);
   }
   function makeXmlNotesMasterRel() {
-    const doc = (0, import_xmlbuilder2.create)({ version: "1.0", encoding: "UTF-8", standalone: "yes" }).ele("Relationships", { xmlns: NS_RELATIONSHIPS }).ele("Relationship", {
+    const doc = (0, import_xmlbuilder22.create)({ version: "1.0", encoding: "UTF-8", standalone: "yes" }).ele("Relationships", { xmlns: NS_RELATIONSHIPS }).ele("Relationship", {
       Id: "rId1",
       Type: REL_TYPE_THEME,
       Target: "../theme/theme1.xml"
@@ -35140,8 +35143,9 @@ ${String(ex)}`);
     return doc.end({ prettyPrint: false });
   }
   function getLayoutIdxForSlide(slides, slideLayouts, slideNumber) {
+    var _a, _b;
     for (let i = 0; i < slideLayouts.length; i++) {
-      if (slideLayouts[i]._name === slides[slideNumber - 1]._slideLayout._name) {
+      if (slideLayouts[i]._name === ((_b = (_a = slides[slideNumber - 1]) == null ? void 0 : _a._slideLayout) == null ? void 0 : _b._name)) {
         return i + 1;
       }
     }
@@ -35164,7 +35168,7 @@ ${String(ex)}`);
     if (pres.rtlMode) {
       rootAttrs.rtl = "1";
     }
-    const doc = (0, import_xmlbuilder2.create)({ version: "1.0", encoding: "UTF-8", standalone: "yes" }).ele("p:presentation", rootAttrs);
+    const doc = (0, import_xmlbuilder22.create)({ version: "1.0", encoding: "UTF-8", standalone: "yes" }).ele("p:presentation", rootAttrs);
     doc.ele("p:sldMasterIdLst").ele("p:sldMasterId", { id: "2147483648", "r:id": "rId1" }).up().up();
     const sldIdLst = doc.ele("p:sldIdLst");
     pres.slides.forEach((slide) => {
@@ -35218,7 +35222,7 @@ ${String(ex)}`);
     return doc.end({ prettyPrint: false });
   }
   function makeXmlPresProps() {
-    const doc = (0, import_xmlbuilder2.create)({ version: "1.0", encoding: "UTF-8", standalone: "yes" }).ele("p:presentationPr", {
+    const doc = (0, import_xmlbuilder22.create)({ version: "1.0", encoding: "UTF-8", standalone: "yes" }).ele("p:presentationPr", {
       "xmlns:a": NS_A,
       "xmlns:r": NS_R,
       "xmlns:p": NS_P
@@ -35226,7 +35230,7 @@ ${String(ex)}`);
     return doc.end({ prettyPrint: false });
   }
   function makeXmlTableStyles() {
-    const doc = (0, import_xmlbuilder2.create)({ version: "1.0", encoding: "UTF-8", standalone: "yes" }).ele("a:tblStyleLst", {
+    const doc = (0, import_xmlbuilder22.create)({ version: "1.0", encoding: "UTF-8", standalone: "yes" }).ele("a:tblStyleLst", {
       "xmlns:a": NS_A,
       def: "{5C22544A-7EE6-4342-B048-85BDC9FD1C3A}"
     });
