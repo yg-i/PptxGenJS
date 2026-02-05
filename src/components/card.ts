@@ -8,7 +8,7 @@
  * - Consistent padding and styling
  */
 
-import type { ShadowProps, ShapeFillProps, HexColor } from '../core-interfaces'
+import type { ShadowProps, ShapeFillProps, HexColor, TextProps } from '../core-interfaces'
 import type { ShadowPresetName, ShadowWithPreset } from '../styles'
 import { resolveShadowPreset, normalizeFillValue } from '../styles'
 
@@ -18,6 +18,18 @@ import { resolveShadowPreset, normalizeFillValue } from '../styles'
 export type BorderValue = false | 'none' | {
 	color?: HexColor
 	width?: number
+}
+
+/**
+ * Accent line configuration for cards.
+ */
+export interface AccentLineOptions {
+	/** Color of the accent line */
+	color: HexColor
+	/** Position of the accent line (default: 'top') */
+	position?: 'top' | 'bottom' | 'left' | 'right'
+	/** Thickness of the accent line in inches (default: 0.05) */
+	thickness?: number
 }
 
 /**
@@ -93,6 +105,15 @@ export interface CardOptions {
 	/** Shadow preset, preset with overrides, or full config */
 	shadow?: ShadowPresetName | ShadowWithPreset | ShadowProps
 
+	// Accent line
+	/**
+	 * Accent line (colored bar) on one edge of the card.
+	 * Can be a color string (defaults to top position) or full config.
+	 * @example accentLine: '1ABC9C' // teal line at top
+	 * @example accentLine: { color: '1ABC9C', position: 'left', thickness: 0.08 }
+	 */
+	accentLine?: HexColor | AccentLineOptions
+
 	// Padding
 	/** Padding inside the card */
 	padding?: PaddingValue
@@ -131,8 +152,8 @@ export interface CardOptions {
 	headingLineHeight?: number
 
 	// Content - Body (description text)
-	/** Body text */
-	body?: string
+	/** Body text - can be a string or rich text (TextProps[]) */
+	body?: string | TextProps[]
 	/** Body color */
 	bodyColor?: HexColor
 	/** Body font size */
@@ -203,6 +224,16 @@ export interface ResolvedCardConfig {
 	hasBorder: boolean
 	shadow: ShadowProps | undefined
 
+	// Accent line
+	/** Whether accent line is enabled */
+	hasAccentLine: boolean
+	/** Accent line color */
+	accentLineColor: HexColor | undefined
+	/** Accent line position */
+	accentLinePosition: 'top' | 'bottom' | 'left' | 'right'
+	/** Accent line thickness in inches */
+	accentLineThickness: number
+
 	// Padding
 	padding: { top: number; right: number; bottom: number; left: number }
 
@@ -232,7 +263,7 @@ export interface ResolvedCardConfig {
 	headingH: number
 
 	// Body
-	body: string | undefined
+	body: string | TextProps[] | undefined
 	bodyColor: HexColor
 	bodyFontSize: number
 	bodyFontFace: string
@@ -241,6 +272,30 @@ export interface ResolvedCardConfig {
 	bodyY: number
 	bodyW: number
 	bodyH: number
+}
+
+/**
+ * Normalize accent line value.
+ */
+function normalizeAccentLine(
+	accentLine: HexColor | AccentLineOptions | undefined
+): { enabled: boolean; color: HexColor | undefined; position: 'top' | 'bottom' | 'left' | 'right'; thickness: number } {
+	if (!accentLine) {
+		return { enabled: false, color: undefined, position: 'top', thickness: 0.05 }
+	}
+
+	if (typeof accentLine === 'string') {
+		// Just a color string - default to top position
+		return { enabled: true, color: accentLine, position: 'top', thickness: 0.05 }
+	}
+
+	// Full config object
+	return {
+		enabled: true,
+		color: accentLine.color,
+		position: accentLine.position ?? 'top',
+		thickness: accentLine.thickness ?? 0.05,
+	}
 }
 
 /**
@@ -343,6 +398,9 @@ export function resolveCardConfig(options: CardOptions): ResolvedCardConfig {
 	// Resolve border
 	const border = normalizeBorderValue(options.border, options.borderColor, options.borderWidth)
 
+	// Resolve accent line
+	const accentLine = normalizeAccentLine(options.accentLine)
+
 	return {
 		x: options.x,
 		y: options.y,
@@ -355,6 +413,12 @@ export function resolveCardConfig(options: CardOptions): ResolvedCardConfig {
 		borderWidth: border.width,
 		hasBorder: border.enabled,
 		shadow: resolveShadowPreset(options.shadow ?? CARD_DEFAULTS.shadow),
+
+		// Accent line
+		hasAccentLine: accentLine.enabled,
+		accentLineColor: accentLine.color,
+		accentLinePosition: accentLine.position,
+		accentLineThickness: accentLine.thickness,
 
 		padding,
 		align,

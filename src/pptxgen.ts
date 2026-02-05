@@ -847,7 +847,7 @@ export type { ShadowPresetName, ShadowWithPreset } from './styles'
  * Card component types.
  * @since v5.0.0
  */
-export type { CardOptions, BorderValue, PaddingValue, CardAlign } from './components'
+export type { CardOptions, BorderValue, PaddingValue, CardAlign, AccentLineOptions } from './components'
 
 /**
  * Slide method options.

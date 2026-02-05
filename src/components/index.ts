@@ -16,4 +16,5 @@ export type {
 	PaddingValue,
 	BorderValue,
 	CardAlign,
+	AccentLineOptions,
 } from './Card'

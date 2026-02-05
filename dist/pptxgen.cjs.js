@@ -2207,6 +2207,21 @@ var CARD_DEFAULTS = {
   highlightColor: "E3F2FD"
   // Light blue for highlighted cards
 };
+function normalizeAccentLine(accentLine) {
+  var _a, _b;
+  if (!accentLine) {
+    return { enabled: false, color: void 0, position: "top", thickness: 0.05 };
+  }
+  if (typeof accentLine === "string") {
+    return { enabled: true, color: accentLine, position: "top", thickness: 0.05 };
+  }
+  return {
+    enabled: true,
+    color: accentLine.color,
+    position: (_a = accentLine.position) != null ? _a : "top",
+    thickness: (_b = accentLine.thickness) != null ? _b : 0.05
+  };
+}
 function normalizeBorderValue(border, legacyColor, legacyWidth) {
   var _a, _b;
   if (border === false || border === "none") {
@@ -2263,6 +2278,7 @@ function resolveCardConfig(options) {
   const bodyY = currentY;
   const bodyH = Math.max(0, contentH - (currentY - contentY));
   const border = normalizeBorderValue(options.border, options.borderColor, options.borderWidth);
+  const accentLine = normalizeAccentLine(options.accentLine);
   return {
     x: options.x,
     y: options.y,
@@ -2274,6 +2290,11 @@ function resolveCardConfig(options) {
     borderWidth: border.width,
     hasBorder: border.enabled,
     shadow: resolveShadowPreset((_i = options.shadow) != null ? _i : CARD_DEFAULTS.shadow),
+    // Accent line
+    hasAccentLine: accentLine.enabled,
+    accentLineColor: accentLine.color,
+    accentLinePosition: accentLine.position,
+    accentLineThickness: accentLine.thickness,
     padding,
     align,
     // Title
@@ -2789,6 +2810,36 @@ var Slide = class {
         italic: config.bodyItalic,
         align: config.align,
         valign: "top"
+      });
+    }
+    if (config.hasAccentLine && config.accentLineColor) {
+      let lineX = config.x;
+      let lineY = config.y;
+      let lineW = config.w;
+      let lineH = config.accentLineThickness;
+      switch (config.accentLinePosition) {
+        case "top":
+          break;
+        case "bottom":
+          lineY = config.y + config.h - config.accentLineThickness;
+          break;
+        case "left":
+          lineW = config.accentLineThickness;
+          lineH = config.h;
+          break;
+        case "right":
+          lineX = config.x + config.w - config.accentLineThickness;
+          lineW = config.accentLineThickness;
+          lineH = config.h;
+          break;
+      }
+      this.addShape("rect" /* rect */, {
+        x: lineX,
+        y: lineY,
+        w: lineW,
+        h: lineH,
+        fill: { color: config.accentLineColor },
+        line: { color: config.accentLineColor, width: 0 }
       });
     }
     return backgroundShapeRef;

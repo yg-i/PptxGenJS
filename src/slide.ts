@@ -792,6 +792,41 @@ export default class Slide {
 			})
 		}
 
+		// Add accent line if provided
+		if (config.hasAccentLine && config.accentLineColor) {
+			let lineX = config.x
+			let lineY = config.y
+			let lineW = config.w
+			let lineH = config.accentLineThickness
+
+			switch (config.accentLinePosition) {
+				case 'top':
+					// Line at top (default)
+					break
+				case 'bottom':
+					lineY = config.y + config.h - config.accentLineThickness
+					break
+				case 'left':
+					lineW = config.accentLineThickness
+					lineH = config.h
+					break
+				case 'right':
+					lineX = config.x + config.w - config.accentLineThickness
+					lineW = config.accentLineThickness
+					lineH = config.h
+					break
+			}
+
+			this.addShape(ShapeType.rect, {
+				x: lineX,
+				y: lineY,
+				w: lineW,
+				h: lineH,
+				fill: { color: config.accentLineColor },
+				line: { color: config.accentLineColor, width: 0 },
+			})
+		}
+
 		return backgroundShapeRef
 	}
 
