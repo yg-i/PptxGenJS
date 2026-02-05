@@ -34,28 +34,31 @@ JSZip → .pptx file
 
 ```
 src/
-├── pptxgen.ts          # Main class, presentation-level API
-├── slide.ts            # Slide class - addText, addShape, addCard, etc.
-├── core-interfaces.ts  # All TypeScript types (LARGE)
-├── core-enums.ts       # Constants, ShapeType, ChartType (LARGE)
+├── pptxgen.ts              # Main class, presentation-level API
+├── slide.ts                # Slide class - addText, addShape, addCard, etc.
+├── core-interfaces.ts      # All TypeScript types (LARGE)
+├── core-enums.ts           # Constants, ShapeType, ChartType (LARGE)
 │
-├── gen-objects.ts      # Convert API options → internal slide objects
-├── gen-xml.ts          # Generate slide/shape XML (uses xmlbuilder2)
-├── gen-xml-text.ts     # Generate text body XML
-├── gen-charts.ts       # Generate chart XML + Excel data
-├── gen-tables.ts       # Generate table XML, auto-paging
-├── gen-media.ts        # Handle images, encode base64
-├── gen-utils.ts        # Utility functions (inch2Emu, valToPts, etc.)
+├── gen-objects.ts          # Convert API options → internal slide objects
+├── gen-xml.ts              # Main XML generation (uses xmlbuilder2)
+├── gen-xml-slide-objects.ts # slideObjectToXml (legacy, @ts-nocheck)
+├── gen-xml-text.ts         # Generate text body XML
+├── gen-charts.ts           # Generate chart XML + Excel data
+├── gen-tables.ts           # Generate table XML, auto-paging
+├── gen-media.ts            # Handle images, encode base64
+├── gen-utils.ts            # Utility functions (inch2Emu, valToPts, etc.)
 │
-├── xml-namespaces.ts   # OOXML namespace constants
-├── xml-builder.ts      # Legacy fluent XML builder (being phased out)
+├── xml/                    # XML utilities
+│   ├── namespaces.ts       # OOXML namespace constants (NS_A, NS_P, etc.)
+│   ├── builder.ts          # Fluent XML builder utility
+│   └── index.ts            # Re-exports
 │
-├── styles/             # Shadow presets ('sm', 'md', 'lg')
-├── layout/             # Grid, Stack layout calculations
-└── components/         # High-level components (Card, etc.)
+├── styles/                 # Shadow presets ('sm', 'md', 'lg')
+├── layout/                 # Grid, Stack layout calculations
+└── components/             # High-level components (Card, etc.)
 
-lab/                    # Experiment scripts
-tests/                  # Unit tests (Node.js test runner)
+lab/                        # Experiment scripts
+tests/                      # Unit tests (Node.js test runner)
 ```
 
 ## Quick Start
@@ -88,11 +91,12 @@ await pptx.writeFile({ fileName: 'out.pptx' })
 
 ## XML Generation
 
-Uses **xmlbuilder2** for structured XML generation. Key functions in `gen-xml.ts`:
-- `makeXmlPresentation`, `makeXmlSlide`, `makeXmlContTypes` - use xmlbuilder2
-- `slideObjectToXml`, `makeXmlTransition` - still use template literals (complex conditionals)
+Uses **xmlbuilder2** for structured XML generation:
+- `gen-xml.ts` - Main XML functions using xmlbuilder2 (fully typed, no TS errors)
+- `gen-xml-slide-objects.ts` - Legacy `slideObjectToXml` with `@ts-nocheck` (template literals)
 
-Namespace constants in `src/xml-namespaces.ts` (e.g., `NS_A`, `NS_P`, `REL_TYPE_SLIDE`).
+Namespace constants in `src/xml/namespaces.ts` (e.g., `NS_A`, `NS_P`, `REL_TYPE_SLIDE`).
+Import via: `import { NS_A, NS_P } from './xml'`
 
 ## Development
 
@@ -105,9 +109,8 @@ pnpm test         # Run tests
 
 ## Known Issues
 
-1. **`tests/deprecation-warnings.test.ts`** - Fails due to removed `DEPRECATED_PROPERTY_MAP`. Needs removal.
-2. **`gen-utils.ts:correctShadowOptions()`** - Still mutates input.
-3. **Theme system** - Not yet implemented (plan in `API-REDESIGN-PLAN.md`).
+1. **`gen-utils.ts:correctShadowOptions()`** - Still mutates input.
+2. **Theme system** - Not yet implemented (plan in `API-REDESIGN-PLAN.md`).
 
 ## Output
 
