@@ -67,7 +67,7 @@ import {
 	REL_TYPE_VIDEO,
 	REL_TYPE_CHART,
 	REL_TYPE_MEDIA,
-} from './xml-namespaces'
+} from './xml'
 
 // Re-export text functions from gen-xml-text module
 export {

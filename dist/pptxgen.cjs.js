@@ -697,9 +697,9 @@ function getUuid(uuidFormat) {
     return v.toString(16);
   });
 }
-function encodeXmlEntities(xml) {
-  if (typeof xml === "undefined" || xml == null) return "";
-  return xml.toString().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;");
+function encodeXmlEntities(xml2) {
+  if (typeof xml2 === "undefined" || xml2 == null) return "";
+  return xml2.toString().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;");
 }
 function inch2Emu(inches) {
   if (typeof inches === "number" && inches > 100) return inches;
@@ -3997,7 +3997,7 @@ function createSvgPngPreview(rel) {
 // src/gen-xml.ts
 var import_xmlbuilder22 = require("xmlbuilder2");
 
-// src/xml-namespaces.ts
+// src/xml/namespaces.ts
 var NS_A = "http://schemas.openxmlformats.org/drawingml/2006/main";
 var NS_P = "http://schemas.openxmlformats.org/presentationml/2006/main";
 var NS_R = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
@@ -5343,7 +5343,7 @@ function makeAnimationNode(anim, shapeId, startId, animIndex) {
 			</p:cBhvr>
 		</p:animEffect>`.replace(/\t/g, "").replace(/\n\s*/g, "");
   }
-  const xml = `<p:par>
+  const xml2 = `<p:par>
 		<p:cTn id="${outerId}" fill="hold">
 			<p:stCondLst><p:cond delay="${triggerDelay}"/></p:stCondLst>
 			<p:childTnLst>
@@ -5363,7 +5363,7 @@ function makeAnimationNode(anim, shapeId, startId, animIndex) {
 			</p:childTnLst>
 		</p:cTn>
 	</p:par>`.replace(/\t/g, "").replace(/\n\s*/g, "");
-  return { xml, nextId: id };
+  return { xml: xml2, nextId: id };
 }
 function getAnimationFilter(anim) {
   switch (anim.presetId) {

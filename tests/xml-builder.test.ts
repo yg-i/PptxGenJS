@@ -4,7 +4,7 @@
 import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
 
-import { XmlBuilder, xml, OoxmlElements } from '../src/xml-builder'
+import { XmlBuilder, xml, OoxmlElements } from '../src/xml'
 
 describe('XmlBuilder', () => {
 	describe('basic tag operations', () => {
