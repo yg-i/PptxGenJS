@@ -8,10 +8,12 @@ export {
 	resolveCardConfig,
 	normalizePaddingValue,
 	CARD_DEFAULTS,
-} from './card'
+} from './Card'
 
 export type {
 	CardOptions,
 	ResolvedCardConfig,
 	PaddingValue,
-} from './card'
+	BorderValue,
+	CardAlign,
+} from './Card'

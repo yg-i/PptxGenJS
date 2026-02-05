@@ -728,12 +728,41 @@ function genXmlColorSelection(props) {
       case "solid":
         outText += `<a:solidFill>${createColorElement(colorVal, internalElements)}</a:solidFill>`;
         break;
+      case "gradient":
+        if (typeof props === "object" && "gradient" in props && props.gradient) {
+          outText += generateGradientFillXml(props.gradient);
+        }
+        break;
       default:
         outText += "";
         break;
     }
   }
   return outText;
+}
+function generateGradientFillXml(gradient) {
+  var _a, _b;
+  const gradientType = (_a = gradient.type) != null ? _a : "linear";
+  const angle = (_b = gradient.angle) != null ? _b : 90;
+  const ooxmlAngle = angle * 6e4;
+  let xml2 = "<a:gradFill>";
+  xml2 += "<a:gsLst>";
+  for (const stop of gradient.stops) {
+    const position = Math.round(stop.position * 1e3);
+    let stopInnerElements = "";
+    if (stop.transparency) {
+      stopInnerElements = `<a:alpha val="${Math.round((100 - stop.transparency) * 1e3)}"/>`;
+    }
+    xml2 += `<a:gs pos="${position}">${createColorElement(stop.color, stopInnerElements)}</a:gs>`;
+  }
+  xml2 += "</a:gsLst>";
+  if (gradientType === "linear") {
+    xml2 += `<a:lin ang="${ooxmlAngle}" scaled="1"/>`;
+  } else if (gradientType === "radial") {
+    xml2 += '<a:path path="circle"><a:fillToRect l="50000" t="50000" r="50000" b="50000"/></a:path>';
+  }
+  xml2 += "</a:gradFill>";
+  return xml2;
 }
 function getNewRelId(target) {
   return target._rels.length + target._relsChart.length + target._relsMedia.length + 1;
@@ -2002,6 +2031,25 @@ function calculateGridLayout(options, childrenCount) {
 // src/styles/shadow-presets.ts
 var SHADOW_PRESETS = {
   none: void 0,
+  /** Extra small - very subtle, barely visible */
+  xs: {
+    type: "outer",
+    blur: 2,
+    offset: 0.5,
+    angle: 90,
+    color: "000000",
+    opacity: 0.05
+  },
+  /** Subtle - gentle shadow for light interfaces */
+  subtle: {
+    type: "outer",
+    blur: 3,
+    offset: 1,
+    angle: 90,
+    color: "000000",
+    opacity: 0.08
+  },
+  /** Small - light shadow */
   sm: {
     type: "outer",
     blur: 3,
@@ -2010,6 +2058,7 @@ var SHADOW_PRESETS = {
     color: "000000",
     opacity: 0.1
   },
+  /** Medium - default shadow */
   md: {
     type: "outer",
     blur: 6,
@@ -2018,6 +2067,7 @@ var SHADOW_PRESETS = {
     color: "000000",
     opacity: 0.15
   },
+  /** Large - prominent shadow */
   lg: {
     type: "outer",
     blur: 10,
@@ -2026,6 +2076,7 @@ var SHADOW_PRESETS = {
     color: "000000",
     opacity: 0.2
   },
+  /** Extra large - dramatic shadow */
   xl: {
     type: "outer",
     blur: 15,
@@ -2035,6 +2086,9 @@ var SHADOW_PRESETS = {
     opacity: 0.25
   }
 };
+function isShadowWithPreset(value) {
+  return typeof value === "object" && value !== null && "preset" in value;
+}
 function resolveShadowPreset(shadowValue) {
   if (shadowValue === void 0 || shadowValue === "none") {
     return void 0;
@@ -2045,7 +2099,16 @@ function resolveShadowPreset(shadowValue) {
       console.warn(`PptxGenJS: Unknown shadow preset '${shadowValue}', using 'md'`);
       return SHADOW_PRESETS.md;
     }
-    return preset;
+    return __spreadValues({}, preset);
+  }
+  if (isShadowWithPreset(shadowValue)) {
+    const _a = shadowValue, { preset } = _a, overrides = __objRest(_a, ["preset"]);
+    const basePreset = SHADOW_PRESETS[preset];
+    if (!basePreset) {
+      console.warn(`PptxGenJS: Unknown shadow preset '${preset}', using 'md'`);
+      return __spreadValues(__spreadValues({}, SHADOW_PRESETS.md), overrides);
+    }
+    return __spreadValues(__spreadValues({}, basePreset), overrides);
   }
   return shadowValue;
 }
@@ -2059,7 +2122,7 @@ function normalizeFillValue(fill) {
   return fill;
 }
 
-// src/components/card.ts
+// src/components/Card.ts
 function normalizePaddingValue(padding) {
   var _a, _b, _c, _d;
   const defaultPadding = 0.2;
@@ -2083,55 +2146,215 @@ var CARD_DEFAULTS = {
   borderWidth: 1,
   shadow: "sm",
   padding: 0.2,
+  align: "left",
+  // Title defaults
+  titleColor: "555555",
+  titleFontSize: 14,
+  titleFontFace: "Arial",
+  titleLineHeight: 1.4,
+  // Heading defaults
   headingColor: "333333",
   headingFontSize: 16,
   headingFontFace: "Arial",
   headingBold: true,
+  headingLineHeight: 1.5,
+  // Body defaults
   bodyColor: "555555",
   bodyFontSize: 13,
   bodyFontFace: "Arial",
-  contentGap: 0.15
+  bodyItalic: false,
+  contentGap: 0.15,
+  highlightColor: "E3F2FD"
+  // Light blue for highlighted cards
 };
+function normalizeBorderValue(border, legacyColor, legacyWidth) {
+  var _a, _b;
+  if (border === false || border === "none") {
+    return { color: void 0, width: 0, enabled: false };
+  }
+  if (typeof border === "object") {
+    return {
+      color: (_a = border.color) != null ? _a : CARD_DEFAULTS.borderColor,
+      width: (_b = border.width) != null ? _b : CARD_DEFAULTS.borderWidth,
+      enabled: true
+    };
+  }
+  return {
+    color: legacyColor != null ? legacyColor : CARD_DEFAULTS.borderColor,
+    width: legacyWidth != null ? legacyWidth : CARD_DEFAULTS.borderWidth,
+    enabled: true
+  };
+}
+function resolveBackgroundColor(background, highlight) {
+  var _a;
+  if (typeof highlight === "string") {
+    return { color: highlight };
+  }
+  if (highlight === true) {
+    return { color: CARD_DEFAULTS.highlightColor };
+  }
+  return (_a = normalizeFillValue(background != null ? background : CARD_DEFAULTS.background)) != null ? _a : { color: CARD_DEFAULTS.background };
+}
 function resolveCardConfig(options) {
-  var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o;
+  var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q;
   const padding = normalizePaddingValue((_a = options.padding) != null ? _a : CARD_DEFAULTS.padding);
-  const headingFontSize = (_b = options.headingFontSize) != null ? _b : CARD_DEFAULTS.headingFontSize;
+  const align = (_b = options.align) != null ? _b : CARD_DEFAULTS.align;
   const contentGap = (_c = options.contentGap) != null ? _c : CARD_DEFAULTS.contentGap;
-  const headingHeight = options.heading ? headingFontSize / 72 * 1.5 : 0;
+  const titleFontSize = (_d = options.titleFontSize) != null ? _d : CARD_DEFAULTS.titleFontSize;
+  const headingFontSize = (_e = options.headingFontSize) != null ? _e : CARD_DEFAULTS.headingFontSize;
+  const bodyFontSize = (_f = options.bodyFontSize) != null ? _f : CARD_DEFAULTS.bodyFontSize;
+  const titleLineHeight = CARD_DEFAULTS.titleLineHeight;
+  const headingLineHeight = (_g = options.headingLineHeight) != null ? _g : CARD_DEFAULTS.headingLineHeight;
+  const titleHeight = options.title ? titleFontSize / 72 * titleLineHeight : 0;
+  const headingHeight = options.heading ? headingFontSize / 72 * headingLineHeight : 0;
   const contentX = options.x + padding.left;
   const contentY = options.y + padding.top;
   const contentW = options.w - padding.left - padding.right;
   const contentH = options.h - padding.top - padding.bottom;
-  const bodyY = contentY + headingHeight + (options.heading ? contentGap : 0);
-  const bodyH = contentH - headingHeight - (options.heading ? contentGap : 0);
+  let currentY = contentY;
+  const titleY = currentY;
+  if (options.title) {
+    currentY += titleHeight + contentGap;
+  }
+  const headingY = currentY;
+  if (options.heading) {
+    currentY += headingHeight + contentGap;
+  }
+  const bodyY = currentY;
+  const bodyH = Math.max(0, contentH - (currentY - contentY));
+  const border = normalizeBorderValue(options.border, options.borderColor, options.borderWidth);
   return {
     x: options.x,
     y: options.y,
     w: options.w,
     h: options.h,
-    backgroundFill: (_e = normalizeFillValue((_d = options.background) != null ? _d : CARD_DEFAULTS.background)) != null ? _e : { color: CARD_DEFAULTS.background },
-    borderRadius: (_f = options.borderRadius) != null ? _f : CARD_DEFAULTS.borderRadius,
-    borderColor: (_g = options.borderColor) != null ? _g : CARD_DEFAULTS.borderColor,
-    borderWidth: (_h = options.borderWidth) != null ? _h : CARD_DEFAULTS.borderWidth,
+    backgroundFill: resolveBackgroundColor(options.background, options.highlight),
+    borderRadius: (_h = options.borderRadius) != null ? _h : CARD_DEFAULTS.borderRadius,
+    borderColor: border.color,
+    borderWidth: border.width,
+    hasBorder: border.enabled,
     shadow: resolveShadowPreset((_i = options.shadow) != null ? _i : CARD_DEFAULTS.shadow),
     padding,
+    align,
+    // Title
+    title: options.title,
+    titleColor: (_j = options.titleColor) != null ? _j : CARD_DEFAULTS.titleColor,
+    titleFontSize,
+    titleFontFace: (_k = options.titleFontFace) != null ? _k : CARD_DEFAULTS.titleFontFace,
+    titleX: contentX,
+    titleY,
+    titleW: contentW,
+    titleH: titleHeight,
+    // Heading
     heading: options.heading,
-    headingColor: (_j = options.headingColor) != null ? _j : CARD_DEFAULTS.headingColor,
+    headingColor: (_l = options.headingColor) != null ? _l : CARD_DEFAULTS.headingColor,
     headingFontSize,
-    headingFontFace: (_k = options.headingFontFace) != null ? _k : CARD_DEFAULTS.headingFontFace,
-    headingBold: (_l = options.headingBold) != null ? _l : CARD_DEFAULTS.headingBold,
+    headingFontFace: (_m = options.headingFontFace) != null ? _m : CARD_DEFAULTS.headingFontFace,
+    headingBold: (_n = options.headingBold) != null ? _n : CARD_DEFAULTS.headingBold,
+    headingLineHeight,
     headingX: contentX,
-    headingY: contentY,
+    headingY,
     headingW: contentW,
+    headingH: headingHeight,
+    // Body
     body: options.body,
-    bodyColor: (_m = options.bodyColor) != null ? _m : CARD_DEFAULTS.bodyColor,
-    bodyFontSize: (_n = options.bodyFontSize) != null ? _n : CARD_DEFAULTS.bodyFontSize,
-    bodyFontFace: (_o = options.bodyFontFace) != null ? _o : CARD_DEFAULTS.bodyFontFace,
+    bodyColor: (_o = options.bodyColor) != null ? _o : CARD_DEFAULTS.bodyColor,
+    bodyFontSize,
+    bodyFontFace: (_p = options.bodyFontFace) != null ? _p : CARD_DEFAULTS.bodyFontFace,
+    bodyItalic: (_q = options.bodyItalic) != null ? _q : CARD_DEFAULTS.bodyItalic,
     bodyX: contentX,
     bodyY,
     bodyW: contentW,
     bodyH
   };
+}
+
+// src/utils/color.ts
+function parseHexColorToRgb(hex) {
+  let cleanHex = hex.replace(/^#/, "");
+  if (cleanHex.length === 3) {
+    cleanHex = cleanHex[0] + cleanHex[0] + cleanHex[1] + cleanHex[1] + cleanHex[2] + cleanHex[2];
+  }
+  const r = parseInt(cleanHex.substring(0, 2), 16);
+  const g = parseInt(cleanHex.substring(2, 4), 16);
+  const b = parseInt(cleanHex.substring(4, 6), 16);
+  return { r, g, b };
+}
+function rgbToHexColor(r, g, b) {
+  const toHex = (n) => Math.round(Math.max(0, Math.min(255, n))).toString(16).padStart(2, "0");
+  return (toHex(r) + toHex(g) + toHex(b)).toUpperCase();
+}
+function interpolateColor(colorFrom, colorTo, ratio) {
+  const from = parseHexColorToRgb(colorFrom);
+  const to = parseHexColorToRgb(colorTo);
+  const r = from.r + (to.r - from.r) * ratio;
+  const g = from.g + (to.g - from.g) * ratio;
+  const b = from.b + (to.b - from.b) * ratio;
+  return rgbToHexColor(r, g, b);
+}
+function interpolateColors(colorFrom, colorTo, steps) {
+  if (steps < 2) {
+    return [colorFrom];
+  }
+  const colors = [];
+  for (let i = 0; i < steps; i++) {
+    const ratio = i / (steps - 1);
+    colors.push(interpolateColor(colorFrom, colorTo, ratio));
+  }
+  return colors;
+}
+function lightenColor(color, amount) {
+  return interpolateColor(color, "FFFFFF", amount);
+}
+function darkenColor(color, amount) {
+  return interpolateColor(color, "000000", amount);
+}
+
+// src/rich-text.ts
+function textStyle(options) {
+  return (text) => ({
+    __styledText: true,
+    text,
+    style: options
+  });
+}
+function isStyledTextFragment(value) {
+  return typeof value === "object" && value !== null && "__styledText" in value && value.__styledText === true;
+}
+function convertRichTextToTextProps(strings, values, defaultOptions = {}) {
+  const result = [];
+  const _a = defaultOptions, { x, y, w, h } = _a, styleOptions = __objRest(_a, ["x", "y", "w", "h"]);
+  const defaultStyle = {};
+  for (const [key, value] of Object.entries(styleOptions)) {
+    if (value !== void 0) {
+      defaultStyle[key] = value;
+    }
+  }
+  const hasDefaultStyle = Object.keys(defaultStyle).length > 0;
+  for (let i = 0; i < strings.length; i++) {
+    const str = strings[i];
+    if (str) {
+      result.push({
+        text: str,
+        options: hasDefaultStyle ? __spreadValues({}, defaultStyle) : void 0
+      });
+    }
+    if (i < values.length) {
+      const value = values[i];
+      if (isStyledTextFragment(value)) {
+        result.push({
+          text: value.text,
+          options: __spreadValues(__spreadValues({}, defaultStyle), value.style)
+        });
+      } else if (typeof value === "string" && value) {
+        result.push({
+          text: value,
+          options: hasDefaultStyle ? __spreadValues({}, defaultStyle) : void 0
+        });
+      }
+    }
+  }
+  return result;
 }
 
 // src/slide.ts
@@ -2280,6 +2503,20 @@ var Slide = class {
     addTextDefinition(this, textParam, options || {}, false);
     return this._createShapeRef();
   }
+  addRichText(optionsOrStrings, ...values) {
+    if (Array.isArray(optionsOrStrings) && "raw" in optionsOrStrings) {
+      const strings = optionsOrStrings;
+      const textProps = convertRichTextToTextProps(strings, values, {});
+      addTextDefinition(this, textProps, {}, false);
+      return this._createShapeRef();
+    }
+    const options = optionsOrStrings;
+    return (strings, ...templateValues) => {
+      const textProps = convertRichTextToTextProps(strings, templateValues, options);
+      addTextDefinition(this, textProps, options, false);
+      return this._createShapeRef();
+    };
+  }
   /**
    * Add animation to a shape on this slide
    * @since v4.1.0
@@ -2341,6 +2578,103 @@ var Slide = class {
   // COMPOSITIONAL API - High-level components and layouts
   // ============================================================================
   /**
+   * Add a title to the slide with sensible defaults.
+   * Convenience method that wraps addText with common title styling.
+   *
+   * @since v5.0.0
+   * @param text - Title text
+   * @param options - Optional title configuration
+   * @returns ShapeRef to the title text
+   *
+   * @example
+   * slide.addTitle('My Presentation')
+   *
+   * @example // With custom color
+   * slide.addTitle('My Presentation', { color: '2A9D8F' })
+   *
+   * @example // With gradient
+   * slide.addTitle('Gradient Title', { gradient: { from: '1E88E5', to: '26A69A' } })
+   */
+  addTitle(text, options) {
+    const titleDefaults = {
+      x: 0.5,
+      y: 0.4,
+      w: 9,
+      h: 0.7,
+      fontSize: 32,
+      fontFace: "Arial",
+      bold: true
+    };
+    const config = __spreadValues(__spreadValues({}, titleDefaults), options);
+    if (config.gradient) {
+      return this.addGradientText(text, {
+        x: config.x,
+        y: config.y,
+        w: config.w,
+        h: config.h,
+        fontSize: config.fontSize,
+        fontFace: config.fontFace,
+        bold: config.bold,
+        gradientFrom: config.gradient.from,
+        gradientTo: config.gradient.to,
+        gradientMode: "word"
+      });
+    }
+    return this.addText(text, {
+      x: config.x,
+      y: config.y,
+      w: config.w,
+      h: config.h,
+      fontSize: config.fontSize,
+      fontFace: config.fontFace,
+      bold: config.bold,
+      color: config.color
+    });
+  }
+  /**
+   * Add text with a gradient color effect.
+   * Creates a visual gradient by splitting the text into segments with interpolated colors.
+   *
+   * @since v5.0.0
+   * @param text - Text to display
+   * @param options - Gradient and text options
+   * @returns ShapeRef to the text
+   *
+   * @example
+   * slide.addGradientText('Hello World', {
+   *   x: 1, y: 1, w: 6, h: 0.5,
+   *   gradientFrom: '1E88E5',
+   *   gradientTo: '26A69A',
+   *   fontSize: 24,
+   *   bold: true,
+   * })
+   */
+  addGradientText(text, options) {
+    const _a = options, { gradientFrom, gradientTo, gradientMode = "word" } = _a, textOptions = __objRest(_a, ["gradientFrom", "gradientTo", "gradientMode"]);
+    const segments = gradientMode === "character" ? text.split("") : text.split(/(\s+)/);
+    const nonEmptySegments = segments.filter((s) => s.length > 0);
+    const colors = interpolateColors(gradientFrom, gradientTo, nonEmptySegments.length);
+    const textProps = nonEmptySegments.map((segment, index) => ({
+      text: segment,
+      options: {
+        color: colors[index],
+        fontSize: textOptions.fontSize,
+        fontFace: textOptions.fontFace,
+        bold: textOptions.bold,
+        italic: textOptions.italic,
+        underline: textOptions.underline
+      }
+    }));
+    return this.addText(textProps, {
+      x: textOptions.x,
+      y: textOptions.y,
+      w: textOptions.w,
+      h: textOptions.h,
+      valign: textOptions.valign,
+      align: textOptions.align
+    });
+  }
+  /**
    * Add a card component to the slide.
    * A card is a rounded rectangle with optional shadow, heading, and body text.
    *
@@ -2356,6 +2690,13 @@ var Slide = class {
    *   body: 'How machines acquire knowledge from data.',
    *   shadow: 'sm',
    * })
+   *
+   * @example // Card without border
+   * slide.addCard({ ..., border: false })
+   *
+   * @example // Highlighted card
+   * slide.addCard({ ..., highlight: true })
+   * slide.addCard({ ..., highlight: 'E3F2FD' }) // Custom highlight color
    */
   addCard(options) {
     const config = resolveCardConfig(options);
@@ -2365,22 +2706,35 @@ var Slide = class {
       w: config.w,
       h: config.h,
       fill: config.backgroundFill,
-      line: { color: config.borderColor, width: config.borderWidth },
+      line: config.hasBorder ? { color: config.borderColor, width: config.borderWidth } : { color: "FFFFFF", width: 0 },
+      // No visible border
       rectRadius: config.borderRadius,
       shadow: config.shadow
     });
     const backgroundShapeRef = this._createShapeRef();
+    if (config.title) {
+      this.addText(config.title, {
+        x: config.titleX,
+        y: config.titleY,
+        w: config.titleW,
+        h: config.titleH,
+        fontSize: config.titleFontSize,
+        fontFace: config.titleFontFace,
+        color: config.titleColor,
+        align: config.align
+      });
+    }
     if (config.heading) {
       this.addText(config.heading, {
         x: config.headingX,
         y: config.headingY,
         w: config.headingW,
-        h: config.headingFontSize / 72 * 1.5,
-        // Approximate height
+        h: config.headingH,
         fontSize: config.headingFontSize,
         fontFace: config.headingFontFace,
         bold: config.headingBold,
-        color: config.headingColor
+        color: config.headingColor,
+        align: config.align
       });
     }
     if (config.body) {
@@ -2392,10 +2746,252 @@ var Slide = class {
         fontSize: config.bodyFontSize,
         fontFace: config.bodyFontFace,
         color: config.bodyColor,
+        italic: config.bodyItalic,
+        align: config.align,
         valign: "top"
       });
     }
     return backgroundShapeRef;
+  }
+  /**
+   * Add a circular badge with text inside (e.g., numbered circle).
+   *
+   * @since v5.0.0
+   * @param options - Badge configuration
+   * @returns ShapeRef to the badge
+   *
+   * @example
+   * slide.addBadge({
+   *   x: 1, y: 1, size: 0.3,
+   *   text: '1',
+   *   color: '29B6F6',
+   * })
+   */
+  addBadge(options) {
+    const {
+      x,
+      y,
+      size,
+      text,
+      color,
+      textColor = "FFFFFF",
+      fontSize = Math.round(size * 72 * 0.5),
+      // Auto-size based on badge size
+      fontFace = "Arial",
+      bold = true
+    } = options;
+    this.addShape("ellipse" /* ellipse */, {
+      x,
+      y,
+      w: size,
+      h: size,
+      fill: { color },
+      line: { color, width: 0 }
+    });
+    const shapeRef = this._createShapeRef();
+    this.addText(text, {
+      x,
+      y,
+      w: size,
+      h: size,
+      fontSize,
+      fontFace,
+      color: textColor,
+      bold,
+      align: "center",
+      valign: "middle"
+    });
+    return shapeRef;
+  }
+  /**
+   * Add a bullet list with optional colored badges.
+   *
+   * @since v5.0.0
+   * @param options - Bullet list configuration
+   * @returns This slide for chaining
+   *
+   * @example
+   * slide.addBulletList({
+   *   x: 0.7, y: 2.1, w: 4,
+   *   items: [
+   *     { badge: { text: '1', color: '29B6F6' }, text: 'First item' },
+   *     { badge: { text: '2', color: 'EF5350' }, text: 'Second item' },
+   *     { badge: { text: '3', color: '66BB6A' }, text: 'Third item' },
+   *   ],
+   * })
+   */
+  addBulletList(options) {
+    var _a;
+    const {
+      x,
+      y,
+      w,
+      items,
+      itemHeight = 0.5,
+      showBullets = true,
+      bulletChar = "\u2022",
+      color = "555555",
+      fontSize = 16,
+      fontFace = "Arial",
+      badgeSize = 0.3,
+      bulletBadgeGap = 0.1,
+      badgeTextGap = 0.15
+    } = options;
+    const bulletX = x;
+    const bulletW = showBullets ? 0.25 : 0;
+    const badgeX = bulletX + bulletW + bulletBadgeGap;
+    const textX = badgeX + badgeSize + badgeTextGap;
+    const textW = w - (textX - x);
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      const itemY = y + i * itemHeight;
+      if (showBullets) {
+        this.addText(bulletChar, {
+          x: bulletX,
+          y: itemY,
+          w: bulletW,
+          h: itemHeight,
+          fontSize,
+          color,
+          fontFace,
+          valign: "middle"
+        });
+      }
+      if (item.badge) {
+        const badgeY = itemY + (itemHeight - badgeSize) / 2;
+        this.addBadge({
+          x: badgeX,
+          y: badgeY,
+          size: badgeSize,
+          text: item.badge.text,
+          color: item.badge.color,
+          textColor: item.badge.textColor,
+          fontSize: Math.round(badgeSize * 72 * 0.45)
+        });
+      }
+      this.addText(item.text, {
+        x: textX,
+        y: itemY,
+        w: textW,
+        h: itemHeight,
+        fontSize,
+        fontFace,
+        color: (_a = item.color) != null ? _a : color,
+        bold: item.bold,
+        valign: "middle"
+      });
+    }
+    return this;
+  }
+  /**
+   * Add a two-column layout with render functions for each column.
+   *
+   * @since v5.0.0
+   * @param options - Two-column layout configuration
+   * @returns This slide for chaining
+   *
+   * @example
+   * slide.addTwoColumn({
+   *   x: 0.5, y: 1, w: 9, h: 4,
+   *   gap: 0.5,
+   *   left: { ratio: 0.45 },
+   *   renderLeft: (bounds) => {
+   *     slide.addText('Left content', { ...bounds })
+   *   },
+   *   renderRight: (bounds) => {
+   *     slide.addCard({ ...bounds, heading: 'Right card' })
+   *   },
+   * })
+   */
+  addTwoColumn(options) {
+    const {
+      x,
+      y,
+      w,
+      h,
+      gap = 0.5,
+      left = {},
+      right = {},
+      renderLeft,
+      renderRight
+    } = options;
+    const availableWidth = w - gap;
+    let leftWidth;
+    if (left.w !== void 0) {
+      leftWidth = left.w;
+    } else if (left.ratio !== void 0) {
+      leftWidth = availableWidth * left.ratio;
+    } else if (right.w !== void 0) {
+      leftWidth = availableWidth - right.w;
+    } else if (right.ratio !== void 0) {
+      leftWidth = availableWidth * (1 - right.ratio);
+    } else {
+      leftWidth = availableWidth / 2;
+    }
+    const rightWidth = availableWidth - leftWidth;
+    const leftBounds = { x, y, w: leftWidth, h };
+    const rightBounds = { x: x + leftWidth + gap, y, w: rightWidth, h };
+    renderLeft(leftBounds);
+    renderRight(rightBounds);
+    return this;
+  }
+  /**
+   * Add vertically stacked elements with automatic Y positioning.
+   *
+   * @since v5.0.0
+   * @param options - Stack configuration (position, width, gap)
+   * @param builder - Callback function that receives a builder for adding items
+   * @returns This slide for chaining
+   *
+   * @example
+   * ```typescript
+   * const keyword = textStyle({ bold: true, color: '5DADE2' })
+   *
+   * slide.addStack({ x: 0.65, y: 1.0, w: 9, gap: 0.25 }, (add) => {
+   *   add.text('The Title', { h: 0.7, fontSize: 40, bold: true, color: 'FFFFFF' })
+   *   add.space(0.1) // extra spacing
+   *   add.richText({ h: 0.8, fontSize: 22, color: 'FFFFFF' })`First paragraph with ${keyword('emphasis')}.`
+   *   add.richText({ h: 0.8, fontSize: 22, color: '9EAAB8' })`Second paragraph.`
+   * })
+   * ```
+   */
+  addStack(options, builder) {
+    const { x, y, w, gap = 0.2, defaults = {} } = options;
+    let currentY = y;
+    const stackBuilder = {
+      get currentY() {
+        return currentY;
+      },
+      text: (text, itemOptions) => {
+        const _a = itemOptions, { h } = _a, textOptions = __objRest(_a, ["h"]);
+        const mergedOptions = __spreadProps(__spreadValues(__spreadValues({}, defaults), textOptions), { x, y: currentY, w, h });
+        const ref = this.addText(text, mergedOptions);
+        currentY += h + gap;
+        return ref;
+      },
+      richText: (itemOptions) => {
+        const _a = itemOptions, { h } = _a, textOptions = __objRest(_a, ["h"]);
+        return (strings, ...values) => {
+          const mergedOptions = __spreadProps(__spreadValues(__spreadValues({}, defaults), textOptions), { x, y: currentY, w, h });
+          const textProps = convertRichTextToTextProps(strings, values, mergedOptions);
+          addTextDefinition(this, textProps, mergedOptions, false);
+          const ref = this._createShapeRef();
+          currentY += h + gap;
+          return ref;
+        };
+      },
+      space: (height) => {
+        currentY += height;
+      },
+      card: (cardOptions) => {
+        const _a = cardOptions, { h } = _a, rest = __objRest(_a, ["h"]);
+        const ref = this.addCard(__spreadProps(__spreadValues({}, rest), { x, y: currentY, w, h }));
+        currentY += h + gap;
+        return ref;
+      }
+    };
+    builder(stackBuilder);
+    return this;
   }
   /**
    * Options for grid layout children.
@@ -4353,12 +4949,12 @@ var ImageSizingXml = {
   }
 };
 function slideObjectToXml(slide) {
-  var _a;
+  var _a, _b;
   let strSlideXml = slide._name ? '<p:cSld name="' + slide._name + '">' : "<p:cSld>";
   let intTableNum = 1;
   if (slide._bkgdImgRid) {
     strSlideXml += `<p:bg><p:bgPr><a:blipFill dpi="0" rotWithShape="1"><a:blip r:embed="rId${slide._bkgdImgRid}"><a:lum/></a:blip><a:srcRect/><a:stretch><a:fillRect/></a:stretch></a:blipFill><a:effectLst/></p:bgPr></p:bg>`;
-  } else if ((_a = slide.background) == null ? void 0 : _a.color) {
+  } else if (((_a = slide.background) == null ? void 0 : _a.color) || ((_b = slide.background) == null ? void 0 : _b.type) === "gradient") {
     strSlideXml += `<p:bg><p:bgPr>${genXmlColorSelection(slide.background)}</p:bgPr></p:bg>`;
   } else if (!slide.bkgd && slide._name && slide._name === DEF_PRES_LAYOUT_NAME) {
     strSlideXml += '<p:bg><p:bgRef idx="1001"><a:schemeClr val="bg1"/></p:bgRef></p:bg>';
@@ -4368,7 +4964,7 @@ function slideObjectToXml(slide) {
   strSlideXml += '<p:grpSpPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="0" cy="0"/>';
   strSlideXml += '<a:chOff x="0" y="0"/><a:chExt cx="0" cy="0"/></a:xfrm></p:grpSpPr>';
   slide._slideObjects.forEach((slideItemObj, idx) => {
-    var _a2, _b, _c, _d, _e, _f, _g, _h;
+    var _a2, _b2, _c, _d, _e, _f, _g, _h;
     let x = 0;
     let y = 0;
     let cx = getSmartParseNumber("75%", "X", slide._presLayout);
@@ -4382,7 +4978,7 @@ function slideObjectToXml(slide) {
     let cellOpts = null;
     let strXml = null;
     const sizing = (_a2 = slideItemObj.options) == null ? void 0 : _a2.sizing;
-    const rounding = (_b = slideItemObj.options) == null ? void 0 : _b.rounding;
+    const rounding = (_b2 = slideItemObj.options) == null ? void 0 : _b2.rounding;
     if (slide._slideLayout !== void 0 && slide._slideLayout._slideObjects !== void 0 && slideItemObj.options && slideItemObj.options.placeholder) {
       placeholderObj = slide._slideLayout._slideObjects.filter(
         (object) => object.options.placeholder === slideItemObj.options.placeholder
@@ -4438,11 +5034,11 @@ function slideObjectToXml(slide) {
           strXml += "</a:tblGrid>";
         }
         arrTabRows.forEach((cells) => {
-          var _a3, _b2;
+          var _a3, _b3;
           for (let cIdx = 0; cIdx < cells.length; ) {
             const cell = cells[cIdx];
             const colspan = (_a3 = cell.options) == null ? void 0 : _a3.colspan;
-            const rowspan = (_b2 = cell.options) == null ? void 0 : _b2.rowspan;
+            const rowspan = (_b3 = cell.options) == null ? void 0 : _b3.rowspan;
             if (colspan && colspan > 1) {
               const vMergeCells = new Array(colspan - 1).fill(void 0).map(() => {
                 return { _type: "tablecell" /* tablecell */, options: { rowspan }, _hmerge: true };
@@ -4458,9 +5054,9 @@ function slideObjectToXml(slide) {
           const nextRow = arrTabRows[rIdx + 1];
           if (!nextRow) return;
           cells.forEach((cell, cIdx) => {
-            var _a3, _b2;
+            var _a3, _b3;
             const rowspan = cell._rowContinue || ((_a3 = cell.options) == null ? void 0 : _a3.rowspan);
-            const colspan = (_b2 = cell.options) == null ? void 0 : _b2.colspan;
+            const colspan = (_b3 = cell.options) == null ? void 0 : _b3.colspan;
             const _hmerge = cell._hmerge;
             if (rowspan && rowspan > 1) {
               const hMergeCell = { _type: "tablecell" /* tablecell */, options: { colspan }, _rowContinue: rowspan - 1, _vmerge: true, _hmerge };
@@ -4479,11 +5075,11 @@ function slideObjectToXml(slide) {
           }
           strXml += `<a:tr h="${intRowH}">`;
           cells.forEach((cellObj) => {
-            var _a3, _b2, _c2, _d2, _e2;
+            var _a3, _b3, _c2, _d2, _e2;
             const cell = cellObj;
             const cellSpanAttrs = {
               rowSpan: ((_a3 = cell.options) == null ? void 0 : _a3.rowspan) > 1 ? cell.options.rowspan : void 0,
-              gridSpan: ((_b2 = cell.options) == null ? void 0 : _b2.colspan) > 1 ? cell.options.colspan : void 0,
+              gridSpan: ((_b3 = cell.options) == null ? void 0 : _b3.colspan) > 1 ? cell.options.colspan : void 0,
               vMerge: cell._vmerge ? 1 : void 0,
               hMerge: cell._hmerge ? 1 : void 0
             };
@@ -6089,6 +6685,15 @@ var PptxGenJS = class {
   }
 };
 export {
-  PptxGenJS as default
+  SHADOW_PRESETS,
+  darkenColor,
+  PptxGenJS as default,
+  interpolateColor,
+  interpolateColors,
+  lightenColor,
+  parseHexColorToRgb,
+  resolveShadowPreset,
+  rgbToHexColor,
+  textStyle
 };
 //# sourceMappingURL=pptxgen.es.js.map

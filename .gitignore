@@ -19,3 +19,5 @@ static
 rollup.config-1770221375804.cjs
 /dist
 /dist
+*.map
+/dist

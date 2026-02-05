@@ -5,7 +5,7 @@
  */
 
 export { SHADOW_PRESETS, resolveShadowPreset } from './shadow-presets'
-export type { ShadowPresetName } from './shadow-presets'
+export type { ShadowPresetName, ShadowWithPreset } from './shadow-presets'
 
 import type { TextBaseProps, ShapeFillProps, ShadowProps } from '../core-interfaces'
 import type { ShadowPresetName } from './shadow-presets'

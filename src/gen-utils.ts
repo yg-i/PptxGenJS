@@ -3,7 +3,7 @@
  */
 
 import { EMU, REGEX_HEX_COLOR, DEF_FONT_COLOR, ONEPT, SchemeColor, SCHEME_COLORS } from './core-enums'
-import { PresLayout, TextGlowProps, PresSlide, ShapeFillProps, Color, ShapeLineProps, Coord, ShadowProps } from './core-interfaces'
+import { PresLayout, TextGlowProps, PresSlide, ShapeFillProps, Color, ShapeLineProps, Coord, ShadowProps, GradientFillProps } from './core-interfaces'
 
 /**
  * Translates any type of `x`/`y`/`w`/`h` prop to EMU
@@ -203,6 +203,11 @@ export function genXmlColorSelection (props: Color | ShapeFillProps | ShapeLineP
 			case 'solid':
 				outText += `<a:solidFill>${createColorElement(colorVal, internalElements)}</a:solidFill>`
 				break
+			case 'gradient':
+				if (typeof props === 'object' && 'gradient' in props && props.gradient) {
+					outText += generateGradientFillXml(props.gradient)
+				}
+				break
 			default: // @note need a statement as having only "break" is removed by rollup, then tiggers "no-default" js-linter
 				outText += ''
 				break
@@ -210,6 +215,48 @@ export function genXmlColorSelection (props: Color | ShapeFillProps | ShapeLineP
 	}
 
 	return outText
+}
+
+/**
+ * Generate XML for gradient fill
+ * @param {GradientFillProps} gradient - gradient configuration
+ * @returns XML string
+ */
+export function generateGradientFillXml (gradient: GradientFillProps): string {
+	const gradientType = gradient.type ?? 'linear'
+	const angle = gradient.angle ?? 90
+
+	// Convert angle to OOXML format (60000ths of a degree)
+	// OOXML angle is measured from the left side going counter-clockwise
+	// We want: 0=left-to-right, 90=top-to-bottom, 180=right-to-left, 270=bottom-to-top
+	const ooxmlAngle = angle * 60000
+
+	let xml = '<a:gradFill>'
+	xml += '<a:gsLst>'
+
+	// Add gradient stops
+	for (const stop of gradient.stops) {
+		// Position is in 1/1000ths of a percent (0-100000)
+		const position = Math.round(stop.position * 1000)
+		let stopInnerElements = ''
+		if (stop.transparency) {
+			stopInnerElements = `<a:alpha val="${Math.round((100 - stop.transparency) * 1000)}"/>`
+		}
+		xml += `<a:gs pos="${position}">${createColorElement(stop.color, stopInnerElements)}</a:gs>`
+	}
+
+	xml += '</a:gsLst>'
+
+	// Add gradient direction
+	if (gradientType === 'linear') {
+		xml += `<a:lin ang="${ooxmlAngle}" scaled="1"/>`
+	} else if (gradientType === 'radial') {
+		xml += '<a:path path="circle"><a:fillToRect l="50000" t="50000" r="50000" b="50000"/></a:path>'
+	}
+
+	xml += '</a:gradFill>'
+
+	return xml
 }
 
 /**

@@ -818,3 +818,67 @@ export default class PptxGenJS implements IPresentationProps {
 		)
 	}
 }
+
+// ============================================================================
+// Named exports for utilities
+// ============================================================================
+
+/**
+ * Color utilities for gradients and color manipulation.
+ * @since v5.0.0
+ */
+export {
+	interpolateColors,
+	interpolateColor,
+	lightenColor,
+	darkenColor,
+	parseHexColorToRgb,
+	rgbToHexColor,
+} from './utils'
+
+/**
+ * Shadow presets and types.
+ * @since v5.0.0
+ */
+export { SHADOW_PRESETS, resolveShadowPreset } from './styles'
+export type { ShadowPresetName, ShadowWithPreset } from './styles'
+
+/**
+ * Card component types.
+ * @since v5.0.0
+ */
+export type { CardOptions, BorderValue, PaddingValue, CardAlign } from './components'
+
+/**
+ * Slide method options.
+ * @since v5.0.0
+ */
+export type {
+	TitleOptions,
+	GradientTextOptions,
+	BadgeOptions,
+	BulletListItem,
+	BulletListOptions,
+	TwoColumnOptions,
+	StackOptions,
+	StackItemOptions,
+	StackBuilder,
+} from './slide'
+
+/**
+ * Gradient and fill types.
+ * @since v5.0.0
+ */
+export type {
+	GradientStop,
+	GradientFillProps,
+	ShapeFillProps,
+	BackgroundProps,
+} from './core-interfaces'
+
+/**
+ * Rich text styling utilities.
+ * @since v5.0.0
+ */
+export { textStyle } from './rich-text'
+export type { StyledTextFragment, StyleFunction, RichTextOptions } from './rich-text'

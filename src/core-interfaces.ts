@@ -172,17 +172,64 @@ export interface ShadowProps {
 	 */
 	rotateWithShape?: boolean
 }
+/**
+ * A single color stop in a gradient
+ */
+export interface GradientStop {
+	/**
+	 * Position of the stop (0-100)
+	 * @example 0 // start of gradient
+	 * @example 50 // middle
+	 * @example 100 // end of gradient
+	 */
+	position: number
+	/**
+	 * Color at this stop (hex or theme color)
+	 */
+	color: Color
+	/**
+	 * Transparency at this stop (0-100)
+	 * @default 0
+	 */
+	transparency?: number
+}
+
+/**
+ * Gradient fill configuration
+ */
+export interface GradientFillProps {
+	/**
+	 * Gradient type
+	 * @default 'linear'
+	 */
+	type?: 'linear' | 'radial'
+	/**
+	 * Angle for linear gradients (degrees, 0-360)
+	 * - 0 = left to right
+	 * - 90 = top to bottom
+	 * - 180 = right to left
+	 * - 270 = bottom to top
+	 * @default 90
+	 */
+	angle?: number
+	/**
+	 * Gradient color stops
+	 * @example [{ position: 0, color: 'FF0000' }, { position: 100, color: '0000FF' }]
+	 */
+	stops: GradientStop[]
+}
+
 // used by: shape, table, text
 export interface ShapeFillProps {
 	/**
-	 * Fill color
+	 * Fill color (for solid fills)
 	 * - `HexColor` or `ThemeColor`
 	 * @example 'FF0000' // hex color (red)
 	 * @example pptx.SchemeColor.text1 // Theme color (Text1)
 	 */
 	color?: Color
 	/**
-	 * Transparency (percent)
+	 * Transparency (percent) - for solid fills
 	 * - MS-PPT > Format Shape > Fill & Line > Fill > Transparency
 	 * - range: 0-100
 	 * @default 0
@@ -192,7 +239,12 @@ export interface ShapeFillProps {
 	 * Fill type
 	 * @default 'solid'
 	 */
-	type?: 'none' | 'solid'
+	type?: 'none' | 'solid' | 'gradient'
+	/**
+	 * Gradient configuration (when type is 'gradient')
+	 * @example { type: 'linear', angle: 90, stops: [{ position: 0, color: '000000' }, { position: 100, color: 'FFFFFF' }] }
+	 */
+	gradient?: GradientFillProps
 }
 export interface ShapeLineProps extends ShapeFillProps {
 	/**
