@@ -48,7 +48,7 @@ import {
   underline,
   white,
   yellow
-} from "./chunk-F2SD5BYD.es.js";
+} from "./chunk-BYMFGYPI.es.js";
 export {
   $Slide,
   $pptxNewAPI,

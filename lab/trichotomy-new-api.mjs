@@ -36,11 +36,13 @@ $pptx.slide(
 	// Two columns
 	Columns({ x: 0.5, y: 1.3, w: 9, gap: 0.4, ratio: [1, 1] }, [
 
-		// Left column - header outside FadeIn, pills inside
+		// Left column - header + pills that fade in on click
 		Stack({ gap: 0.15 }, [
 			Text('Traditional View', { fontSize: 18, align: 'center', h: 0.5 }),
-			FadeIn({ onClick: true, stagger: 150 },
+			FadeIn({ onClick: true },
 				Stack({ gap: 0.15 }, [
+			Text('Traditional View', { fontSize: 18, align: 'center', h: 0.5 }),
+
 					Pill({ text: 'Equally good', fill: GREEN }),
 					Pill({ text: 'Better than', fill: BLUE }),
 					Pill({ text: 'Worse than', fill: ORANGE }),
@@ -48,10 +50,10 @@ $pptx.slide(
 			),
 		]),
 
-		// Right column - header outside FadeIn, pills inside
+		// Right column - header + pills that fade in on click
 		Stack({ gap: 0.15 }, [
 			Text('Parity View', { fontSize: 18, align: 'center', color: TEAL, h: 0.5 }),
-			FadeIn({ onClick: true, stagger: 150 },
+			FadeIn({ onClick: true },
 				Stack({ gap: 0.15 }, [
 					Pill({ text: 'Equally good', fill: TEAL }),
 					Pill({ text: 'Better than', fill: TEAL }),

@@ -667,77 +667,39 @@ function makeXmlTiming (slide: PresSlide): string {
 	// Generate unique IDs starting from 2 (1 is reserved for root)
 	let nextId = 2
 
-	// Group animations by click - each onClick starts a new group
-	// withPrevious/afterPrevious animations belong to the current click group
-	interface ClickGroup {
-		animations: Array<{ anim: ISlideAnimation; delay: number }>
-	}
-	const clickGroups: ClickGroup[] = []
-	let currentGroup: ClickGroup | null = null
-	let cumulativeDelay = 0
-	let prevDuration = 0
+	// Build animations as siblings - simple approach that matches working output
+	// onClick → delay="indefinite", withPrevious → delay="0"
+	let sequenceXml = ''
 
 	for (const anim of animations) {
+		const shapeId = anim.shapeIndex + 2
 		const trigger = anim.options.trigger || 'onClick'
-		const duration = anim.options.durationMs || 500
-		const delayMs = anim.options.delayMs || 0
 
-		if (trigger === 'onClick') {
-			// Start a new click group
-			currentGroup = { animations: [] }
-			clickGroups.push(currentGroup)
-			cumulativeDelay = 0
-			currentGroup.animations.push({ anim, delay: 0 })
-			prevDuration = duration
-		} else if (currentGroup) {
-			// Add to current click group
-			if (trigger === 'withPrevious') {
-				// Same delay as previous
-				currentGroup.animations.push({ anim, delay: cumulativeDelay })
-			} else {
-				// afterPrevious: after previous animation ends + optional delay
-				cumulativeDelay = cumulativeDelay + prevDuration + delayMs
-				currentGroup.animations.push({ anim, delay: cumulativeDelay })
-				prevDuration = duration
-			}
-		}
-		// If no current group and not onClick, skip (orphan animation)
-	}
+		// Determine delay based on trigger
+		const delay = trigger === 'onClick' ? 'indefinite' : '0'
 
-	// Build XML for each click group
-	let clickGroupsXml = ''
-	for (const group of clickGroups) {
-		// Each click group is wrapped in a p:par with delay="indefinite" (waits for click)
-		const groupOuterId = nextId++
-		let groupChildrenXml = ''
-
-		for (const { anim, delay } of group.animations) {
-			const shapeId = anim.shapeIndex + 2
-			const animNodeXml = makeAnimationNodeInner(anim, shapeId, nextId, delay)
-			groupChildrenXml += animNodeXml.xml
-			nextId = animNodeXml.nextId
-		}
-
-		clickGroupsXml += `<p:par><p:cTn id="${groupOuterId}" fill="hold"><p:stCondLst><p:cond delay="indefinite"/></p:stCondLst><p:childTnLst>${groupChildrenXml}</p:childTnLst></p:cTn></p:par>`
+		const animNodeXml = makeAnimationNodeSimple(anim, shapeId, nextId, delay)
+		sequenceXml += animNodeXml.xml
+		nextId = animNodeXml.nextId
 	}
 
 	// Build main sequence container
 	const mainSeqId = nextId++
 
-	const animationXml = `<p:timing><p:tnLst><p:par><p:cTn id="1" dur="indefinite" restart="never" nodeType="tmRoot"><p:childTnLst><p:seq concurrent="1" nextAc="seek"><p:cTn id="${mainSeqId}" dur="indefinite" nodeType="mainSeq"><p:childTnLst>${clickGroupsXml}</p:childTnLst></p:cTn><p:prevCondLst><p:cond evt="onPrev" delay="0"><p:tgtEl><p:sldTgt/></p:tgtEl></p:cond></p:prevCondLst><p:nextCondLst><p:cond evt="onNext" delay="0"><p:tgtEl><p:sldTgt/></p:tgtEl></p:cond></p:nextCondLst></p:seq></p:childTnLst></p:cTn></p:par></p:tnLst></p:timing>`
+	const animationXml = `<p:timing><p:tnLst><p:par><p:cTn id="1" dur="indefinite" restart="never" nodeType="tmRoot"><p:childTnLst><p:seq concurrent="1" nextAc="seek"><p:cTn id="${mainSeqId}" dur="indefinite" nodeType="mainSeq"><p:childTnLst>${sequenceXml}</p:childTnLst></p:cTn><p:prevCondLst><p:cond evt="onPrev" delay="0"><p:tgtEl><p:sldTgt/></p:tgtEl></p:cond></p:prevCondLst><p:nextCondLst><p:cond evt="onNext" delay="0"><p:tgtEl><p:sldTgt/></p:tgtEl></p:cond></p:nextCondLst></p:seq></p:childTnLst></p:cTn></p:par></p:tnLst></p:timing>`
 
 	return animationXml
 }
 
 /**
- * Generates inner animation XML (without the click group wrapper)
- * Used within a click group where delay is relative to the click
+ * Simple animation node generator
+ * onClick uses delay="indefinite", withPrevious uses delay="0"
  */
-function makeAnimationNodeInner (
+function makeAnimationNodeSimple (
 	anim: ISlideAnimation,
 	shapeId: number,
 	startId: number,
-	delay: number
+	delay: string
 ): { xml: string; nextId: number } {
 	let id = startId
 	const durationMs = anim.options.durationMs || 500

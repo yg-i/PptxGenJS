@@ -452,45 +452,19 @@ function renderStack(ctx: RenderContext, node: ElementNode, bounds: Bounds): num
 	const w = props.w ?? bounds.w
 	let y = props.y ?? bounds.y
 
-	const stagger = node.animation?.stagger
-
-	for (let childIndex = 0; childIndex < node.children.length; childIndex++) {
-		const child = node.children[childIndex]
+	for (const child of node.children) {
 		let childWithAnimation = child
 
-		if (node.animation && stagger) {
-			// Stagger mode: first child onClick, rest afterPrevious
-			if (childIndex === 0) {
-				childWithAnimation = {
-					...child,
-					animation: {
-						...node.animation,
-						trigger: 'onClick' as const,
-						delayMs: 0,
-						stagger: undefined, // Don't pass stagger down
-					},
-				}
-			} else {
-				childWithAnimation = {
-					...child,
-					animation: {
-						...node.animation,
-						trigger: 'afterPrevious' as const,
-						delayMs: stagger,
-						stagger: undefined,
-					},
-				}
-			}
-		} else if (node.animation) {
-			// No stagger: all children get same animation (if they don't have their own)
-			if (!child.animation) {
-				childWithAnimation = {
-					...child,
-					animation: node.animation,
-				}
+		// If parent has animation, apply onClick to each child (simple click-to-reveal)
+		if (node.animation && !child.animation) {
+			childWithAnimation = {
+				...child,
+				animation: {
+					...node.animation,
+					trigger: 'onClick' as const,
+				},
 			}
 		}
-		// If no parent animation, children keep their own (or none)
 
 		const childHeight = renderElement(ctx, childWithAnimation, { x, y, w, h: bounds.h })
 		y += childHeight + gap

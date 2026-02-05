@@ -35965,47 +35965,20 @@ ${String(ex)}`);
     const animations = slide._animations;
     if (!animations || animations.length === 0) return "";
     let nextId = 2;
-    const clickGroups = [];
-    let currentGroup = null;
-    let cumulativeDelay = 0;
-    let prevDuration = 0;
+    let sequenceXml = "";
     for (const anim of animations) {
+      const shapeId = anim.shapeIndex + 2;
       const trigger = anim.options.trigger || "onClick";
-      const duration = anim.options.durationMs || 500;
-      const delayMs = anim.options.delayMs || 0;
-      if (trigger === "onClick") {
-        currentGroup = { animations: [] };
-        clickGroups.push(currentGroup);
-        cumulativeDelay = 0;
-        currentGroup.animations.push({ anim, delay: 0 });
-        prevDuration = duration;
-      } else if (currentGroup) {
-        if (trigger === "withPrevious") {
-          currentGroup.animations.push({ anim, delay: cumulativeDelay });
-        } else {
-          cumulativeDelay = cumulativeDelay + prevDuration + delayMs;
-          currentGroup.animations.push({ anim, delay: cumulativeDelay });
-          prevDuration = duration;
-        }
-      }
-    }
-    let clickGroupsXml = "";
-    for (const group of clickGroups) {
-      const groupOuterId = nextId++;
-      let groupChildrenXml = "";
-      for (const { anim, delay } of group.animations) {
-        const shapeId = anim.shapeIndex + 2;
-        const animNodeXml = makeAnimationNodeInner(anim, shapeId, nextId, delay);
-        groupChildrenXml += animNodeXml.xml;
-        nextId = animNodeXml.nextId;
-      }
-      clickGroupsXml += `<p:par><p:cTn id="${groupOuterId}" fill="hold"><p:stCondLst><p:cond delay="indefinite"/></p:stCondLst><p:childTnLst>${groupChildrenXml}</p:childTnLst></p:cTn></p:par>`;
+      const delay = trigger === "onClick" ? "indefinite" : "0";
+      const animNodeXml = makeAnimationNodeSimple(anim, shapeId, nextId, delay);
+      sequenceXml += animNodeXml.xml;
+      nextId = animNodeXml.nextId;
     }
     const mainSeqId = nextId++;
-    const animationXml = `<p:timing><p:tnLst><p:par><p:cTn id="1" dur="indefinite" restart="never" nodeType="tmRoot"><p:childTnLst><p:seq concurrent="1" nextAc="seek"><p:cTn id="${mainSeqId}" dur="indefinite" nodeType="mainSeq"><p:childTnLst>${clickGroupsXml}</p:childTnLst></p:cTn><p:prevCondLst><p:cond evt="onPrev" delay="0"><p:tgtEl><p:sldTgt/></p:tgtEl></p:cond></p:prevCondLst><p:nextCondLst><p:cond evt="onNext" delay="0"><p:tgtEl><p:sldTgt/></p:tgtEl></p:cond></p:nextCondLst></p:seq></p:childTnLst></p:cTn></p:par></p:tnLst></p:timing>`;
+    const animationXml = `<p:timing><p:tnLst><p:par><p:cTn id="1" dur="indefinite" restart="never" nodeType="tmRoot"><p:childTnLst><p:seq concurrent="1" nextAc="seek"><p:cTn id="${mainSeqId}" dur="indefinite" nodeType="mainSeq"><p:childTnLst>${sequenceXml}</p:childTnLst></p:cTn><p:prevCondLst><p:cond evt="onPrev" delay="0"><p:tgtEl><p:sldTgt/></p:tgtEl></p:cond></p:prevCondLst><p:nextCondLst><p:cond evt="onNext" delay="0"><p:tgtEl><p:sldTgt/></p:tgtEl></p:cond></p:nextCondLst></p:seq></p:childTnLst></p:cTn></p:par></p:tnLst></p:timing>`;
     return animationXml;
   }
-  function makeAnimationNodeInner(anim, shapeId, startId, delay) {
+  function makeAnimationNodeSimple(anim, shapeId, startId, delay) {
     let id = startId;
     const durationMs = anim.options.durationMs || 500;
     let targetXml = `<p:spTgt spid="${shapeId}"`;
@@ -36627,46 +36600,25 @@ ${String(ex)}`);
     return totalHeight;
   }
   function renderStack(ctx, node, bounds) {
-    var _a, _b, _c, _d, _e, _f;
+    var _a, _b, _c, _d, _e;
     const props = node.props;
     const gap = (_a = props.gap) != null ? _a : 0.2;
     const x = (_b = props.x) != null ? _b : bounds.x;
     const w = (_c = props.w) != null ? _c : bounds.w;
     let y = (_d = props.y) != null ? _d : bounds.y;
-    const stagger = (_e = node.animation) == null ? void 0 : _e.stagger;
-    for (let childIndex = 0; childIndex < node.children.length; childIndex++) {
-      const child = node.children[childIndex];
+    for (const child of node.children) {
       let childWithAnimation = child;
-      if (node.animation && stagger) {
-        if (childIndex === 0) {
-          childWithAnimation = __spreadProps(__spreadValues({}, child), {
-            animation: __spreadProps(__spreadValues({}, node.animation), {
-              trigger: "onClick",
-              delayMs: 0,
-              stagger: void 0
-              // Don't pass stagger down
-            })
-          });
-        } else {
-          childWithAnimation = __spreadProps(__spreadValues({}, child), {
-            animation: __spreadProps(__spreadValues({}, node.animation), {
-              trigger: "afterPrevious",
-              delayMs: stagger,
-              stagger: void 0
-            })
-          });
-        }
-      } else if (node.animation) {
-        if (!child.animation) {
-          childWithAnimation = __spreadProps(__spreadValues({}, child), {
-            animation: node.animation
-          });
-        }
+      if (node.animation && !child.animation) {
+        childWithAnimation = __spreadProps(__spreadValues({}, child), {
+          animation: __spreadProps(__spreadValues({}, node.animation), {
+            trigger: "onClick"
+          })
+        });
       }
       const childHeight = renderElement(ctx, childWithAnimation, { x, y, w, h: bounds.h });
       y += childHeight + gap;
     }
-    return y - ((_f = props.y) != null ? _f : bounds.y) - gap;
+    return y - ((_e = props.y) != null ? _e : bounds.y) - gap;
   }
   function renderColumns(ctx, node, bounds) {
     var _a, _b, _c, _d, _e;
