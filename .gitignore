@@ -21,3 +21,4 @@ rollup.config-1770221375804.cjs
 /dist
 *.map
 /dist
+*.png

@@ -1,5 +1,5 @@
 /**
- * "Hybrid Voluntarism" slide - numbered list with highlighted keywords
+ * "Hybrid Voluntarism" slide - CLEAN API with proper font weights
  */
 
 import PptxGenJS from '../dist/pptxgen.es.js'
@@ -9,9 +9,12 @@ pptx.layout = 'LAYOUT_16x9'
 
 const slide = pptx.addSlide()
 
-// ============================================================================
-// BACKGROUND - Dark gradient
-// ============================================================================
+// Set defaults
+slide.fontFace = 'Outfit'
+slide.color = 'FFFFFF'
+slide.accentColor = '4FC3F7'
+
+// Background
 slide.background = {
     type: 'gradient',
     gradient: {
@@ -25,84 +28,28 @@ slide.background = {
     },
 }
 
-// ============================================================================
-// COLORS
-// ============================================================================
-const CYAN = '4FC3F7'
-const WHITE = 'FFFFFF'
-const FONT = 'Arial'
-
-// ============================================================================
-// TITLE
-// ============================================================================
+// Title - use ExtraBold weight for heavier appearance
 slide.addText('Hybrid Voluntarism', {
-    x: 0.6,
-    y: 0.7,
-    w: 9,
-    h: 0.8,
+    x: 0.6, y: 0.7, w: 9, h: 0.8,
     fontSize: 36,
-    fontFace: FONT,
-    color: WHITE,
+    fontFace: 'Outfit ExtraBold',
     bold: true,
 })
 
-// ============================================================================
-// NUMBERED LIST
-// ============================================================================
-const listX = 0.6
-const listW = 8.8
-const fontSize = 18
-const lineHeight = 22  // approximate line height in points
-
-// Item 1
-slide.addText([
-    { text: '1.', options: { color: CYAN, bold: true, fontSize } },
-    { text: '    Normative reasons can be either ', options: { color: WHITE, fontSize } },
-    { text: "'given'", options: { color: CYAN, bold: true, fontSize } },
-    { text: ' or ', options: { color: WHITE, fontSize } },
-    { text: "'created'", options: { color: CYAN, bold: true, fontSize } },
-    { text: ' reasons.', options: { color: WHITE, fontSize } },
-], {
-    x: listX,
+// Numbered list - use SemiBold for body text
+slide.addNumberedList({
+    x: 0.6,
     y: 1.6,
-    w: listW,
-    h: 0.5,
-    fontFace: FONT,
-    valign: 'top',
+    w: 8.8,
+    fontSize: 18,
+    fontFace: 'Outfit SemiBold',
+    itemGap: 0.4,
+    items: [
+        "Normative reasons can be either **'given'** or **'created'** reasons.",
+        "We create reasons by **willing**, under the right conditions, that something is a reason.",
+        "Thus we have **robust normative powers** — the power to will something to be a reason.",
+    ],
 })
 
-// Item 2
-slide.addText([
-    { text: '2.', options: { color: CYAN, bold: true, fontSize } },
-    { text: '    We create reasons by ', options: { color: WHITE, fontSize } },
-    { text: 'willing', options: { color: CYAN, bold: true, fontSize } },
-    { text: ', under the right conditions, that something is a reason.', options: { color: WHITE, fontSize } },
-], {
-    x: listX,
-    y: 2.2,
-    w: listW,
-    h: 0.8,
-    fontFace: FONT,
-    valign: 'top',
-})
-
-// Item 3
-slide.addText([
-    { text: '3.', options: { color: CYAN, bold: true, fontSize } },
-    { text: '    Thus we have ', options: { color: WHITE, fontSize } },
-    { text: 'robust normative powers', options: { color: CYAN, bold: true, fontSize } },
-    { text: ' \u2014 the power to will something to be a reason.', options: { color: WHITE, fontSize } },
-], {
-    x: listX,
-    y: 2.9,
-    w: listW,
-    h: 0.8,
-    fontFace: FONT,
-    valign: 'top',
-})
-
-// ============================================================================
-// SAVE
-// ============================================================================
 await pptx.writeFile({ fileName: 'lab/hybrid-voluntarism-slide.pptx' })
 console.log('Created: lab/hybrid-voluntarism-slide.pptx')

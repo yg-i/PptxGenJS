@@ -34,6 +34,9 @@ var __objRest = (source, exclude) => {
     }
   return target;
 };
+var __esm = (fn, res) => function __init() {
+  return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
+};
 var __export = (target, all) => {
   for (var name in all)
     __defProp(target, name, { get: all[name], enumerable: true });
@@ -76,616 +79,605 @@ var __async = (__this, __arguments, generator) => {
   });
 };
 
-// src/pptxgen.ts
-var pptxgen_exports = {};
-__export(pptxgen_exports, {
-  SHADOW_PRESETS: () => SHADOW_PRESETS,
-  darkenColor: () => darkenColor,
-  default: () => PptxGenJS,
-  interpolateColor: () => interpolateColor,
-  interpolateColors: () => interpolateColors,
-  lightenColor: () => lightenColor,
-  parseHexColorToRgb: () => parseHexColorToRgb,
-  resolveShadowPreset: () => resolveShadowPreset,
-  rgbToHexColor: () => rgbToHexColor,
-  textStyle: () => textStyle
-});
-module.exports = __toCommonJS(pptxgen_exports);
-var import_jszip2 = __toESM(require("jszip"), 1);
-
 // src/core-enums.ts
-var EMU = 914400;
-var ONEPT = 12700;
-var CRLF = "\r\n";
-var LAYOUT_IDX_SERIES_BASE = 2147483649;
-var REGEX_HEX_COLOR = /^[0-9a-fA-F]{6}$/;
-var LINEH_MODIFIER = 1.67;
-var DEF_BULLET_MARGIN = 27;
-var DEF_CELL_BORDER = { type: "solid", color: "666666", pt: 1 };
-var DEF_CELL_MARGIN_IN = [0.05, 0.1, 0.05, 0.1];
-var DEF_CHART_BORDER = { type: "solid", color: "363636", pt: 1 };
-var DEF_CHART_GRIDLINE = { color: "888888", style: "solid", size: 1, cap: "flat" };
-var DEF_FONT_COLOR = "000000";
-var DEF_FONT_SIZE = 12;
-var DEF_FONT_TITLE_SIZE = 18;
-var DEF_PRES_LAYOUT = "LAYOUT_16x9";
-var DEF_PRES_LAYOUT_NAME = "DEFAULT";
-var DEF_SHAPE_LINE_COLOR = "333333";
-var DEF_SHAPE_SHADOW = { type: "outer", blur: 3, offset: 23e3 / 12700, angle: 90, color: "000000", opacity: 0.35, rotateWithShape: true };
-var DEF_SLIDE_MARGIN_IN = [0.5, 0.5, 0.5, 0.5];
-var DEF_TEXT_SHADOW = { type: "outer", blur: 8, offset: 4, angle: 270, color: "000000", opacity: 0.75 };
-var DEF_TEXT_GLOW = { size: 8, color: "FFFFFF", opacity: 0.75 };
-var AXIS_ID_VALUE_PRIMARY = "2094734552";
-var AXIS_ID_VALUE_SECONDARY = "2094734553";
-var AXIS_ID_CATEGORY_PRIMARY = "2094734554";
-var AXIS_ID_CATEGORY_SECONDARY = "2094734555";
-var AXIS_ID_SERIES_PRIMARY = "2094734556";
-var LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-var BARCHART_COLORS = [
-  "C0504D",
-  "4F81BD",
-  "9BBB59",
-  "8064A2",
-  "4BACC6",
-  "F79646",
-  "628FC6",
-  "C86360",
-  "C0504D",
-  "4F81BD",
-  "9BBB59",
-  "8064A2",
-  "4BACC6",
-  "F79646",
-  "628FC6",
-  "C86360"
-];
-var PIECHART_COLORS = [
-  "5DA5DA",
-  "FAA43A",
-  "60BD68",
-  "F17CB0",
-  "B2912F",
-  "B276B2",
-  "DECF3F",
-  "F15854",
-  "A7A7A7",
-  "5DA5DA",
-  "FAA43A",
-  "60BD68",
-  "F17CB0",
-  "B2912F",
-  "B276B2",
-  "DECF3F",
-  "F15854",
-  "A7A7A7"
-];
-var SLDNUMFLDID = "{F7021451-1387-4CA6-816F-3879F97B5CBC}";
-var OutputType = /* @__PURE__ */ ((OutputType2) => {
-  OutputType2["arraybuffer"] = "arraybuffer";
-  OutputType2["base64"] = "base64";
-  OutputType2["binarystring"] = "binarystring";
-  OutputType2["blob"] = "blob";
-  OutputType2["nodebuffer"] = "nodebuffer";
-  OutputType2["uint8array"] = "uint8array";
-  return OutputType2;
-})(OutputType || {});
-var ChartType = /* @__PURE__ */ ((ChartType2) => {
-  ChartType2["area"] = "area";
-  ChartType2["bar"] = "bar";
-  ChartType2["bar3d"] = "bar3D";
-  ChartType2["bubble"] = "bubble";
-  ChartType2["bubble3d"] = "bubble3D";
-  ChartType2["doughnut"] = "doughnut";
-  ChartType2["line"] = "line";
-  ChartType2["pie"] = "pie";
-  ChartType2["radar"] = "radar";
-  ChartType2["scatter"] = "scatter";
-  return ChartType2;
-})(ChartType || {});
-var ShapeType = /* @__PURE__ */ ((ShapeType2) => {
-  ShapeType2["accentBorderCallout1"] = "accentBorderCallout1";
-  ShapeType2["accentBorderCallout2"] = "accentBorderCallout2";
-  ShapeType2["accentBorderCallout3"] = "accentBorderCallout3";
-  ShapeType2["accentCallout1"] = "accentCallout1";
-  ShapeType2["accentCallout2"] = "accentCallout2";
-  ShapeType2["accentCallout3"] = "accentCallout3";
-  ShapeType2["actionButtonBackPrevious"] = "actionButtonBackPrevious";
-  ShapeType2["actionButtonBeginning"] = "actionButtonBeginning";
-  ShapeType2["actionButtonBlank"] = "actionButtonBlank";
-  ShapeType2["actionButtonDocument"] = "actionButtonDocument";
-  ShapeType2["actionButtonEnd"] = "actionButtonEnd";
-  ShapeType2["actionButtonForwardNext"] = "actionButtonForwardNext";
-  ShapeType2["actionButtonHelp"] = "actionButtonHelp";
-  ShapeType2["actionButtonHome"] = "actionButtonHome";
-  ShapeType2["actionButtonInformation"] = "actionButtonInformation";
-  ShapeType2["actionButtonMovie"] = "actionButtonMovie";
-  ShapeType2["actionButtonReturn"] = "actionButtonReturn";
-  ShapeType2["actionButtonSound"] = "actionButtonSound";
-  ShapeType2["arc"] = "arc";
-  ShapeType2["bentArrow"] = "bentArrow";
-  ShapeType2["bentUpArrow"] = "bentUpArrow";
-  ShapeType2["bevel"] = "bevel";
-  ShapeType2["blockArc"] = "blockArc";
-  ShapeType2["borderCallout1"] = "borderCallout1";
-  ShapeType2["borderCallout2"] = "borderCallout2";
-  ShapeType2["borderCallout3"] = "borderCallout3";
-  ShapeType2["bracePair"] = "bracePair";
-  ShapeType2["bracketPair"] = "bracketPair";
-  ShapeType2["callout1"] = "callout1";
-  ShapeType2["callout2"] = "callout2";
-  ShapeType2["callout3"] = "callout3";
-  ShapeType2["can"] = "can";
-  ShapeType2["chartPlus"] = "chartPlus";
-  ShapeType2["chartStar"] = "chartStar";
-  ShapeType2["chartX"] = "chartX";
-  ShapeType2["chevron"] = "chevron";
-  ShapeType2["chord"] = "chord";
-  ShapeType2["circularArrow"] = "circularArrow";
-  ShapeType2["cloud"] = "cloud";
-  ShapeType2["cloudCallout"] = "cloudCallout";
-  ShapeType2["corner"] = "corner";
-  ShapeType2["cornerTabs"] = "cornerTabs";
-  ShapeType2["cube"] = "cube";
-  ShapeType2["curvedDownArrow"] = "curvedDownArrow";
-  ShapeType2["curvedLeftArrow"] = "curvedLeftArrow";
-  ShapeType2["curvedRightArrow"] = "curvedRightArrow";
-  ShapeType2["curvedUpArrow"] = "curvedUpArrow";
-  ShapeType2["custGeom"] = "custGeom";
-  ShapeType2["decagon"] = "decagon";
-  ShapeType2["diagStripe"] = "diagStripe";
-  ShapeType2["diamond"] = "diamond";
-  ShapeType2["dodecagon"] = "dodecagon";
-  ShapeType2["donut"] = "donut";
-  ShapeType2["doubleWave"] = "doubleWave";
-  ShapeType2["downArrow"] = "downArrow";
-  ShapeType2["downArrowCallout"] = "downArrowCallout";
-  ShapeType2["ellipse"] = "ellipse";
-  ShapeType2["ellipseRibbon"] = "ellipseRibbon";
-  ShapeType2["ellipseRibbon2"] = "ellipseRibbon2";
-  ShapeType2["flowChartAlternateProcess"] = "flowChartAlternateProcess";
-  ShapeType2["flowChartCollate"] = "flowChartCollate";
-  ShapeType2["flowChartConnector"] = "flowChartConnector";
-  ShapeType2["flowChartDecision"] = "flowChartDecision";
-  ShapeType2["flowChartDelay"] = "flowChartDelay";
-  ShapeType2["flowChartDisplay"] = "flowChartDisplay";
-  ShapeType2["flowChartDocument"] = "flowChartDocument";
-  ShapeType2["flowChartExtract"] = "flowChartExtract";
-  ShapeType2["flowChartInputOutput"] = "flowChartInputOutput";
-  ShapeType2["flowChartInternalStorage"] = "flowChartInternalStorage";
-  ShapeType2["flowChartMagneticDisk"] = "flowChartMagneticDisk";
-  ShapeType2["flowChartMagneticDrum"] = "flowChartMagneticDrum";
-  ShapeType2["flowChartMagneticTape"] = "flowChartMagneticTape";
-  ShapeType2["flowChartManualInput"] = "flowChartManualInput";
-  ShapeType2["flowChartManualOperation"] = "flowChartManualOperation";
-  ShapeType2["flowChartMerge"] = "flowChartMerge";
-  ShapeType2["flowChartMultidocument"] = "flowChartMultidocument";
-  ShapeType2["flowChartOfflineStorage"] = "flowChartOfflineStorage";
-  ShapeType2["flowChartOffpageConnector"] = "flowChartOffpageConnector";
-  ShapeType2["flowChartOnlineStorage"] = "flowChartOnlineStorage";
-  ShapeType2["flowChartOr"] = "flowChartOr";
-  ShapeType2["flowChartPredefinedProcess"] = "flowChartPredefinedProcess";
-  ShapeType2["flowChartPreparation"] = "flowChartPreparation";
-  ShapeType2["flowChartProcess"] = "flowChartProcess";
-  ShapeType2["flowChartPunchedCard"] = "flowChartPunchedCard";
-  ShapeType2["flowChartPunchedTape"] = "flowChartPunchedTape";
-  ShapeType2["flowChartSort"] = "flowChartSort";
-  ShapeType2["flowChartSummingJunction"] = "flowChartSummingJunction";
-  ShapeType2["flowChartTerminator"] = "flowChartTerminator";
-  ShapeType2["folderCorner"] = "folderCorner";
-  ShapeType2["frame"] = "frame";
-  ShapeType2["funnel"] = "funnel";
-  ShapeType2["gear6"] = "gear6";
-  ShapeType2["gear9"] = "gear9";
-  ShapeType2["halfFrame"] = "halfFrame";
-  ShapeType2["heart"] = "heart";
-  ShapeType2["heptagon"] = "heptagon";
-  ShapeType2["hexagon"] = "hexagon";
-  ShapeType2["homePlate"] = "homePlate";
-  ShapeType2["horizontalScroll"] = "horizontalScroll";
-  ShapeType2["irregularSeal1"] = "irregularSeal1";
-  ShapeType2["irregularSeal2"] = "irregularSeal2";
-  ShapeType2["leftArrow"] = "leftArrow";
-  ShapeType2["leftArrowCallout"] = "leftArrowCallout";
-  ShapeType2["leftBrace"] = "leftBrace";
-  ShapeType2["leftBracket"] = "leftBracket";
-  ShapeType2["leftCircularArrow"] = "leftCircularArrow";
-  ShapeType2["leftRightArrow"] = "leftRightArrow";
-  ShapeType2["leftRightArrowCallout"] = "leftRightArrowCallout";
-  ShapeType2["leftRightCircularArrow"] = "leftRightCircularArrow";
-  ShapeType2["leftRightRibbon"] = "leftRightRibbon";
-  ShapeType2["leftRightUpArrow"] = "leftRightUpArrow";
-  ShapeType2["leftUpArrow"] = "leftUpArrow";
-  ShapeType2["lightningBolt"] = "lightningBolt";
-  ShapeType2["line"] = "line";
-  ShapeType2["lineInv"] = "lineInv";
-  ShapeType2["mathDivide"] = "mathDivide";
-  ShapeType2["mathEqual"] = "mathEqual";
-  ShapeType2["mathMinus"] = "mathMinus";
-  ShapeType2["mathMultiply"] = "mathMultiply";
-  ShapeType2["mathNotEqual"] = "mathNotEqual";
-  ShapeType2["mathPlus"] = "mathPlus";
-  ShapeType2["moon"] = "moon";
-  ShapeType2["noSmoking"] = "noSmoking";
-  ShapeType2["nonIsoscelesTrapezoid"] = "nonIsoscelesTrapezoid";
-  ShapeType2["notchedRightArrow"] = "notchedRightArrow";
-  ShapeType2["octagon"] = "octagon";
-  ShapeType2["parallelogram"] = "parallelogram";
-  ShapeType2["pentagon"] = "pentagon";
-  ShapeType2["pie"] = "pie";
-  ShapeType2["pieWedge"] = "pieWedge";
-  ShapeType2["plaque"] = "plaque";
-  ShapeType2["plaqueTabs"] = "plaqueTabs";
-  ShapeType2["plus"] = "plus";
-  ShapeType2["quadArrow"] = "quadArrow";
-  ShapeType2["quadArrowCallout"] = "quadArrowCallout";
-  ShapeType2["rect"] = "rect";
-  ShapeType2["ribbon"] = "ribbon";
-  ShapeType2["ribbon2"] = "ribbon2";
-  ShapeType2["rightArrow"] = "rightArrow";
-  ShapeType2["rightArrowCallout"] = "rightArrowCallout";
-  ShapeType2["rightBrace"] = "rightBrace";
-  ShapeType2["rightBracket"] = "rightBracket";
-  ShapeType2["round1Rect"] = "round1Rect";
-  ShapeType2["round2DiagRect"] = "round2DiagRect";
-  ShapeType2["round2SameRect"] = "round2SameRect";
-  ShapeType2["roundRect"] = "roundRect";
-  ShapeType2["rtTriangle"] = "rtTriangle";
-  ShapeType2["smileyFace"] = "smileyFace";
-  ShapeType2["snip1Rect"] = "snip1Rect";
-  ShapeType2["snip2DiagRect"] = "snip2DiagRect";
-  ShapeType2["snip2SameRect"] = "snip2SameRect";
-  ShapeType2["snipRoundRect"] = "snipRoundRect";
-  ShapeType2["squareTabs"] = "squareTabs";
-  ShapeType2["star10"] = "star10";
-  ShapeType2["star12"] = "star12";
-  ShapeType2["star16"] = "star16";
-  ShapeType2["star24"] = "star24";
-  ShapeType2["star32"] = "star32";
-  ShapeType2["star4"] = "star4";
-  ShapeType2["star5"] = "star5";
-  ShapeType2["star6"] = "star6";
-  ShapeType2["star7"] = "star7";
-  ShapeType2["star8"] = "star8";
-  ShapeType2["stripedRightArrow"] = "stripedRightArrow";
-  ShapeType2["sun"] = "sun";
-  ShapeType2["swooshArrow"] = "swooshArrow";
-  ShapeType2["teardrop"] = "teardrop";
-  ShapeType2["trapezoid"] = "trapezoid";
-  ShapeType2["triangle"] = "triangle";
-  ShapeType2["upArrow"] = "upArrow";
-  ShapeType2["upArrowCallout"] = "upArrowCallout";
-  ShapeType2["upDownArrow"] = "upDownArrow";
-  ShapeType2["upDownArrowCallout"] = "upDownArrowCallout";
-  ShapeType2["uturnArrow"] = "uturnArrow";
-  ShapeType2["verticalScroll"] = "verticalScroll";
-  ShapeType2["wave"] = "wave";
-  ShapeType2["wedgeEllipseCallout"] = "wedgeEllipseCallout";
-  ShapeType2["wedgeRectCallout"] = "wedgeRectCallout";
-  ShapeType2["wedgeRoundRectCallout"] = "wedgeRoundRectCallout";
-  return ShapeType2;
-})(ShapeType || {});
-var SchemeColor = /* @__PURE__ */ ((SchemeColor2) => {
-  SchemeColor2["text1"] = "tx1";
-  SchemeColor2["text2"] = "tx2";
-  SchemeColor2["background1"] = "bg1";
-  SchemeColor2["background2"] = "bg2";
-  SchemeColor2["accent1"] = "accent1";
-  SchemeColor2["accent2"] = "accent2";
-  SchemeColor2["accent3"] = "accent3";
-  SchemeColor2["accent4"] = "accent4";
-  SchemeColor2["accent5"] = "accent5";
-  SchemeColor2["accent6"] = "accent6";
-  return SchemeColor2;
-})(SchemeColor || {});
-var AlignH = /* @__PURE__ */ ((AlignH2) => {
-  AlignH2["left"] = "left";
-  AlignH2["center"] = "center";
-  AlignH2["right"] = "right";
-  AlignH2["justify"] = "justify";
-  return AlignH2;
-})(AlignH || {});
-var AlignV = /* @__PURE__ */ ((AlignV2) => {
-  AlignV2["top"] = "top";
-  AlignV2["middle"] = "middle";
-  AlignV2["bottom"] = "bottom";
-  return AlignV2;
-})(AlignV || {});
-var SHAPE_TYPE = /* @__PURE__ */ ((SHAPE_TYPE2) => {
-  SHAPE_TYPE2["ACTION_BUTTON_BACK_OR_PREVIOUS"] = "actionButtonBackPrevious";
-  SHAPE_TYPE2["ACTION_BUTTON_BEGINNING"] = "actionButtonBeginning";
-  SHAPE_TYPE2["ACTION_BUTTON_CUSTOM"] = "actionButtonBlank";
-  SHAPE_TYPE2["ACTION_BUTTON_DOCUMENT"] = "actionButtonDocument";
-  SHAPE_TYPE2["ACTION_BUTTON_END"] = "actionButtonEnd";
-  SHAPE_TYPE2["ACTION_BUTTON_FORWARD_OR_NEXT"] = "actionButtonForwardNext";
-  SHAPE_TYPE2["ACTION_BUTTON_HELP"] = "actionButtonHelp";
-  SHAPE_TYPE2["ACTION_BUTTON_HOME"] = "actionButtonHome";
-  SHAPE_TYPE2["ACTION_BUTTON_INFORMATION"] = "actionButtonInformation";
-  SHAPE_TYPE2["ACTION_BUTTON_MOVIE"] = "actionButtonMovie";
-  SHAPE_TYPE2["ACTION_BUTTON_RETURN"] = "actionButtonReturn";
-  SHAPE_TYPE2["ACTION_BUTTON_SOUND"] = "actionButtonSound";
-  SHAPE_TYPE2["ARC"] = "arc";
-  SHAPE_TYPE2["BALLOON"] = "wedgeRoundRectCallout";
-  SHAPE_TYPE2["BENT_ARROW"] = "bentArrow";
-  SHAPE_TYPE2["BENT_UP_ARROW"] = "bentUpArrow";
-  SHAPE_TYPE2["BEVEL"] = "bevel";
-  SHAPE_TYPE2["BLOCK_ARC"] = "blockArc";
-  SHAPE_TYPE2["CAN"] = "can";
-  SHAPE_TYPE2["CHART_PLUS"] = "chartPlus";
-  SHAPE_TYPE2["CHART_STAR"] = "chartStar";
-  SHAPE_TYPE2["CHART_X"] = "chartX";
-  SHAPE_TYPE2["CHEVRON"] = "chevron";
-  SHAPE_TYPE2["CHORD"] = "chord";
-  SHAPE_TYPE2["CIRCULAR_ARROW"] = "circularArrow";
-  SHAPE_TYPE2["CLOUD"] = "cloud";
-  SHAPE_TYPE2["CLOUD_CALLOUT"] = "cloudCallout";
-  SHAPE_TYPE2["CORNER"] = "corner";
-  SHAPE_TYPE2["CORNER_TABS"] = "cornerTabs";
-  SHAPE_TYPE2["CROSS"] = "plus";
-  SHAPE_TYPE2["CUBE"] = "cube";
-  SHAPE_TYPE2["CURVED_DOWN_ARROW"] = "curvedDownArrow";
-  SHAPE_TYPE2["CURVED_DOWN_RIBBON"] = "ellipseRibbon";
-  SHAPE_TYPE2["CURVED_LEFT_ARROW"] = "curvedLeftArrow";
-  SHAPE_TYPE2["CURVED_RIGHT_ARROW"] = "curvedRightArrow";
-  SHAPE_TYPE2["CURVED_UP_ARROW"] = "curvedUpArrow";
-  SHAPE_TYPE2["CURVED_UP_RIBBON"] = "ellipseRibbon2";
-  SHAPE_TYPE2["CUSTOM_GEOMETRY"] = "custGeom";
-  SHAPE_TYPE2["DECAGON"] = "decagon";
-  SHAPE_TYPE2["DIAGONAL_STRIPE"] = "diagStripe";
-  SHAPE_TYPE2["DIAMOND"] = "diamond";
-  SHAPE_TYPE2["DODECAGON"] = "dodecagon";
-  SHAPE_TYPE2["DONUT"] = "donut";
-  SHAPE_TYPE2["DOUBLE_BRACE"] = "bracePair";
-  SHAPE_TYPE2["DOUBLE_BRACKET"] = "bracketPair";
-  SHAPE_TYPE2["DOUBLE_WAVE"] = "doubleWave";
-  SHAPE_TYPE2["DOWN_ARROW"] = "downArrow";
-  SHAPE_TYPE2["DOWN_ARROW_CALLOUT"] = "downArrowCallout";
-  SHAPE_TYPE2["DOWN_RIBBON"] = "ribbon";
-  SHAPE_TYPE2["EXPLOSION1"] = "irregularSeal1";
-  SHAPE_TYPE2["EXPLOSION2"] = "irregularSeal2";
-  SHAPE_TYPE2["FLOWCHART_ALTERNATE_PROCESS"] = "flowChartAlternateProcess";
-  SHAPE_TYPE2["FLOWCHART_CARD"] = "flowChartPunchedCard";
-  SHAPE_TYPE2["FLOWCHART_COLLATE"] = "flowChartCollate";
-  SHAPE_TYPE2["FLOWCHART_CONNECTOR"] = "flowChartConnector";
-  SHAPE_TYPE2["FLOWCHART_DATA"] = "flowChartInputOutput";
-  SHAPE_TYPE2["FLOWCHART_DECISION"] = "flowChartDecision";
-  SHAPE_TYPE2["FLOWCHART_DELAY"] = "flowChartDelay";
-  SHAPE_TYPE2["FLOWCHART_DIRECT_ACCESS_STORAGE"] = "flowChartMagneticDrum";
-  SHAPE_TYPE2["FLOWCHART_DISPLAY"] = "flowChartDisplay";
-  SHAPE_TYPE2["FLOWCHART_DOCUMENT"] = "flowChartDocument";
-  SHAPE_TYPE2["FLOWCHART_EXTRACT"] = "flowChartExtract";
-  SHAPE_TYPE2["FLOWCHART_INTERNAL_STORAGE"] = "flowChartInternalStorage";
-  SHAPE_TYPE2["FLOWCHART_MAGNETIC_DISK"] = "flowChartMagneticDisk";
-  SHAPE_TYPE2["FLOWCHART_MANUAL_INPUT"] = "flowChartManualInput";
-  SHAPE_TYPE2["FLOWCHART_MANUAL_OPERATION"] = "flowChartManualOperation";
-  SHAPE_TYPE2["FLOWCHART_MERGE"] = "flowChartMerge";
-  SHAPE_TYPE2["FLOWCHART_MULTIDOCUMENT"] = "flowChartMultidocument";
-  SHAPE_TYPE2["FLOWCHART_OFFLINE_STORAGE"] = "flowChartOfflineStorage";
-  SHAPE_TYPE2["FLOWCHART_OFFPAGE_CONNECTOR"] = "flowChartOffpageConnector";
-  SHAPE_TYPE2["FLOWCHART_OR"] = "flowChartOr";
-  SHAPE_TYPE2["FLOWCHART_PREDEFINED_PROCESS"] = "flowChartPredefinedProcess";
-  SHAPE_TYPE2["FLOWCHART_PREPARATION"] = "flowChartPreparation";
-  SHAPE_TYPE2["FLOWCHART_PROCESS"] = "flowChartProcess";
-  SHAPE_TYPE2["FLOWCHART_PUNCHED_TAPE"] = "flowChartPunchedTape";
-  SHAPE_TYPE2["FLOWCHART_SEQUENTIAL_ACCESS_STORAGE"] = "flowChartMagneticTape";
-  SHAPE_TYPE2["FLOWCHART_SORT"] = "flowChartSort";
-  SHAPE_TYPE2["FLOWCHART_STORED_DATA"] = "flowChartOnlineStorage";
-  SHAPE_TYPE2["FLOWCHART_SUMMING_JUNCTION"] = "flowChartSummingJunction";
-  SHAPE_TYPE2["FLOWCHART_TERMINATOR"] = "flowChartTerminator";
-  SHAPE_TYPE2["FOLDED_CORNER"] = "folderCorner";
-  SHAPE_TYPE2["FRAME"] = "frame";
-  SHAPE_TYPE2["FUNNEL"] = "funnel";
-  SHAPE_TYPE2["GEAR_6"] = "gear6";
-  SHAPE_TYPE2["GEAR_9"] = "gear9";
-  SHAPE_TYPE2["HALF_FRAME"] = "halfFrame";
-  SHAPE_TYPE2["HEART"] = "heart";
-  SHAPE_TYPE2["HEPTAGON"] = "heptagon";
-  SHAPE_TYPE2["HEXAGON"] = "hexagon";
-  SHAPE_TYPE2["HORIZONTAL_SCROLL"] = "horizontalScroll";
-  SHAPE_TYPE2["ISOSCELES_TRIANGLE"] = "triangle";
-  SHAPE_TYPE2["LEFT_ARROW"] = "leftArrow";
-  SHAPE_TYPE2["LEFT_ARROW_CALLOUT"] = "leftArrowCallout";
-  SHAPE_TYPE2["LEFT_BRACE"] = "leftBrace";
-  SHAPE_TYPE2["LEFT_BRACKET"] = "leftBracket";
-  SHAPE_TYPE2["LEFT_CIRCULAR_ARROW"] = "leftCircularArrow";
-  SHAPE_TYPE2["LEFT_RIGHT_ARROW"] = "leftRightArrow";
-  SHAPE_TYPE2["LEFT_RIGHT_ARROW_CALLOUT"] = "leftRightArrowCallout";
-  SHAPE_TYPE2["LEFT_RIGHT_CIRCULAR_ARROW"] = "leftRightCircularArrow";
-  SHAPE_TYPE2["LEFT_RIGHT_RIBBON"] = "leftRightRibbon";
-  SHAPE_TYPE2["LEFT_RIGHT_UP_ARROW"] = "leftRightUpArrow";
-  SHAPE_TYPE2["LEFT_UP_ARROW"] = "leftUpArrow";
-  SHAPE_TYPE2["LIGHTNING_BOLT"] = "lightningBolt";
-  SHAPE_TYPE2["LINE_CALLOUT_1"] = "borderCallout1";
-  SHAPE_TYPE2["LINE_CALLOUT_1_ACCENT_BAR"] = "accentCallout1";
-  SHAPE_TYPE2["LINE_CALLOUT_1_BORDER_AND_ACCENT_BAR"] = "accentBorderCallout1";
-  SHAPE_TYPE2["LINE_CALLOUT_1_NO_BORDER"] = "callout1";
-  SHAPE_TYPE2["LINE_CALLOUT_2"] = "borderCallout2";
-  SHAPE_TYPE2["LINE_CALLOUT_2_ACCENT_BAR"] = "accentCallout2";
-  SHAPE_TYPE2["LINE_CALLOUT_2_BORDER_AND_ACCENT_BAR"] = "accentBorderCallout2";
-  SHAPE_TYPE2["LINE_CALLOUT_2_NO_BORDER"] = "callout2";
-  SHAPE_TYPE2["LINE_CALLOUT_3"] = "borderCallout3";
-  SHAPE_TYPE2["LINE_CALLOUT_3_ACCENT_BAR"] = "accentCallout3";
-  SHAPE_TYPE2["LINE_CALLOUT_3_BORDER_AND_ACCENT_BAR"] = "accentBorderCallout3";
-  SHAPE_TYPE2["LINE_CALLOUT_3_NO_BORDER"] = "callout3";
-  SHAPE_TYPE2["LINE_CALLOUT_4"] = "borderCallout4";
-  SHAPE_TYPE2["LINE_CALLOUT_4_ACCENT_BAR"] = "accentCallout3=4";
-  SHAPE_TYPE2["LINE_CALLOUT_4_BORDER_AND_ACCENT_BAR"] = "accentBorderCallout4";
-  SHAPE_TYPE2["LINE_CALLOUT_4_NO_BORDER"] = "callout4";
-  SHAPE_TYPE2["LINE"] = "line";
-  SHAPE_TYPE2["LINE_INVERSE"] = "lineInv";
-  SHAPE_TYPE2["MATH_DIVIDE"] = "mathDivide";
-  SHAPE_TYPE2["MATH_EQUAL"] = "mathEqual";
-  SHAPE_TYPE2["MATH_MINUS"] = "mathMinus";
-  SHAPE_TYPE2["MATH_MULTIPLY"] = "mathMultiply";
-  SHAPE_TYPE2["MATH_NOT_EQUAL"] = "mathNotEqual";
-  SHAPE_TYPE2["MATH_PLUS"] = "mathPlus";
-  SHAPE_TYPE2["MOON"] = "moon";
-  SHAPE_TYPE2["NON_ISOSCELES_TRAPEZOID"] = "nonIsoscelesTrapezoid";
-  SHAPE_TYPE2["NOTCHED_RIGHT_ARROW"] = "notchedRightArrow";
-  SHAPE_TYPE2["NO_SYMBOL"] = "noSmoking";
-  SHAPE_TYPE2["OCTAGON"] = "octagon";
-  SHAPE_TYPE2["OVAL"] = "ellipse";
-  SHAPE_TYPE2["OVAL_CALLOUT"] = "wedgeEllipseCallout";
-  SHAPE_TYPE2["PARALLELOGRAM"] = "parallelogram";
-  SHAPE_TYPE2["PENTAGON"] = "homePlate";
-  SHAPE_TYPE2["PIE"] = "pie";
-  SHAPE_TYPE2["PIE_WEDGE"] = "pieWedge";
-  SHAPE_TYPE2["PLAQUE"] = "plaque";
-  SHAPE_TYPE2["PLAQUE_TABS"] = "plaqueTabs";
-  SHAPE_TYPE2["QUAD_ARROW"] = "quadArrow";
-  SHAPE_TYPE2["QUAD_ARROW_CALLOUT"] = "quadArrowCallout";
-  SHAPE_TYPE2["RECTANGLE"] = "rect";
-  SHAPE_TYPE2["RECTANGULAR_CALLOUT"] = "wedgeRectCallout";
-  SHAPE_TYPE2["REGULAR_PENTAGON"] = "pentagon";
-  SHAPE_TYPE2["RIGHT_ARROW"] = "rightArrow";
-  SHAPE_TYPE2["RIGHT_ARROW_CALLOUT"] = "rightArrowCallout";
-  SHAPE_TYPE2["RIGHT_BRACE"] = "rightBrace";
-  SHAPE_TYPE2["RIGHT_BRACKET"] = "rightBracket";
-  SHAPE_TYPE2["RIGHT_TRIANGLE"] = "rtTriangle";
-  SHAPE_TYPE2["ROUNDED_RECTANGLE"] = "roundRect";
-  SHAPE_TYPE2["ROUNDED_RECTANGULAR_CALLOUT"] = "wedgeRoundRectCallout";
-  SHAPE_TYPE2["ROUND_1_RECTANGLE"] = "round1Rect";
-  SHAPE_TYPE2["ROUND_2_DIAG_RECTANGLE"] = "round2DiagRect";
-  SHAPE_TYPE2["ROUND_2_SAME_RECTANGLE"] = "round2SameRect";
-  SHAPE_TYPE2["SMILEY_FACE"] = "smileyFace";
-  SHAPE_TYPE2["SNIP_1_RECTANGLE"] = "snip1Rect";
-  SHAPE_TYPE2["SNIP_2_DIAG_RECTANGLE"] = "snip2DiagRect";
-  SHAPE_TYPE2["SNIP_2_SAME_RECTANGLE"] = "snip2SameRect";
-  SHAPE_TYPE2["SNIP_ROUND_RECTANGLE"] = "snipRoundRect";
-  SHAPE_TYPE2["SQUARE_TABS"] = "squareTabs";
-  SHAPE_TYPE2["STAR_10_POINT"] = "star10";
-  SHAPE_TYPE2["STAR_12_POINT"] = "star12";
-  SHAPE_TYPE2["STAR_16_POINT"] = "star16";
-  SHAPE_TYPE2["STAR_24_POINT"] = "star24";
-  SHAPE_TYPE2["STAR_32_POINT"] = "star32";
-  SHAPE_TYPE2["STAR_4_POINT"] = "star4";
-  SHAPE_TYPE2["STAR_5_POINT"] = "star5";
-  SHAPE_TYPE2["STAR_6_POINT"] = "star6";
-  SHAPE_TYPE2["STAR_7_POINT"] = "star7";
-  SHAPE_TYPE2["STAR_8_POINT"] = "star8";
-  SHAPE_TYPE2["STRIPED_RIGHT_ARROW"] = "stripedRightArrow";
-  SHAPE_TYPE2["SUN"] = "sun";
-  SHAPE_TYPE2["SWOOSH_ARROW"] = "swooshArrow";
-  SHAPE_TYPE2["TEAR"] = "teardrop";
-  SHAPE_TYPE2["TRAPEZOID"] = "trapezoid";
-  SHAPE_TYPE2["UP_ARROW"] = "upArrow";
-  SHAPE_TYPE2["UP_ARROW_CALLOUT"] = "upArrowCallout";
-  SHAPE_TYPE2["UP_DOWN_ARROW"] = "upDownArrow";
-  SHAPE_TYPE2["UP_DOWN_ARROW_CALLOUT"] = "upDownArrowCallout";
-  SHAPE_TYPE2["UP_RIBBON"] = "ribbon2";
-  SHAPE_TYPE2["U_TURN_ARROW"] = "uturnArrow";
-  SHAPE_TYPE2["VERTICAL_SCROLL"] = "verticalScroll";
-  SHAPE_TYPE2["WAVE"] = "wave";
-  return SHAPE_TYPE2;
-})(SHAPE_TYPE || {});
-var CHART_TYPE = /* @__PURE__ */ ((CHART_TYPE2) => {
-  CHART_TYPE2["AREA"] = "area";
-  CHART_TYPE2["BAR"] = "bar";
-  CHART_TYPE2["BAR3D"] = "bar3D";
-  CHART_TYPE2["BUBBLE"] = "bubble";
-  CHART_TYPE2["BUBBLE3D"] = "bubble3D";
-  CHART_TYPE2["DOUGHNUT"] = "doughnut";
-  CHART_TYPE2["LINE"] = "line";
-  CHART_TYPE2["PIE"] = "pie";
-  CHART_TYPE2["RADAR"] = "radar";
-  CHART_TYPE2["SCATTER"] = "scatter";
-  return CHART_TYPE2;
-})(CHART_TYPE || {});
-var SCHEME_COLOR_NAMES = /* @__PURE__ */ ((SCHEME_COLOR_NAMES2) => {
-  SCHEME_COLOR_NAMES2["TEXT1"] = "tx1";
-  SCHEME_COLOR_NAMES2["TEXT2"] = "tx2";
-  SCHEME_COLOR_NAMES2["BACKGROUND1"] = "bg1";
-  SCHEME_COLOR_NAMES2["BACKGROUND2"] = "bg2";
-  SCHEME_COLOR_NAMES2["ACCENT1"] = "accent1";
-  SCHEME_COLOR_NAMES2["ACCENT2"] = "accent2";
-  SCHEME_COLOR_NAMES2["ACCENT3"] = "accent3";
-  SCHEME_COLOR_NAMES2["ACCENT4"] = "accent4";
-  SCHEME_COLOR_NAMES2["ACCENT5"] = "accent5";
-  SCHEME_COLOR_NAMES2["ACCENT6"] = "accent6";
-  return SCHEME_COLOR_NAMES2;
-})(SCHEME_COLOR_NAMES || {});
-var MASTER_OBJECTS = /* @__PURE__ */ ((MASTER_OBJECTS2) => {
-  MASTER_OBJECTS2["chart"] = "chart";
-  MASTER_OBJECTS2["image"] = "image";
-  MASTER_OBJECTS2["line"] = "line";
-  MASTER_OBJECTS2["rect"] = "rect";
-  MASTER_OBJECTS2["text"] = "text";
-  MASTER_OBJECTS2["placeholder"] = "placeholder";
-  return MASTER_OBJECTS2;
-})(MASTER_OBJECTS || {});
-var PLACEHOLDER_TYPES = /* @__PURE__ */ ((PLACEHOLDER_TYPES2) => {
-  PLACEHOLDER_TYPES2["title"] = "title";
-  PLACEHOLDER_TYPES2["body"] = "body";
-  PLACEHOLDER_TYPES2["image"] = "pic";
-  PLACEHOLDER_TYPES2["chart"] = "chart";
-  PLACEHOLDER_TYPES2["table"] = "tbl";
-  PLACEHOLDER_TYPES2["media"] = "media";
-  return PLACEHOLDER_TYPES2;
-})(PLACEHOLDER_TYPES || {});
-var ANIMATION_PRESETS = {
-  // Entrance effects (presetClass: 'entr')
-  "appear": { presetId: 1, presetClass: "entr" },
-  "fly-in": { presetId: 2, presetClass: "entr" },
-  "blinds": { presetId: 3, presetClass: "entr" },
-  "box": { presetId: 4, presetClass: "entr" },
-  "checkerboard": { presetId: 5, presetClass: "entr" },
-  "circle": { presetId: 6, presetClass: "entr" },
-  "crawl": { presetId: 7, presetClass: "entr" },
-  "diamond": { presetId: 8, presetClass: "entr" },
-  "dissolve": { presetId: 9, presetClass: "entr" },
-  "fade": { presetId: 10, presetClass: "entr" },
-  "flash-once": { presetId: 11, presetClass: "entr" },
-  "float": { presetId: 12, presetClass: "entr" },
-  "glide": { presetId: 13, presetClass: "entr" },
-  "grow-and-turn": { presetId: 14, presetClass: "entr" },
-  "newsflash": { presetId: 15, presetClass: "entr" },
-  "peek": { presetId: 16, presetClass: "entr" },
-  "pinwheel": { presetId: 17, presetClass: "entr" },
-  "plus": { presetId: 18, presetClass: "entr" },
-  "random-bars": { presetId: 19, presetClass: "entr" },
-  "random": { presetId: 20, presetClass: "entr" },
-  "spiral": { presetId: 21, presetClass: "entr" },
-  "split": { presetId: 22, presetClass: "entr" },
-  "stretch": { presetId: 23, presetClass: "entr" },
-  "strips": { presetId: 24, presetClass: "entr" },
-  "swivel": { presetId: 25, presetClass: "entr" },
-  "wedge": { presetId: 26, presetClass: "entr" },
-  "wheel": { presetId: 27, presetClass: "entr" },
-  "wipe": { presetId: 28, presetClass: "entr" },
-  "zoom": { presetId: 29, presetClass: "entr" },
-  "bounce": { presetId: 30, presetClass: "entr" },
-  "expand": { presetId: 31, presetClass: "entr" },
-  // Exit effects (presetClass: 'exit')
-  "disappear": { presetId: 1, presetClass: "exit" },
-  "fly-out": { presetId: 2, presetClass: "exit" },
-  "fade-out": { presetId: 10, presetClass: "exit" },
-  "zoom-out": { presetId: 29, presetClass: "exit" },
-  // Emphasis effects (presetClass: 'emph')
-  "pulse": { presetId: 1, presetClass: "emph" },
-  "color-pulse": { presetId: 2, presetClass: "emph" },
-  "teeter": { presetId: 3, presetClass: "emph" },
-  "spin": { presetId: 4, presetClass: "emph" },
-  "grow-shrink": { presetId: 5, presetClass: "emph" }
-};
-var ANIMATION_DIRECTIONS = {
-  "from-bottom": 1,
-  "from-bottom-left": 2,
-  "from-left": 3,
-  "from-top-left": 4,
-  "from-top": 5,
-  "from-top-right": 6,
-  "from-right": 7,
-  "from-bottom-right": 8,
-  "horizontal": 9,
-  "vertical": 10,
-  "in": 16,
-  "out": 32,
-  "in-horizontal": 17,
-  "in-vertical": 18,
-  "out-horizontal": 33,
-  "out-vertical": 34
-};
-var IMG_BROKEN = "data:image/png;base64,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";
-var IMG_PLAYBTN = "data:image/png;base64,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AAAAAACAlFAAAwAAAAAAAKSEAhgAAAAAAAAgJRTAAAAAAAAAACmhAAYAAAAAAABICQUwAAAAAAAAQEoogAEAAAAAAABSQgEMAAAAAAAAkBIKYAAAAAAAAICUUAADAAAAAAAApIQCGAAAAAAAACAlFMAAAAAAAAAAKaEABgAAAAAAAEgJBTAAAAAAAABASiiAAQAAAAAAAFJCAQwAAAAAAACQEgpgAAAAAAAAgJRQAAMAAAAAAACkhAIYAAAAAAAAICUUwAAAAAAAAAApoQAGAAAAAAAASAkFMAAAAAAAAEBKKIABAAAAAAAAUkIBDAAAAAAAAJASCmAAAAAAAACAlFAAAwAAAAAAAKSEAhgAAAAAAAAgJRTAAAAAAAAAACmhAAYAAAAAAABICQUwAAAAAAAAQEoogAEAAAAAAABSQgEMAAAAAAAAkBIKYAAAAAAAAICUUAADAAAAAAAApIQCGAAAAAAAACAlFMAAAAAAAAAAKaEABgAAAAAAAEgJBTAAAAAAAABASiiAAQAAAAAAAFJCAQwAAAAAAACQEgpgAAAAAAAAgJRQAAMAAAAAAACkhAIYAAAAAAAAICUUwAAAAAAAAAApoQAGAAAAAAAASAkFMAAAAAAAAEBKKIABAAAAAAAAUkIBDAAAAAAAAJASCmAAAAAAAACAlFAAAwAAAAAAAKSEAhgAAAAAAAAgJRTAAAAAAAAAACmhAAYAAAAAAABICQUwAAAAAAAAQEoogAEAAAAAAABSQgEMAAAAAAAAkBIKYAAAAAAAAICUUAADAAAAAAAApIQCGAAAAAAAACAlFMAAAAAAAAAAKaEABgAAAAAAAEgJBTAAAAAAAABASiiAAQAAAAAAAFJCAQwAAAAAAACQEgpgAAAAAAAAgJRQAAMAAAAAAACkhAIYAAAAAAAAICUUwAAAAAAAAAApoQAGAAAAAAAASAkFMAAAAAAAAEBKKIABAAAAAAAAUkIBDAAAAAAAAJASCmAAAAAAAACAlFAAAwAAAAAAAKSEAhgAAAAAAAAgJRTAAAAAAAAAACmhAAYAAAAAAABICQUwAAAAAAAAQEoogAEAAAAAAABSQgEMAAAAAAAAkBIKYAAAAAAAAICUUAADAAAAAAAApIQCGAAAAAAAACAlFMAAAAAAAAAAKaEABgAAAAAAAEgJBTAAAAAAAABASiiAAQAAAAAAAFJCAQwAAAAAAACQEgpgAAAAAAAAgJRQAAMAAAAAAACkhAIYAAAAAAAAICUUwAAAAAAAAAApoQAGAAAAAAAASAkFMAAAAAAAAEBKKIABAAAAAAAAUkIBDAAAAAAAAJASCmAAAAAAAACAlFAAAwAAAAAAAKSEAhgAAAAAAAAgJRTAAAAAAAAAACmhAAYAAAAAAABICQUwAAAAAAAAQEoogAEAAAAAAABSQgEMAAAAAAAAkBIKYAAAAAAAAICUUAADAAAAAAAApIQCGAAAAAAAACAlFMAAAAAAAAAAKaEABgAAAAAAAEgJBTAAAAAAAABASiiAAQAAAAAAAFJCAQwAAAAAAACQEgpgAAAAAAAAgJRQAAMAAAAAAACkhAIYAAAAAAAAICUUwAAAAAAAAAApoQAGAAAAAAAASAkFMAAAAAAAAEBKKIABAAAAAAAAUkIBDAAAAAAAAJASCmAAAAAAAACAlFAAAwAAAAAAAKSEAhgAAAAAAAAgJRTAAAAAAAAAACmhAAYAAAAAAABICQUwAAAAAAAAQEoogAEAAAAAAABSQgEMAAAAAAAAkBIKYAAAAAAAAICUUAADAAAAAAAApIQCGAAAAAAAACAlFMAAAAAAAAAAKaEABgAAAAAAAEgJBTAAAAAAAABASiiAAQAAAAAAAFJCAQwAAAAAAACQEgpgAAAAAAAAgJRQAAMAAAAAAACkhAIYAAAAAAAAICUUwAAAAAAAAAApoQAGAAAAAAAASAkFMAAAAAAAAEBKKIABAAAAAAAAUkIBDAAAAAAAAJASCmAAAAAAAACAlFAAAwAAAAAAAKSEAhgAAAAAAAAgJRTAAAAAAAAAACmhAAYAAAAAAABICQUwAAAAAAAAQEoogAEAAAAAAABSQgEMAAAAAAAAkBIKYAAAAAAAAICUUAADAAAAAAAApIQCGAAAAAAAACAlFMAAAAAAAAAAKaEABgAAAAAAAEgJBTAAAAAAAABASiiAAQAAAAAAAFJCAQwAAAAAAACQEgpgAAAAAAAAgJRQAAMAAAAAAACkhAIYAAAAAAAAICUUwAAAAAAAAAApoQAGAAAAAAAASAkFMAAAAAAAAEBKKIABAAAAAAAAUkIBDAAAAAAAAJASCmAAAAAAAACAlFAAAwAAAAAAAKSEAhgAAAAAAAAgJRTAAAAAAAAAACmhAAYAAAAAAABICQUwAAAAAAAAQEoogAEAAAAAAABSQgEMAAAAAAAAkBIKYAAAAAAAAICUUAADAAAAAAAApIQCGAAAAAAAACAlFMAAAAAAAAAAKaEABgAAAAAAAEgJBTAAAAAAAABASiiAAQAAAAAAAFJCAQwAAAAAAACQEgpgAAAAAAAAgJRQAAMAAAAAAACkhAIYAAAAAAAAICUUwAAAAAAAAAApoQAGAAAAAAAASAkFMAAAAAAAAEBKKIABAAAAAAAAUkIBDAAAAAAAAJASCmAAAAAAAACAlFAAAwAAAAAAAKSEAhgAAAAAAAAgJRTAAAAAAAAAACmhAAYAAAAAAABICQUwAAAAAAAAQEoogAEAAAAAAABSQgEMAAAAAAAAkBIKYAAAAAAAAICUUAADAAAAAAAApIQCGAAAAAAAACAlFMAAAAAAAAAAKaEABgAAAAAAAEgJBTAAAAAAAABASiiAAQAAAAAAAFJCAQwAAAAAAACQEgpgAAAAAAAAgJRQAAMAAAAAAACkhAIYAAAAAAAAICUUwAAAAAAAAAApoQAGAAAAAAAASAkFMAAAAAAAAEBKKIABAAAAAAAAUkIBDAAAAAAAAJASCmAAAAAAAACAlFAAAwAAAAAAAKREkRUAAACwrUpLSwuGDRvWfMCAAS26du3avKysrLiioqKkZcuWzZs1a1bcvHnz0tLS0rJsNtusuLi4ebNmzUoLCgo+8/eijY2N9Zs3b66pra2tqqur21xTU1NdVVVVs2nTptqNGzdWbdiwoeYvf/nL5hUrVlQtWLBgw6xZs6pqamoaJQYAAEDaKYABAACIiIghQ4aUHnTQQW379u3bql27dq3at2/fpkWLFq2bN29eWVpa2qpZs2bNCwsLm2ez2fLCwsLyoqKi8sLCwtKknK+hoaG6vr6+qqGh4S91dXV/aWhoqNq8eXNVTU3NuqqqqvUbNmxYu2rVqjWrV69e99Zbb6177rnnPpgzZ06NTwYAAABJogAGAADIA8OGDWt+xBFHdBwwYECnLl26dGjdunXHFi1adCgtLe1YUlLSvlmzZq0KCgqK07yDwsLCssLCwrKIaPdp/zuNjY21mzdvXrdp06ZVNTU172/YsGHl2rVr31+2bNnKBQsWrHjyySffnzVrVpVPGAAAAE1Fpuexsd9HfaF+ZcSal0ptCAAAIAE6deqUPf744zvtueeeXbp3796lbdu2XSorKzuXlpZ2KS0t7VBYWFhhSztGQ0PDxpqampU1NTXL169fv+yDDz5Y9s477yybPXv2sj/96U8rVqxYUWdLAAAAbE9t9q6Jog4f/TUFMAAAQEJks9nMt7/97Y4jRozo1bdv397t2rXrXl5e3rWsrKxzcXFx+4gosKUmp7G2tnZVTU3Nso0bNy5btWrV0tdff/2tJ598cvG999672noAAADYFgpgAACAhPne977X6a9Fb/v27Xu1bNmyV1lZWa8kvXOXLauvr9/wl7/8ZdG6desWL1u2bNHChQsX/fGPf1w8derUjbYDAADAliiAAQAAmqhsNps59dRTuxx66KH9+/Tp87n27dv3Ly8v719UVOSRzXlq06ZNKzZu3Pj6+++//8abb775xqOPPvrG3XffvcpmAAAA+CsFMAAAQBNx6qmndvniF784qHfv3v3btWv3uYqKis8VFhaW2wxbUl9fv37Dhg1vfPDBB68vXrz4jccee2z+jTfeuNxmAAAA8pMCGAAAYBc45phjWn/rW9/aq3///kPatGnTv6Kiop9HOLO9NDQ0VG/cuPGtNWvWLFy4cOGcO+6445WHHnporc0AAACknwIYAABgJzjjjDO6f+lLX9qrV69eg1u3bj2orKysR0RkbIadJFddXb103bp18xcvXjz30UcffeXqq69+x1oAAADSRwEMAACwnZWWlhb86le/2u3QQw8d1r17931btmw5qLCwsMxmaEoaGhqqP/zww/nvvPPOzGeeeWbW2LFj36ipqWm0GQAAgGRTAAMAAGwHP/7xj7t+9atf3bdXr15D27Ztu1c2m21jKyRJXV3dmg8++OCVRYsWvfznP/95xh/+8IdltgIAAJA8CmAAAIBtcOKJJ7Y75ZRTDujXr9+w1q1bD81ms61shTSpq6tbt3bt2pfffPPNWbfccsvUe++9d7WtAAAANH0KYAAAgE+hoqKi4IILLhg0YsSI/bp27bpfy5YtB2YymUKbIR/kcrmGDz/8cP6777474/nnn59x4YUXvrZx40aPiwYAAGiCFMAAAAAf4/jjj2/7/e9//8D+/fsf2Lp1630KCgpKbAUiGhsbN61fv37eW2+9NeWGG2545u67715lKwAAAE2DAhgAAOB/ZLPZzAUXXPC5I4888sDu3bsfWFFRsVtEFNgMbFl1dfWSd999d8qsWbNmnnvuuS+vW7euwVYAAAB2DQUwAACQ10pLSwsuvfTSQYcccsjBXbt2HVFWVtbDVmDb1dbWrnr//fdfmDp16uRf/vKXL65evbreVgAAAHYeBTAAAJB3Bg0aVHrBBRd8fs899zywQ4cOBxQVFbWwFdj+Ghsba9euXTtrzpw5T59//vmTX3755WpbAQAA2LEUwAAAQF4YNmxY8/POO+/gIUOGHOZ9vrDz/W0ZfNFFFz07a9asKlsBAADY/hTAAABAarVq1arwyiuv3HfEiBEjO3TocFBhYWGZrcCu19DQUP3+++8/O2XKlIk/+clPZm7cuLHRVgAAALYPBTAAAJAqrVq1Kvztb3+7/3777Xd4x44dRxQWFpbbCjRdDQ0NG99///0pM2bMeOqHP/zhC8pgAACAz0YBDAAApMJZZ53V45vf/OaRvXr1GllaWtrVRiB5ampq3l28ePHEO++8c9LVV1/9jo0AAABsPQUwAACQWMOHDy+/6KKLvjB48OCjW7RoMdBGID0+/PDDV+fNmzfhvPPOe3L69Ol/sREAAIBPRwEMAAAkSqtWrQpvuOGGQ/bbb79/atOmzX6ZTCZrK5BeuVyubs2aNTNmzJjx2JgxYyavW7euwVYAAAA+ngIYAABIhB//+Mddv/e9732lZ8+e/1RcXNzWRiD/1NbWfvD2228/dssttzz029/+9l0bAQAA+L8UwAAAQJNVUVFRcO21137+4IMPPrZ169b7ZTKZAlsBIqJxzZo1M59//vnxp5122hR3BQMAAPx/CmAAAKDJOeWUUzqefvrpx/bu3ftL2Wy2jY0AH6e+vn7j0qVLH/vd7373x+uvv36ZjQAAAPlOAQwAADQJ2Ww2c+uttx5wyCGHnNC6deu9I8LdvsDWaFy7du1L06ZN+/OPfvSjZ1evXl1vJQAAQD5SAAMAALtU//79S6655pp/2nPPPY8tLy/vayPAZ1VTU7NswYIF488999wHp06dutFGAACAfKIABgAAdomf//znPU855ZQTu3btemRhYWGZjQDbW2NjY92KFSuevOWWW+689NJLF9kIAACQDxTAAADATuMxz8Cusn79+rlPP/30f5188slT6+rqcjYCAACklQIYAADY4fr27Vv8hz/84a+Pee5nI8CuUlNT8+68efPu/8EPfvDgwoULN9kIAACQNgpgAABghxkyZEjpNddc89XBgwefWFxc3MFGgKaitrZ21dy5c+/5yU9+8uc5c+bU2AgAAJAWWyqAPYoNAADYJqNHj+4wb968n06ZMuXRYcOGnaH8BZqa4uLi9sOGDTtjypQpj86bN++nJ510UntbAQAA0s4dwAAAwFY599xze33/+9//dufOnY/IZDJZGwGSIpfL1S1fvvzJG2644fbLLrvsbRsBAACSyiOgAQCAz+y8887r+53vfOfbHTt2PDyTyRTaCJBUuVyuYcWKFU/cdNNN//XrX/96sY0AAABJowAGAAC22WWXXTboG9/4xg9at249zDaAtFm7du2su++++9pzzjnnNdsAAACSQgEMAABsNcUvkE8UwQAAQJIogAEAgE9N8Qvks7Vr18665557rvv5z38+3zYAAICmaksFcGHlwOj6UV9orIqoWZG1PQAAyBO/+MUvet9xxx3nHHrooT8pLS3tYiNAPiotLe2y7777HvP973+/X1lZ2ZIpU6assxUAAKCpKetcHwXlH/01BTAAAOS5M844o/u99957zpe//OWflZeX94qIjK0AeS5TXl7e8+CDDx71/e9/v3dEvDVjxowPrQUAAGgqFMAAAMD/ceKJJ7a77777fjJq1Kh/KS8v7xOKX4B/lCkvL+99+OGHj/rWt77VfvXq1Qvnz59fbS0AAMCutqUC2DuAAQAgzwwdOrTs+uuvP6l///4nFRYWltkI20NjY2Ns2rQpqquro6amJurr62PTpk2xefPmqK+vj+rq6qivr4/NmzfHpk2boqGhYZv/fxUWFkZJSUk0a9YsioqKoqysLIqKiqJZs2ZRUlISRUVFUVpa+r9/FRQUCIjtoqGhoeq11167a8yYMffMmTOnxkYAAIBdZUvvAFYAAwBAnujUqVP2nnvuGbXXXnudnM1mK22Ej9PQ0BAbN26MDRs2/J+/Nm7cGBs3boyamprYtGlTbNq0KWpqaqK2trbJnqe4uDhKSkqitLT0f/9eUVERFRUV0aJFi//zV0VFRRQWFvog8LHq6urWvvjii7eceOKJf169enW9jQAAADubAhgAAPLcXXfdddAXv/jF00tLS7vZRn7L5XKxYcOGWLt2baxbty7Wrl37d3+tW7cuNmzYkPd7atGiRbRu3TpatWoVrVu3jjZt2vzvf27dunW0aNHCh4morq5e+sgjj1zzne98Z6ptAAAAO5MCGAAA8tTVV189+MQTTzyzoqJioG3kj8bGxli5cmUsX748Pvjgg1i9evX//n3t2rXR2NhoSZ9RYWFhtGrVKtq1axdt27b937937tw5OnTo4LHTeWbDhg3z77333qvOPPPMebYBAADsDApgAADIM1/72tfaXHrppad27979qIjQRKVUQ0NDrFq1KlasWBHvv//+//595cqVTfqRzGlXXFwcHTp0iI4dO0bnzp2jY8eO0alTp2jXrp1HS6dYLpdrfOeddx76+c9/fv2ECRPW2QgAALAjKYABACBP9OrVq9ldd931jT322OM7hYWFZTaSHh9++GG88847sXTp0njvvfdixYoVsXr16mhoaLCchCgsLIz27dtHp06dolu3btG9e/fo3r27x0mnTENDQ9W8efNu++Y3v/nHJUuWbLYRAABgR1AAAwBAHrjrrrtG/NM//dOZJSUlXWwj2davXx9Lly6Nd955539L3w8//NBiUqqysvJ/y+C//tWqVSuLSbiamppljz322G9Gjx49xTYAAIDtTQEMAAAp9qtf/arPD3/4w5+1atVqL9tIno0bN8aSJUvirbfeikWLFsV7770XmzZtspg8V1JSEl27do0+ffpE3759o3fv3lFeXm4xCbRu3bqXr7322ivGjh27yDYAAIDtRQEMAAApNGjQoNI77rjju7vttttJBQUFWRtJhtWrV8ebb74ZixcvjiVLlsTy5cujsbHRYtiigoKC6Ny5c/Tu3Tt69+4d/fr1i7Zt21pMQjQ2Nta98cYbd33rW9+6ff78+TU2AgAAfFYKYAAASJHS0tKCBx988Jj99tvvn7PZbBsbaboaGhri7bffjrfeeisWLFgQS5YscXcv201FRUX06tUr+vbtG3379o2ePXtGYWGhxTRhdXV1a2bMmHHjV77ylYdqamr85gcAALDNFMAAAJASp59+erdf/vKX51ZWVu5jG03T6tWr47XXXouFCxfGm2++GRs3brQUdooWLVpE3759Y8CAATFw4EB3CDdh69evf/E//uM//vPqq69+xzYAAIBtoQAGAICEGzRoUOm99977w969ex+byWTc4teErF+/PubNmxcLFiyIN954Q+FLk9GiRYvo169fDBgwIPbYY4+orKy0lCYkl8s1LF68eNyJJ554rcdCAwAAW0sBDAAACXbNNdcMOemkk35RVlbWyzZ2vVwuF++++27MnTs3XnvttViyZIl3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B7lcrm7y5Mm//vKXv/yIbQAAwK63pXcAK4ABAMg7paWlBTNnzjyzT58+x9vG39uwYUOMGzcuZsyY4VHPQF7KZDKx3377xde//vWoqKiwkH+waNGiP+27775X1dTUeCwEAADsQgpgAAD4H926dctOnjz5V506dRppG/9fLpeLqVOnxp///OfYuHGjhQB5r6KiIkaNGhX777+/x0L/g+XLlz9+6KGHXvLuu+/W2QYAAOwaWyqAvQMYAIC8MXz48PInnnjiynbt2o2wjf/vnXfeiWuvvTaee+652Lx5s4UARMTmzZtjzpw58dprr0XPnj2jRYsWlvI/Kioq+n7rW98aMnXq1Ofee+89f3AAAMAusKV3ACuAAQDIC9/+9rc73n777X9o0aLFANv4b1VVVXHXXXfFvffeG+vXr7cQgI+wbt26eP7552P9+vWx2267RVFRkaVERElJSefjjjvuoA8++GDKK6+88hcbAQCAnUsBDABAXjv//PP7XXzxxX8oKSnpbBv/bfr06XHttdfGokWLLAPgU3jnnXdi2rRp0bp16+jc2R8nERHZbLbyC1/4whElJSUvTp48eY2NAADAzqMABgAgb/3ud7/b60c/+tFVRUVFrWwjYs2aNXHzzTfHpEmTora21kIAtkJtbW289NJL8c4770Tfvn2jtLQ073dSWFhYNnz48C/26dNn4UMPPbTMpwQAAHYOBTAAAHnp1ltv3f+b3/zmfxYWFjbP913kcrl4/vnn4/rrr4/ly5f7cAB8BitXroxp06ZFRUVFdOvWLTKZTF7vo6CgIDto0KBDBw0atOiBBx54xycEAAB2vC0VwJmex8Z+H/WF+pURa17ym6wAACTTww8//KXDDjvsXzKZTN6/rPGDDz6I22+/Pd544w0fDIDtbMCAAfGtb30r2rRpk/e7yOVyjVOmTPn1yJEjH/LJAACAHavN3jVR1OGjv6YABgAgdV555ZXTPve5z30r3/fQ0NAQjz32WDz++ONRV1fngwGwg2Sz2Tj66KPjC1/4QhQUFOT9Pl5//fU79tprr9/7ZAAAwI6jAAYAIC9ks9nMyy+/fFafPn2Oz/ddvPvuu3HbbbfFe++954MBsJN069YtvvOd70S3bt3yfhdLliy5f5999rmypqam0ScDAAC2PwUwAACpV1paWjBr1qyzevfufVw+7yGXy8WTTz4ZDz74oLt+AXaBbDYbxxxzTBxxxBF5fzfw0qVLHxg6dOjlSmAAANj+FMAAAKRar169mk2ePHlsu3btDsrnPaxcuTJuueWWePvtt30oAHaxnj17ximnnBIdOnTI6z2sXr16yiGHHPIvS5Ys2exTAQAA28+WCuDCyoHR9aO+0FgVUbMia3sAADRpQ4cOLXvqqacub9Omzf75uoNcLhfPPPNMXH/99bF27VofCoAmYP369TFlypQoKSmJnj17RiaTycs9NG/evPtJJ500ZPLkyc+sWLHCoykAAGA7KetcHwXlH/01BTAAAIk1ZMiQ0kceeeSKVq1a7Z2vO6iuro7bb789nnjiiWhs9IRNgKaksbEx5s+fH++//34MGDAgstn8/DlLaWlpp6997WuDn3rqqadXrlxZ75MBAACfnQIYAIDUOfTQQ1s8+OCDv2/ZsuUe+bqDOXPmxNVXX+2RzwBN3PLly+OFF16Ijh075u0joUtLSzudcMIJ+7/00ktPv/3227U+FQAA8NkogAEASJVhw4Y1v++++37TsmXLQfl4/vr6+hg/fnz88Y9/jNpaP0MHSILNmzfHiy++GJs3b47ddtstCgoK8m4HxcXFbY866qg9n3vuuaeXL1/ucdAAAPAZKIABAEiNI488snLcuHG/b9GixcB8PP97770XV111VcyZM8eHASCBFi1aFC+//HL069cvWrRokXfnLykp6XDcccftP2fOnGcWLVq0yScCAAC2jQIYAIBUOPLIIyvvvPPO35aXl++Wj+d/+umn48Ybb4wPP/zQhwEgwf7yl7/ECy+8ECUlJdGrV6+8O3+zZs3aHHXUUfspgQEAYNspgAEASLxjjz227W233faH5s2b98m3s1dVVcXNN98cTz31VDQ2NvowAKRAY2NjzJ8/P5YtWxYDBgyIZs2a5dX5mzVr1uaYY4458M0333xm4cKFNT4RAACwdRTAAAAk2qGHHtritttuuzofy9+33347rrnmmli8eLEPAkAKvf/++/HKK69Enz59orKyMq/Ons1mK4888sh9Zs6c+dTSpUs3+zQAAMCnpwAGACCxjjjiiJb33nvvteXl5f3y6dy5XC4mTZoUN998c1RVVfkgAKRYVVVVTJ06NbLZbPTp0ycymUzenL24uLjtV7/61c+/8sorTy1evLjWpwEAAD4dBTAAAIl06KGHtrj33nt/l2/lb3V1ddx0000xefLkyOVyPggAeSCXy8WCBQvi3Xffjd133z2y2fz5mUyzZs1aH3300fvNmDHjSXcCAwDAp6MABgAgcYYOHVo2fvz4qysqKgbk07mXLVsWV111lUc+A+SplStXxiuvvBKf+9znoqKiIm/O3axZszZHH3300GeeeebJFStW1PkkAADAlimAAQBIlCFDhpQ++uij17Rs2XL3fDr31KlT49prr42NGzf6EADksaqqqpg+fXq0bds2unTpkjfnLikpaT9q1KihTz755JMrV66s90kAAICPt6UCuMB6AABoSjp16pSdMGHCv1dWVu6RL2dubGyMcePGxR133BF1dW56AiCitrY2br755hg/fnw0NjbmzbkrKyv3mDBhwr9369bNXQkAALCNFMAAADQZrVq1Kpw+ffolbdq02T9fzlxdXR2/+93vYtKkSd73C8DfyeVy8fjjj8fvf//7qK6uzptzt2nTZv8pU6Zc0qpVq0KfAgAA2HoKYAAAmoSKioqC2bNnX9KuXbuD8uXMS5cujYsuuijmz5/vAwDAx3r11VfjoosuiqVLl+bNmdu1a3fQ7Nmz/72iosLPrgAAYCu5iAYAoEmYOXPmz9q1a3dIvpz35ZdfjiuuuCLWrVsnfAA+0bp16+KKK66Il19+OW/O3K5du4Nnzpz5M+kDAMDWUQADALDLvfjii2N69OgxKh/Omsvl4oEHHogbbrghamtrhQ/Ap1ZbWxs33HBDPPDAA3nz2oAePXqMevHFF8dIHwAAPj0FMAAAu9SkSZO+NnDgwFPy4ax1dXVx8803x8SJE73vF4BtksvlYuLEiXHLLbdEXV1dXpx54MCBJ0+aNOlr0gcAgE9HAQwAwC7z6KOPHnXggQeekw9nXbduXfz617+OWbNmCR6Az2zmzJnx61//Ol9eJZA58MADz3n00UePkjwAAHyywsqB0fWjvtBYFVGzImtDAADsEDfeeOO+Rx999EWZTKYw7Wddvnx5XHXVVbFy5UrBA7DdbNiwIWbPnh0DBw6MioqKtB8307179/179uz56sMPP7xc+gAA5LuyzvVRUP7RX1MAAwCw011xxRV7fPe7372qoKCgWdrPOmfOnPjtb38bGzduFDwA2111dXVMmzYtOnfuHB07dkz1WTOZTOHuu+9+eJs2bV6aNGnSKukDAJDPFMAAADQZZ5xxRvef/exnvy0sLCxP+1knTJgQd999d9TX1wsegB2moaEhXnrppchms9G3b99UnzWTyRTttddeB/3lL395dubMmRukDwBAvlIAAwDQJBx00EEVf/jDH64pLi7ulOZz5nK5eOCBB+Kxxx4TOgA77c+eBQsWRF1dXfTv3z8ymUxqz1pQUFBywAEHDJs+ffqkpUuXbpY+AAD5aEsFcIH1AACwMwwaNKj0vvvuu7qsrKxXms9ZV1cX1113XUyaNEnoAOx0EydOjOuvvz7q6upSfc6ysrJef/rTn67u379/idQBAODvKYABANjhKioqCh577LGLKyoqBqb5nNXV1XHNNdfE7NmzhQ7ALvPKK6/ElVdeGVVVVak+Z4sWLQZOnDhxbEVFhZ9vAQDA33CBDADADjdz5syftW3b9sA0n3HdunVx2WWXxRtvvCFwAHa5xYsXx2WXXRZr165N9TnbtWt34MyZM38mcQAA+P8UwAAA7FBPPvnkqB49eoxK8xlXrVoVV1xxRSxfvlzgADQZK1asiCuuuCJWrlyZ6nP26NFj1KRJk0ZJHAAA/lth5cDo+lFfaKyKqFmRtSEAALbZjTfeuO+XvvSlCzOZTGp/8fDdd9+NK6+8MtatWydwAJqc6urqmDVrVvTv3z8qKytTe85u3boN79mz57yHH37Yb2MBAJAXyjrXR0H5R39NAQwAwA5x3nnn9T311FOvLigoKE7rGV977bW45pprorq6WuAANFmbN2+OGTNmRI8ePaJ9+/apPGMmkykYNGjQIYWFhVOee+45v5UFAEDqKYABANipjjrqqFb/8R//8YdmzZq1SusZX3755bj++uujrq5O4AA0eQ0NDfHSSy9Fp06dolOnTqk8Y0FBQXbYsGGfnz9//qQ33nhjk9QBAEizLRXA3gEMAMB21a1bt+wNN9zwnyUlJR3TesYpU6bEjTfeGPX19QIHIDHq6+vjxhtvjKlTp6b2jCUlJZ1uuOGG/+jWrZu7GgAAyFsKYAAAtqunn376XyorK/dI6/kmTZoUd955ZzQ2NgobgMRpbGyMO+64I5588snUnrGysnLw008//UtpAwCQrxTAAABsN88///w3unTp8k9pPd/EiRNj3LhxkcvlhA1AYuVyubj//vtTXQJ36dLlS88+++yJ0gYAIB95BzAAANvFTTfdNPzII488L5PJZNJ4vsceeyzGjx8vaABS47XXXotmzZpF3759U3m+zp0779urV695Dz/88DJpAwCQNlt6B7ACGACAz+wXv/hF7x/+8IdXFxQUNEvj+R544IF45JFHBA1A6ixYsCDq6upiwIABqTtbJpPJDBo06ODGxsbnpk6dul7aAACkiQIYAIAd5oADDqj43e9+99tmzZq1TeP5xo0bF5MmTRI0AKm1aNGi2Lx5cwwcODB1ZysoKMjut99+w5577rnH33vvvc3SBgAgLbZUAHsHMAAA2yybzWbuvPPOfyktLe2exvNNmDBB+QtAXpg0aVI89NBDqTxbaWlpj3vuuedfstlsRtIAAOQDBTAAANvs+eef/06HDh0OTePZHn744Xj44YeFDEDeeOSRR+LPf/5zKs/WoUOHw5599tlvSxkAgHygAAYAYJvcd999hw8ePPjUNJ7t/vvvjwkTJggZgLzz2GOPxX333ZfKs+25554/+NOf/nSYlAEASDvvAAYAYKudccYZ3ceMGXN5QUFBcdrONnHixHjkkUeEDEDeWrx4cWSz2ejbt2/ajpbp06fPvn/5y18mz5w5c4OkAQBIsi29A1gBDADAVhk2bFjzG2+88Q/NmjVrl7azPfroo6l99CUAbI2FCxdGUVFR9OvXL1XnKigoKD7wwAP3e/LJJx9dsWJFnaQBAEiqLRXAHgENAMBWuffee39ZWlraPW3nevzxx+PBBx8UMAD8jz//+c8xceLE1J2rtLS0x3333fdLCQMAkFYKYAAAPrVJkyaN6tSp0xEpPFeMHz9ewADwD8aPHx+TJ09O3bk6der0hUmTJn1VwgAApJFHQAMA8Kmcd955fU888cR/z2QyRWk618yZM+Puu+8WMAB8jNdeey06duwYnTt3TtW5unbtuk9BQcHzzz333DopAwCQNN4BDADAZ3LEEUe0vOKKK67NZrOVaTrXyy+/HDfffHPkcjkhA8DHyOVyMXv27OjSpUt06tQpNefKZDJF++yzz/CpU6c+9u67726WNAAASeIdwAAAbLNsNpu55ZZb/q2kpKRjms61YMGCuPnmm6OxsVHIAPAJGhsb4+abb44333wzVecqLS3tcvfdd5+fzWYzUgYAIC0UwAAAbNGkSZO+3rZt2wPTdKZly5bFDTfcEPX19QIGgE+prq4urr322li+fHmqztWuXbsDH3/88VESBgAgLTwCGgCAj3XZZZcN+upXvzo2k8mk5hcH33///bjyyiujqqpKwACwlerq6uLll1+OIUOGRHl5eWrO1aVLl31LS0unPvPMM2ukDABAEngENAAAW61///4lJ5988q8ymUxRWs60YcOG+P3vfx8bN24UMABso40bN8bvfve7VP15WlBQkP3hD394ft++fYslDABA4q9vrQAAgI/y4IMPnl1WVtYrLeeprq6O3/zmN7Fq1SrhAsBntGrVqrjyyiujuro6NWcqKyvr8/DDD58lXQAAkk4BDADA/zF+/Pgju3XrdnRazlNfX5/KdxYCwK60fPnyuO6666K+vj41Z+rRo8dXx40bd4R0AQBIMgUwAAB/53vf+16nI4444py0nCeXy8Vtt90Wb7zxhnABYDt7/fXX47bbbotcLpeaMx155JHnfvvb3+4oXQAAkkoBDADA/6qoqCi4+OKLLywsLCxPy5nGjx8fs2bNEi4A7CCzZs2Khx56KDXnKSwsrPj1r399QUVFhZ+bAQCQSC5kAQD4XxMnThxdWVk5OC3nef7552PixImCBYAd7LHHHosXXnghNeeprKzc89FHHz1RsgAAJFFh5cDo+lFfaKyKqFmRtSEAgDxxwQUX7DZq1KgLM5lMYRrO8+qrr8Ytt9ySqkdSAkBT/7O3d+/e0a5du1Scp2PHjkNzudxzU6ZMWSddAACamrLO9VHwMc/wcwcwAADRt2/f4h//+McXZzKZVPwG4HvvvRc33HBDNDY2ChcAdpKGhoa47rrrYtmyZak4T0FBQfbss88e27dv32LpAgCQqGtZKwAAYPz48T8qKyvrkYazbNiwIX7/+99HbW2tYAFgJ9u0aVP8/ve/j40bN6biPGVlZb3GjRs3RrIAACSJAhgAIM/ddNNNw/v06XN8Gs5SX18f1157baxdu1awALCLrFmzJq699tqor69PxXn69ev3jd///vdDJQsAQFIogAEA8thBBx1Uceyxx/5rRGTScJ477rgjFi9eLFgA2MUWLVoUd955Z1qOU/CNb3zj34YNG9ZcsgAAJOIC1goAAPLXzTfffFZxcXG7NJxl4sSJMX36dKECQBMxbdq0mDRpUirOUlJS0unOO+88Q6oAACSBAhgAIE/913/914FdunT5UhrO8tprr8Wf//xnoQJAEzN+/PhYsGBBKs7SrVu3o2+66abhUgUAoKlTAAMA5KEvfelLlV/5yld+lYazrFixIq6//vpobGwULAA0MY2NjXHdddfFihUr0nCczHHHHfergw46qEKyAAA0ZQpgAIA8dPXVV5+ezWYrk36OmpqauPbaa2PTpk1CBYAmatOmTXHttddGTU1N4s+SzWbb3njjjT+RKgAATZkCGAAgz9x6663Du3Tp8uWknyOXy8Utt9wSK1euFCoANHErV66MW2+9NXK5XOLP4lHQAAA0dQpgAIA8MnTo0LKvfvWrv0jDWSZMmBBz584VKgAkxJw5c+Kxxx5LxVlGjRr1i6FDh5ZJFQCApkgBDACQR+64444fFRcXd0z6OV5++eV45JFHBAoACfPQQw+l4he4SkpKOt5xxx0/lCgAAE2RAhgAIE9cfvnlu/fs2XNU0s/xwQcfxB133JGKR0gCQL7J5XJx2223xZo1axJ/lp49ex57+eWX7y5VAACaGgUwAEAe6NatW/a73/3uv2YymURf/9XX18cNN9wQ1dXVQgWAhKqqqoobb7wx6uvrE32OTCZT8N3vfvdX3bp1y0oVAICmRAEMAJAHxo8ff0pZWVmvpJ/jnnvuiaVLlwoUABJuyZIlcd999yX+HGVlZT3Hjx9/ikQBAGhKFMAAACn385//vOeAAQNGJ/0c06dPjylTpggUAFJi8uTJMWPGjMSfY8CAAaN//vOf95QoAABNhQIYACDFstls5qyzzjo3k8kk+tGEK1asiLvvvlugAJAyd911V6xYsSLRZ8hkMtmzzjrr3Gw2m5EoAABNgQIYACDFxo0b98XKysq9knyG2trauOGGG6K2tlagAJAyf/1zfvPmzYk+R2Vl5V7jxo0bKVEAAJoCBTAAQEoNHz68/OCDDz4t6ee4//77Y/ny5QIFgJRavnx5jBs3LvHnGDFixI+HDRvWXKIAAOxqCmAAgJS69dZbT8tms22TfIYZM2bEc889J0wASLnJkyfHzJkzE32G4uLitrfffvtp0gQAYFdTAAMApNBVV121R48ePb6S5DOsXLky7rrrLmECQJ64++6744MPPkj0GXr27PnVK664Yg9pAgCwKymAAQBSprS0tOAb3/jGT5N8rdfY2Bi333679/4CQB6pqamJ2267LRobG5N8jIJvfvObZ5aWlvqZGwAAu+6i1AoAANJlwoQJX6uoqBiQ5DOMHz8+Fi1aJEwAyDNvvvlmPPjgg4k+Q4sWLQY9+OCDx0gTAIBdRQEMAJAiRx55ZOWwYcN+kOQzzJ07N5544glhAkCemjhxYixYsCDRZxg+fPiPjjjiiJbSBABgV1AAAwCkyBVXXHFyUVFRRVLnr6qqijvvvDNyuZwwASBP5XK5uP3226O6ujqxZygqKmrxm9/85mRpAgCwKyiAAQBS4vzzz+/Xu3fv45J8httvvz0+/PBDYQJAnlu3bl3cfvvtiT5D7969jz///PP7SRMAgJ1NAQwAkALZbDZz6qmn/jyTyST2+m769OkxZ84cYQIAERExe/bsmDFjRmLnz2QyBaeeeurPs9lsRpoAAOxMCmAAgBT44x//eERlZeXgpM6/du3auPfeewUJAPyde+65J9atW5fY+SsrKwf/6U9/+oIkAQDYmRTAAAAJ17dv3+JDDjnkR0k+w9133x01NTXCBAD+Tk1NTdx9992JPsPBBx/8o759+xZLEwCAnUUBDACQcHfdddc3S0pKOiV1/smTJ8e8efMECQB8pLlz58azzz6b2PlLSko63nPPPd+SJAAAO4sCGAAgwb70pS9VDhw48KSkzr9mzZoYP368IAGALXrggQdizZo1iZ2/f//+Jx111FGtJAkAwM6gAAYASLArrrji1MLCwvIkzp7L5eK2226LTZs2CRIA2KJNmzbFbbfdFrlcLpHzFxYWll1++eU/kCQAADuDAhgAIKF+8Ytf9O7evftXkjr/s88+G2+88YYgAYBP5Y033ojnn38+sfN369bt6F/96ld9JAkAwI6mAAYASKgf/vCHP8pkMom8nvvggw/igQceECIAsFXGjRsX69atS+TsmUym4NRTT/2xFAEA2NEUwAAACXTdddcNa9eu3YFJnD2Xy8Udd9wRtbW1ggQAtsqmTZvizjvvTOz8bdq02f+mm27aT5IAAOxICmAAgIQpLS0t+NrXvnZ6Uud/4YUXYuHChYIEALbJq6++GjNmzEjs/Mccc8zpFRUVfiYHAMAO42ITACBhbr/99oMrKip2S+LsGzZsiHHjxgkRAPhM7r///qiqqkrk7OXl5X3/67/+6wgpAgCwoyiAAQASpKKiouCwww47Nanz33vvvYn9YS0A0HRs2LAh7r///sTOf9BBB/1zq1atCiUJAMCOoAAGAEiQ+++//+iysrKeSZx9zpw58dJLLwkRANguXnjhhViwYEEiZy8tLe32xz/+8StSBABgR1AAAwAkRN++fYv33Xfff07i7LW1tXHvvfcKEQDYru6+++6oq6tL5Oz77bffKf379y+RIgAA25sCGAAgIW6++eZRxcXFbZM4+yOPPBJr164VIgCwXa1atSoee+yxRM6ezWbb3njjjV+TIgAA25sCGAAgAYYOHVq21157fSeJs7/33nvxxBNPCBEA2CEmTpwYK1asSOTsQ4YM+c7QoUPLpAgAwPakAAYASIBrr732xKKiosqkzZ3L5eKee+6JxsZGIQIAO0R9fX3cddddkcvlEjd7UVFR5bXXXnuCFAEA2J4UwAAATdwBBxxQMWDAgG8kcfYZM2bEW2+9JUQAYId6880348UXX0zk7AMGDPjG8OHDy6UIAMD2ogAGAGjirrrqqhOKiooqkjb3pk2b4oEHHhAgALBT3H///VFbW5u4uYuKilpcffXV7gIGAGC7UQADADRhBx10UEX//v0Teffvww8/HB9++KEQAYCdYv369TFhwoREzj5w4MBvHHDAARVSBABge1AAAwA0Yf/5n/95bGFhYfOkzb1q1aqYPHmyAAGAnerpp5+O1atXJ27uwsLC8ssuu2yUBAEA2B4UwAAATdQBBxxQMWjQoNFJnP3uu++O+vp6IQIAO1V9fX3cddddiZx99913/+bQoUPLpAgAwGelAAYAaKIuv/zyYwsLC8uTNvfcuXNjwYIFAgQAdokFCxbE3LlzEzd3UVFRi9/97ndflyAAAJ+VAhgAoAkaOnRo2aBBgxL37t+6urr405/+JEAAYJf605/+FHV1dYmbe/fdd//mkCFDSiUIAMBnoQAGAGiCfvOb33ylqKioZdLmfu655xL53j0AIF1Wr14dzz33XOLmLioqann11VcfLUEAAD4LBTAAQBPTq1evZoMHD/5m0uaurq6ORx55RIAAQJPwyCOPRHV1deLmHjJkyLe6deuWlSAAANtKAQwA0MTcdNNNxxQXF7dN2twTJkyIqqoqAQIATUJVVVUifzmtuLi43a233uouYAAAtpkCGACgCWnVqlXhXnvtdVLS5l61alU8++yzAgQAmpTJkyfHqlWrEjf30KFDR7dq1apQggAAbAsFMABAE3LLLbccXlJS0jlpcz/44INRX18vQACgSamvr48HH3wwcXOXlJR0vummmw6VIAAA20IBDADQRGSz2cwBBxzw7aTNvWjRonjppZcECAA0SS+99FIsXrw4cXOPGDHiO9lsNiNBAAC2lgIYAKCJuOaaa/YuLy/vm7S5H3roocjlcgIEAJqkXC6XyLuAy8vL+1111VV7SRAAgK2lAAYAaCK+8pWvfDdpM8+bNy8WLlwoPACgSVu4cGG8+uqrrg8BAMgLCmAAgCbgsssuG1RZWblPkmbO5XIxfvx44QEAifDAAw8k7qklrVu33veSSy7pLz0AALaGAhgAoAkYNWrUCUmbefbs2bFs2TLhAQCJsGzZsnjllVcSN/cJJ5xwovQAANgaCmAAgF3sn//5nzt37NjxiCTN3NjYGA888IDwAIBEGT9+fDQ0NCRq5k6dOn1h9OjRHaQHAMCnpQAGANjFfvSjH30tk8kk6rps2rRpsWrVKuEBAImyatWqeOGFFxI1cyaTKfzpT386SnoAAHxaCmAAgF1o0KBBpX369Plqkmaur6+PCRMmCA8ASKQJEyZEXV1dombu27fvV/r27VssPQAAPg0FMADALnTZZZcdXlRUVJGkmadOnRpr164VHgCQSOvXr48pU6YkauaioqLK3/zmN0dIDwCAT0MBDACwi2Sz2cy+++57UpJmrqurc/cvAJB4jz76aOLuAt5///1PymazGekBAPBJFMAAALvI1VdfPbSsrKx3kmaeMmVKbNiwQXgAQKJt2LAhnn/++UTNXFZW1ueqq67aS3oAAHwSBTAAwC7y5S9/+bgkzVtfXx8TJ04UHACQCo8//nji7gL+0pe+dLzkAAD4JApgAIBdYPTo0R3atm07IkkzT5s2LdatWyc8ACAVPvzww5g+fXqiZm7fvv2I0aNHd5AeAABbogAGANgFfvrTn47KZDKFSZm3vr4+HnnkEcEBAKnyyCOPRH19fWLmzWQyhT/96U+/JjkAALZEAQwAsJN16tQp26dPn6OTNLO7fwGANFq3bl1MmzYtUTP36dPnmE6dOmWlBwDAx1EAAwDsZFddddUB2Wy2dVLmbWxsjEmTJgmOVOvYsWN06OCJmgD5aNKkSdHY2JiYebPZbOurrrrqAMkBAPBxFMAAADvZiBEjvp6keV988cVYtWqV4Ei1Ll26xIUXXhinnXZadO3a1UIA8siqVavipZdecj0JAEBqKIABAHaiM844o3tlZeXeSZk3l8vFxIkTBUdeyGQyMXjw4PjVr34VY8aMcUcwQB55/PHHI5fLJWbeysrKvc8444zukgMA4KMogAEAdqJTTjnlqxGRScq8CxYsiPfee09w5JVMJhN77713XHjhhTFmzJho3769pQCk3HvvvRcLFy5M1B9X/3NdCQAA/4cCGABgJ+nVq1ezXr16fTlJM3v3L/nsr0XwBRdcECeffHK0bdvWUgBSLGnXPb169fpyr169mkkOAIB/pAAGANhJrrjiioOLiopaJmXeBN4JAztEYWFhDB8+PC688MIYPXp0VFZWWgpACi1YsCCWLVuWmHmLiopaXnnllYdIDgCAf6QABgDYSYYPH/6VJM2btHfhwY5WVFQUI0aMiEsuuSRGjx4dLVu2tBSAFMnlcvH4448naub99tvvK5IDAOAfKYABAHaC0aNHd6isrByalHnXrl0bL7/8suDgI/y1CL744ovjhBNOiBYtWlgKQEq89NJLsW7dusTMW1lZudfo0aM7SA4AgL+lAAYA2AlOP/30o5J07fXMM89EQ0OD4GALiouL47DDDouxY8fGqFGjoqyszFIAEq6hoSGeeeaZJI1c8D/XmQAA8P8vEq0AAGDHymazmX79+n05KfPW1tbGlClTBAefUnFxcYwcOTIuvfTSGDVqVJSWlloKQII9//zzUVtbm5h5+/Xr9+VsNpuRHAAAf6UABgDYwX7zm9/sWVJS0jkp886YMSOqq6sFB1uppKQkRo4cGZdcckkcffTRUVJSYikACVRdXR0zZ85M0p8/na+44orBkgMA4K8UwAAAO9gXvvCFLyVl1lwuF08//bTQ4DNo3rx5HHXUUXHJJZfEyJEjI5vNWgpAwjz11FORy+USM++RRx75ZakBAPBXCmAAgB1oyJAhpZ07dz4iKfO+/vrrsWLFCsHBdlBeXh6jRo2KSy+9VBEMkDArVqyI119/PTHzdunS5fD+/ft79AQAABGhAAYA2KHGjh17aGFhYWJeCOruX9j+KioqYtSoUXHxxRfH4YcfHkVFRZYC4LpouyosLGz+H//xHwdLDQCACAUwAMAOteeeex6ZlFnXrl0b8+bNExrsIK1atYrjjz8+LrroohgxYkQUFPh2DKApmzdvXqxZsyYx8+61115HSg0AgAgFMADADnPMMce0bt269b5Jmfe5556LxsZGwcEO1qZNmxg9enRcfPHFimCAJqyxsTGee+65JP35MvyYY45pLTkAAPykAQBgBznzzDMPz2Qyibje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FpafffbZvaQFAJA+CmAAgE9p//3375+EOV9//XVhAXmjvLw8Ro0aFf/+7/8eI0eOjGw2aymA67FP6fOf//xAaQEApI8CGADgU+rRo8fuTX3G2traePvtt4UF5J2KiooYNWpUXHzxxXH44Yc3+XdvAum2ePHiRLySo1evXoOkBQCQPgpgAIBPqXXr1k3+DoklS5ZEQ0ODsIC81apVqzj++OPj4osvjhEjRkRBgW97gZ2voaEhlixZ0uTnbNOmjQIYACCFfCcMAPApDBkypLR58+a9m/qcb775prAAIqJ169YxevToGDt2rCIYcF32MZo3b95n0KBBpdICAEgX3wEDAHwKp556av9MJtPkr53eeustYQH8jTZt2sTo0aPjvPPOi+HDhyuCAddlfyOTyRT84Ac/+Jy0AADSxXe+AACfwuDBg5v84/Hq6+tj0aJFwgL4CJ06dYqTTz45/u3f/i323nvvyGQylgLsUIsXL07Eqzn23HPPgdICAEgXBTAAwKfQpUuXAU19xnfeeSfq6uqEBbAFnTt3jjFjxiiCgR2utrY23n333SRc53oPMABAyiiAAQA+hZYtW/Zv6jN6/DPAp9elS5cYM2ZMnHvuuTF48GALAfL2+iwJ17kAAGwdBTAAwCcYPnx4eUlJSeemPqfHPwNsvV69esVpp50W55xzTvTvrwMB8u/6rLS0tPPw4cPLpQUAkB4KYACAT/Ctb31rt4ho8s8IXbx4sbAAtlGfPn3irLPOinPOOSd22203CwG2i4T8gl7m29/+dj9pAQCkhwIYAOAT7L777k2+CVi7dm1s2LBBWACfUZ8+feLss8+OM888M3r27GkhwGfy4Ycfxrp165r8nAMHDlQAAwCkSJEVAABsWadOnZr8D8TefvttQQFsRwMGDIgBAwbEggULYvz48bF06VJLAbb5Oq1Vq1audwEA2GkUwAAAn6CyslIBDJCnBgwYEP3794958+bFQw89FO+++66lAFtlyZIlsddeezX1613PvgcASBEFMADAFnTq1CnbvHnzXk19ziVLlggLYAfJZDIxePDg2GOPPeLll1+OBx98MFauXGkxQGqu05o3b967Xbt2RatXr66XGABA8nkHMADAFowZM6ZnJpPJNuUZGxsbPZoUYCfIZDKx9957x4UXXhhjxoyJ9u3bWwrwiZYuXRqNjY1NesaCgoLsqaee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k8nE7NmzY+LEibFmzRoNAXif/VNSzJo161kTAwBongTAAAC70O233/7KOeecszU/P78022sdMGBAtG/f3tWu0My9+uqrMWnSpFi1apVmALyPjh07xgEHHJCIWhsbG6u/8Y1v/NXUAACaJwEwAMAutHLlyob169fP6tat2+hsrzWVSsXhhx8ekyZNMjhohubMmROTJ0+OJUuWaAbAh3D44YdHKpVKRK3r16+fVVFR0WhqAADNU54WAADsWq+++mpirts77LDDDAyamTfffDP+/d//PX7yk58IfwE+pFQqFSNGjEhMva+88sozpgYA0Hw5AQwAsIvddNNNz5166qnV+fn5rbO91m7dukX//v1j4cKFBgc5btmyZfHYY4/F/PnzNQPgIzrggAOic+fOiai1sbFxy4033jjL1AAAmi8BMADALrZy5cqG8vLyGT179vx0Euo9+uijBcCQw5YvXx7jxo0T/AJ8wv1SUpSXlz9TXl7eYGoAAM2XABgAYDeYMWPGUxdccEEiAuAhQ4ZE69ato7q62uAgh6xcuTImTJgQc+fOjUwmoyEAH1ObNm3i0EMPTUy9zz777FOmBgDQvPkGMADAbvDVr371lYaGhk1JqLWgoCCOOOIIQ4McsW7duvj5z38ed955Z8yZM0f4C/AJjRw5MvLz8xNRa0NDw8abbrrpVVMDAGjenAAGANgNKisrm1atWjW9T58+5ySh3qOPPjqefPJJQREk2Pr16+Oxxx6L2bNn+3cZYBdJpVIxatSoxNS7cuXKadXV1WmTAwBo3pwABgDYTaZNm5aY6/c6duwYAwYMMDRIoA0bNsSvf/3r+Nd//dd49dVXhb8Au9CAAQOiY8eOian36aefftLUAAAQAAMA7CZf+9rX5tTX11ckpd6jjjrK0CBBqqqq4v77749vf/vb8eKLL0ZTU5OmAOxiRx55ZGJqra+vX/eNb3zjdVMDAMAV0AAAu0ltbW16xYoVT++///6fT0K9hx56aLRt2zaqqqoMD7LYli1bYsqUKfHcc8/F9u3bNQRgN2nbtm0MGTIkMfUuX778qdraWtc/AwDgBDAAwO70xz/+cUJSas3Pz4/jjjvO0CBL1dTUxKOPPhq33XZb/OUvfxH+Auxmxx57bOTn5yel3Myvf/3rCaYGAECEABgAYLe66667llZXV89PSr1HH310tGjRwuAgi7wd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qATAAABZ4umnn968fPnyxF3xN3r06GjXrp0BAgBZqUOHDnH88ccnru5ly5ZNmD59+hYTBADgoxIAAwBkkbvvvvtPmUymKUk1FxYWxumnn254AEBWOvPMMxP3yYpMJtN41113/dH0AAD4OATAAABZ5Be/+MWatWvXTkta3UcccUT06tXLAAGArNK7d+847LDDEld3eXn5X+6///51JggAwMchAAYAyDIPP/zwn5JWcyqVijPPPNPwAICsMmbMmEilUomr+8EHH/yT6QEA8HEJgAEAsszXv/71NzZs2DAraXUPHDgwDj74YAMEALLCoEGDYsCAAYmru6KiYuatt966wAQBAPi4BMAAAFlo3Lhxv01i3WPGjIm8PFtMAGDvysvLizFjxiSy9j//+c+/NUEAAD7RflgLAACyz/XXXz+nqqrqr0mru1evXnHUUUcZIACwVx1zzDHRvXv3xNW9adOmV2666aa5JggAwCchAAYAyFJ/+tOf7k1i3WPGjInS0lIDBAD2ijZt2sRZZ52VyNofeOCBe00QAIBPSgAMAJClbrrpprlJPAVcXFwcZ555pgECAHvFWWedFS1btkxc3Zs2bXrl5ptvnmeCAAB8UgJgAIAsNm7cuF8lse5Ro0ZF7969DRAA2KP69OkTI0eOTGTtjz322K9MEACAXUEADACQxcaOHTu7qqrqb0mrO5VKxfnnnx+pVMoQAYA9tv/4/Oc/n8j9R2Vl5d+uueaav5kiAAC7ggAYACDLTZ069bdJrLtv374xZMgQAwQA9ojDDjsssTeQTJ48+TcmCADAriIABgDIcpdeeumLVVVVryax9s9//vNRXFxsiADAblVaWhrnn39+Imuvqqr66+WXX/6SKQIAsKsIgAEAEuChhx76WRLrLisri9NPP90AAYDd6qyzzoqSkpIklp753e9+91MTBABgVxIAAwAkwA033DB3w4YNs5JY+3HHHRd9+vQxRABgt+jbt28cddRRiay9oqJi1te//vU3TBEAgF1JAAwAkBA///nPfxoR6aTVnUql4vOf/3zk5dl6AgC7Vn5+flx00UWRSqWSWH76F7/4xX+bIgAAu5q3cAAACXHHHXe8tW7duulJrL13795xzDHHGCIAsEudcMIJ0b1790TWXl5e/pc77rjjLVMEAGBXEwADACTI3XfffW8mk2lKYu1nnXVWtG3b1hAB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onv37vEv//IvccABBzSrdWcymaYnnnji9s997nPPeAoAAODDEQADAJBYDz/88NJjjjlmY+/evY+KiGZzFKq0tDSGDx8eq1evjvXr13sQAHLcwIED45prrol27do1t6VnZsyY8YOzzjprqqcAAAA+PAEwAACJdv/99795zDHHVO6zzz5HRDMKgVu0aBGHHXZYtGzZMhYuXBjpdNrDAJBjCgoK4pxzzonzzz8/WrRo0dyWn37uuefuOuWUUyZ4EgAA4KMRAAMAkHi///3v5w8bNmxF3759j2lO10GnUqno27dvDB06NBYvXhxbtmzxMADkiJ49e8YNN9wQgwcPblbf+434x7XPU6ZM+fbpp58+2ZMAAAAfnQAYAICc8OCDDy4ZNmzYin79+jWrEDgionXr1nHEEUdEfX19LF261MMAkGCpVCpOOOGEuOKKK6JNmzbNbv07wt9vnXPOOX/xNAAAwMcjAAYAIGc89NBDS4YNG7a8X79+xza3EDg/Pz8OPvjg6NWrV8yfPz8aGho8EAAJU1JSEpdffnmccMIJkZ+f3+zWn8lkGp944olvffazn53maQAAgI9PAAwAQE556KGHlo4cOXJdnz59RqWa252ZEdG1a9cYNmxYLFu2LCorKz0QAAnRt2/fuO6662K//fZrluvPZDLpp59++rvnnHPO054GAAD4ZATAAADknD/96U+LDj300KX7779/s7sOOiKiuLg4jjzyyCgpKYk333wz0um0hwIgSxUUFMRnP/vZuPDCC6OkpKRZ9iCdTjc88sgjt5x//vnTPREAAPDJCYABAMhJDz/88NId3wQelUqlmt09mqlUKvr06RMHH3xwLFy4MLZt2+ahAMgynTt3jrFjx8bQoUOjGV5aERH/CH+feOKJ2y+88MLnPBEAALBrCIABAMhZDz300JIePXq8NmjQoGPz8vJaNMcetG3bNkaNGhVNTU2xZMkSDwVAFkilUjF69Oi48soro0OHDs22D01NTdt++9vf/stll132oqcCAAB2HQEwAAA5bdKkSeXdu3efM3jw4GYbAufn58eAAQOiV69esWDBgti+fbsHA2Avad26dVx66aVx/PHHR35+frPtQ2NjY/WvfvWrf7nuuute81QAAMCuJQAGACDnTZ48eW1jY+OMI4444uiCgoKS5tqHrl27xqhRo2Lbtm2xcuVKDwbAHpRKpWLUqFExduzY6NWrV7PuRX19/fo77rjjK9/61rcWejIAAGDXEwADANAsPP/881UbNmx45rjjjjuqsLCwrLn2obCwMAYNGhT77bdfLF68OGpraz0cALtZ+/bt44orrogTTzwxCgub9/uU2tralTfffPPVP/nJT1Z7MgAAYPcQAAMA0Gz87W9/27p27doZJ5xwwsjCwsK2zbkXnTp1ipEjR0Z1dbXTwAC70ciRI+Pqq6+OHj16NPte1NTULL/hhhuu/e1vf7vOkwEAALuPABgAgGbltdde2zpv3rynTznllKFFRUWdmnMvCgsL49BDD4399tsvFi1a5DQwwC709qnfk08+udmf+o2I2Lx587yLL774unHjxm30dAAAwO71fgFwat9zYsTOftC4LmLjq610DwCAxOrVq1fhs88++69du3Y9QTciGhoaYurUqTF58uRobGzUEICPqaCgIE499dQYPXq04HeH8vLyp4499tjvrly5skE3AABg9+swrDYKuuz8ZwJgAAByWuvWrfNeeumlm/fdd9+zdeMfVq9eHffff38sWbJEMwA+ov322y8uuugi1z2/w8KFC38/fPjwnzY0NGR0AwAA9gwBMAAAzd7zzz9/8aGHHnp1RKR0IyKTycTMmTPjz3/+c9TV1WkIwAcoKSmJ8847L0aMGBGplL9Kdki//PLL9xx77LEPagUAAOxZ7xcA+wYwAADNwn333Tfn+OOP39yrV6/DQwgcqVQqevfuHcOHD49169ZFRUWFhwTgPRxyyCExduzY6N+/v/B3h0wm0/jMM8/828knnzxONwAAYM97v28AC4ABAGg2fve7370xePDgJf369Ts6lUrl60hEcXFxjBgxInr06BFLly6N2tpaTQHYoUOHDvGFL3whzjzzzCguLtaQHZqammoeeOCBWz73uc9N1w0AANg7BMAAALDDww8/vKygoOC54cOHH1FQUFCqI//QrVu3OO6446K0tDQWL14cTU1NmgI0Wy1btoxzzjknLr300ujevbuGvENtbe2K22677arbbrvtDd0AAIC9RwAMAADv8Oyzz25avHjx0yeddNKQoqKiTjryD3l5edGnT58YOXJkbN26NVatWqUpQLNz+OGHx1e+8pUYMGBA5OXlacg7VFVV/e3CCy+8/oEHHvDdAAAA2MsEwAAA8C7z58+vefbZZ58+44wz+hcX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OigOOOCAKCoq0pQs0djYuGXmzJk/PvPMMyc2NDS4XgAAAPjQBMAAAJADjjzyyNY/+9nPrujbt++5EZGnI9mluro6Fi5cGPPnz4958+ZFZWWlprBXtGvXLg455JAYMGBA9O/fP1q39nsjWSj91ltv/fmqq676xaxZs6q1AwAA+KgEwAAAkEN++ctfjhgzZsyNrVq16q0b2SmdTsfKlStj0aJFsXDhwli8eHFs27ZNY9gtSkpKol+/ftG/f//Yf//9o1evXpGX53dEslVNTc3yRx999EdXXnnlK7oBAAB8XAJgAADIMd26dSt8+OGHPzd48ODL8vPzbdyzXCaTiTVr1sTChQtj0aJFsWjRotiyZYvG8LGUlZVF//79/xn6du/ePVKplMZkuaampprXXnvtV2PGjHmgoqKiUUcAAIBPQgAMAAA56rjjjiv7r//6r8tdC508mzdvjuXLl8eKFSti+fLlsXjx4qipqdEY/pfi4uLo169f9O7dO/bZZ5/Yd999o6ysTGMSJJPJpJcsWfLn66677pfTp0/3mx8AAMAuIQAGAIAc99Of/nTIueeee3NpaWlf3UimxsbGWLlyZSxdujSWLVsWy5cvj3Xr1kUmk9GcZiKVSkWXLl1in332iT59+kSfPn2iV69eUVBQoDkJtXXr1sUPPvjgj6699tq/6wYAALArCYABAKAZaNeuXf64cePOGTp06BUFBQWtdST56uvrY+XKlf88KbxixYpYu3ZtpNNpzUm4vLy86Nq1a+yzzz7//KdXr17RsmVLzckBjY2NW/7617/+4pxzznm0srKySUcAAIBdTQAMAADNyIknntjmnnvuuXzfffcdk0qlHB3MMdu3b481a9bEmjVrYu3atbF27dooLy+PDRs2CIazUF5eXnTs2DG6desWXbt2jW7dukW3bt2iR48eUVhYqEE5JpPJNC5ZsuRR1z0DAAC7mwAYAACaoa9+9av7Xnfdddd16NDhCN3IfY2Njf8MhNetWxfr1q2LioqKWLduXWzbtk2DdrPS0tLo3LnzP//p0qVLdO3aNbp27eoK52Ziw4YNM//rv/7rxz/60Y+W6wYAALC7CYABAKAZ++UvfznirLPOuq64uNj3gZupmpqaWL9+/T//qaioiMrKyqisrIxNmzZFY2OjJn2AgoKCaN++fbRr1y7at28fHTt2jC5dukSnTp2ic+fOUVxcrEnN1NatW98aP378PVdcccXLugEAAOwpAmAAAGjm2rVrl//ggw+eOWLEiCsLCwvb6gjvtHnz5n+GwZs2bYrKysqorq6OLVu2xJYtW6K6ujqqq6sjk8nk3NpTqVS0bt06WrduHWVlZdGmTZsoLS39X2Fvu3btok2bNh4U/peGhobKl1566efnnHPO+OrqavevAwAAe5QAGAAAiIiIoUOHFt97770XHHjggRfk5+c7ssiHlk6n/xkEV1dXR01Nzfv+k8lkora2NtLpdNTX10dTU1PU1dXt0u8U5+XlRcuWLSM/Pz+KiooiLy8vWrVqFalUKoqLi3f6T0lJSbRq1eqfgW9paWnk5eUZMB9aU1NTzYIFC/745S9/+Y+zZ8+u0REAAGBvEAADAAD/y2mnndb2rrvuurRPnz5n5+XlFeoIe9LbgfDbtm/f/r7XUBcUFESLFi3++b/fDnxhT8pkMg1LliwZd8stt/xq0qRJVToCAADsTQJgAABgp0477bS2d95554X777//5wTBAP9XJpNpWLhw4QO33nrrHwS/AABAtni/ADi/7UHRc2c/SG+LqC33/gcAAHLZokWL6u69995X0un0swcddFCnkpKS3roC8A8VFRUz/7//7/+77aKLLpq6aNGiOh0BAACyRXH3xsgr3fnPBMAAAEDMnDmz8u67736qqalpWr9+/Ypbt27dN5VKpXQGaG4ymUx6zZo1U+65555/Peeccx6cOXNmpa4AAADZRgAMAAB8KDNnzqz88Y9//Gw6nZ4uCAaak7eD37vvvvtfzz///McEvwAAQDYTAAMAAB+JIBhoLgS/AABAEgmAAQCAj+XtILisrOyFvn37diwuLu4VEYJgIBdkKioqnrv33nu/PWbMmEcEvwAAQJK8XwCc2vecGLGzHzSui9j4aivdAwAA/unqq6/u8ZWvfOX8Pn36nJWXl9dCR4CkSafT9UuXLh3/X//1Xw/84he/WKMjAABAEnUYVhsFXXb+MwEwAADwkZ1xxhntb7/99rMPPPDA8/Pz81vrCJDtmpqaqhcsWPDgd77znUcmTpzotC8AAJBoAmAAAGC3GD58eMkPf/jDzwwePPjioqKijjoCZJv6+voNr7322u9vvPHGx2fPnl2jIwAAQC4QAAMAALvV0KFDi++5556zDjnkkPOKioq66giwt9XV1a19/fXXH7z++uvHC34BAIBcIwAGAAD2iFatWuXdc889w0455ZTzO3bseJSOAHtYZsOGDbOmTJny4PXXX/9qbW1tWksAAIBcJAAGAAD2uH/913/tf/7555/dq1ev0/Ly8lroCLC7pNPp+pUrV05+4IEHHvnOd76zSEcAAIBcJwAGAAD2mjPOOKP97bfffvYBBxzw2YKCgjY6AuwqjY2NVW+++eafv/e97z06YcKETToCAAA0FwJgAABgrxs+fHjJ97///dGDBg0aU1paur+OAB9XdXX1wtdee+3Rr371q1Nfe+21Wh0BAACaGwEwAACQVb761a/ue8EFF3y6b9++ZxUUFLTWEeCDNDY2bnnrrbfG/+EPf5j4ox/9aLmOAAAAzZkAGAAAyEpDhw4t/sEPfnDy4MGDz27dunV/HQHerbq6+s2XX375weuuu+7ppUuXbtcRAAAAATAAAJDlCgsLU3ffffeQ0aNHn9G1a9fj8vLyinQFmq90Ol1XXl4+bcqUKROuvfbav+sIAADA/yYABgAAEqNPnz4t/v3f/33UyJEjz2rfvv2nIiKlK9AsZDZt2vTXF1544bGvfe1rzzntCwAA8N4EwAAAQCJddNFFXa6++uqTDzzwwLNbtmzZTUcg99TV1a1ZsGDBuJ/+9KdP3n///et0BAAA4IMJgAEAgETr1q1b4d13333k4YcffmqHDh2OyMvLK9QVSK50Ot2wcePGWbNmzZp8/fXXz6qoqGjUFQAAgA9PAAwAAOSMo48+uvWtt956/CGHHHJKu3btBkdEnq5AIqQrKytfmzdv3uQ777xz+owZM6q1BAAA4OMRAAMAADnpuOOOK/vGN75x/CGHHHJa27ZtB4bvBUO2yVRVVc2dN2/epO9///vTpk+fvkVLAAAAPjkBMAAAkPNuu+22vmedddZJffr0Oa5Vq1a9dQT2ntra2uXLly+f/uijjz51xx13vKUjAAAAu5YAGAAAaFa+9KUvdbv44ouP7t+//wlOBsMekamqqpq7cOHCv/z+97+fcd9995VrCQAAwO4jAAYAAJqtSy65pOtll112jDAYdrl0VVXVvIULF/7lV7/61bO/+93v1moJAADAniEABgAAiIirr766x/nnnz9q//33P7JNmzZDUqlUga7Ah5fJZBoqKyv/vnjx4uf+9Kc/zbr33ntX6woAAMCeJwAGAAB4l379+hV97WtfGzRy5MhRPXv2PLaoqKizrsD/VV9fv37VqlXPvPDCC8/9+7//+5zFixfX6woAAMDeJQAGAAB4H61bt8678847Bx599NFHde/efURpaen+4apomq/M1q1bF69Zs+bF5557btY3v/nNOdXV1WltAQAAyB4CYAAAgI9g8ODBrcaOHXvI8OHDD+vevfvw1q1bHxACYXJXprq6+s01a9a88sorr7z8k5/8ZN5rr71Wqy0AAADZSwAMAADwCVx//fX7nHHGGYf169dvePv27Yfm5+e31hWSrLGxsXrjxo2vvvXWWy+PHz/+lR//+McrdQUAACA5BMAAAAC70Je//OUe55xzzvA+ffoM7tix45CioqKuukI2q6+vX7t27doXFy9ePGfixImv3Xvvvat1BQAAILkEwAAAALvRl7/85R6f+cxnBvfr129Qly5dDm/ZsqVAmL2qrq5u7bp16wS+AAAAOUoADAAAsIe0atUq75prrtnn2GOPPXi//fY7uH379oeUlpb2TaVS+brDbpKuqalZtnHjxnlvvfXW3GeffXbef/3Xfy2vra1Naw0AAEBuEgADAADsRQceeGDLq6+++oAhQ4Yc3LNnz4Pbtm17sGuj+biampqqq6qqXi8vL583Z86ceb/85S/nvfjii1t1BgAAoPkQAAMAAGSZoUOHFn/xi1/cf9CgQQf26NHjwHbt2h3YqlWr3qlUKk932CFdU1OzvLKycsHq1asXzJkzZ8Gf//znJTNmzKjWGgAAgOZNAAwAAJAAxx13XNkFF1xw4MEHH3xA165dDywtLd23pKRkn1QqVag7uS2TyTRs27ZtRXV19dJ169YtfOONNxZOmDBh4YQJEzbpDgAAAO8mAAYAAEiw8847r+OJJ57Yp3///vt16dKlT5s2bfZr3bp1v/z8/GLdSZampqaa6urqxZs3b16ybt26pQsXLlzy9NNPL33ooYc26A4AAAAflgAYAAAgx7Rr1y7/kksu6TFkyJCe++67b89OnTr1Kisr61VcXNyzZcuW3VKpVL4u7R2ZTKaprq6uvKamZtWWLVtWVlRUrFy6dOnK2bNnr7r//vvXVFZWNukSAAAAn4QAGAAAoBnp1KlTwec+97luQ4cO7bnPPvv0aNeuXafWrVt3Li4u7tqyZcvORUVFnfLy8lro1MeTTqe319fXr6+rq6uoqalZW11dvb6y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AACAEgIwAAAAAAAAQAkBGAAAAAAAAKCEAAwAAAAAAABQQgAGAAAAAAAAKCEAAwAAAAAAAJQQgAEAAAAAAABKCMAAAAAAAAAAJQRgAAAAAAAAgBICMAAAAAAAAEAJARgAAAAAAACghAAMAAAAAAAAUEIABgAAAAAAACghAAMAAAAAAACUEIABAAAAAAAASgjAAAAAAAAAACUEYAAAAAAAAIASAjAAAAAAAABACQEYAAAAAAAAoIQADAAAAAAAAFBCAAYAAAAAAAAoIQADAAAAAAAAlBCAAQAAAAAAAEoIwAAAAAAAAAAlBGAAAAAAAACAEgIwAAAAAAAAQAkBGAAAAAAAAKCEAAwAAAAAAABQQgAGAAAAAAAAKCEAAwAAAAAAAJQQgAEAAAAAAABKCMAAAAAAAAAAJQRgAAAAAAAAgBICMAAAAAAAAEAJARgAAAAAAACghAAMAAAAAAAAUEIABgAAAAAAACghAAMAAAAAAACUEIABAAAAAAAASgjAAAAAAAAAACUEYAAAAAAAAIASAjAAAAAAAABACQEYAAAAAAAAoIQADAAAAAAAAFBCAAYAAAAAAAAoIQADAAAAAAAAlBCAAQAAAAAAAEoIwAAAAAAAAAAlBGAAAAAAAACAEgIwAAAAAAAAQAkBGAAAAAAAAKCEAAwAAAAAAABQQgAGAAAAAAAAKCEAAwAAAAAAAJQQgAEAAAAAAABKCMAAAAAAAAAAJQRgAAAAAAAAgBICMAAAAAAAAEAJARgAAAAAAACghAAMAAAAAAAAUEIABgAAAAAAACghAAMAAAAAAACUEIABAAAAAAAASgjAAAAAAAAAACUEYAAAAAAAAIASAjAAAAAAAABACQEYAAAAAAAAoIQADAAAAAAAAFBCAAYAAAAAAAAoIQADAAAAAAAAlBCAAQAAAAAAAEoIwAAAAAAAAAAlBGAAAAAAAACAEgIwAAAAAAAAQAkBGAAAAAAAAKCEAAwAAAAAAABQQgAGAAAAAAAAKCEAAwAAAAAAAJQQgAEAAAAAAABKCMAAAAAAAAAAJQRgAAAAAAAAgBICMAAAAAAAAEAJARgAAAAAAACghAAMAAAAAAAAUEIABgAAAAAAACghAAMAAAAAAACUEIABAAAAAAAASgjAAAAAAAAAACUEYAAAAAAAAIASAjAAAAAAAABACQEYAAAAAAAAoIQADAAAAAAAAFBCAAYAAAAAAAAoIQADAAAAAAAAlBCAAQAAAAAAAEoIwAAAAAAAAAAlBGAAAAAAAACAEgIwAAAAAAAAQAkBGAAAAAAAAKCEAAwAAAAAAABQQgAGAAAAAAAAKCEAAwAAAAAAAJQQgAEAAAAAAABKCMAAAAAAAAAAJQRgAAAAAAAAgBICMAAAAAAAAEAJARgAAAAAAACghAAMAAAAAAAAUEIABgAAAAAAACghAAMAAAAAAACUEIABAAAAAAAASgjAAAAAAAAAACUEYAAAAAAAAIASAjAAAAAAAABACQEYAAAAAAAAoIQADAAAAAAAAFBCAAYAAAAAAAAoIQADAAAAAAAAlBCAAQAAAAAAAEoIwAAAAAAAAAAlBGAAAAAAAACAEgIwAAAAAAAAQAkBGAAAAAAAAKCEAAwAAAAAAABQQgAGAAAAAAAAKCEAAwAAAAAAAJQQgAEAAAAAAABKCMAAAAAAAAAAJQRgAAAAAAAAgBICMAAAAAAAAEAJARgAAAAAAACghAAMAAAAAAAAUEIABgAAAAAAACghAAMAAAAAAACUEIABAAAAAAAASgjAAAAAAAAAACUEYAAAAAAAAIASAjAAAAAAAABACQEYAAAAAAAAoIQADAAAAAAAAFBCAAYAAAAAAAAoIQADAAAAAAAAlBCAAQAAAAAAAEoIwAAAAAAAAAAlBGAAAAAAAACAEgIwAAAAAAAAQAkBGAAAAAAAAKCEAAwAAAAAAABQQgAGAAAAAAAAKCEAAwAAAAAAAJQQgAEAAAAAAABKCMAAAAAAAAAAJQRgAAAAAAAAgBICMAAAAAAAAEAJARgAAAAAAACghAAMAAAAAAAAUEIABgAAAAAAACghAAMAAAAAAACUEIABAAAAAAAASgjAAAAAAAAAACUEYAAAAAAAAIASAjAAAAAAAABACQEYAAAAAAAAoIQADAAAAAAAAFBCAAYAAAAAAAAoIQADAAAAAAAAlBCAAQAAAAAAAEoIwAAAAAAAAAAlBGAAAAAAAACAEgIwAAAAAAAAQAkBGAAAAAAAAKCEAAwAAAAAAABQQgAGAAAAAAAAKCEAAwAAAAAAAJQQgAEAAAAAAABKCMAAAAAAAAAAJQRgAAAAAAAAgBICMAAAAAAAAEAJARgAAAAAAACghAAMAAAAAAAAUEIABgAAAAAAACghAAMAAAAAAACUEIABAAAAAAAASgjAAAAAAAAAACUEYAAAAAAAAIASAjAAAAAAAABACQEYAAAAAAAAoIQADAAAAAAAAFBCAAYAAAAAAAAoIQADAAAAAAAAlBCAAQAAAAAAAEoIwAAAAAAAAAAlBGAAAAAAAACAEgIwAAAAAAAAQAkBGAAAAAAAAKCEAAwAAAAAAABQQgAGAAAAAAAAKCEAAwAAAAAAAJQQgAEAAAAAAABKCMAAAAAAAAAAJQRgAAAAAAAAgBICMAAAAAAAAEAJARgAAAAAAACghAAMAAAAAAAAUEIABgAAAAAAACghAAMAAAAAAACUEIABAAAAAAAASgjAAAAAAAAAACUEYAAAAAAAAIASAjAAAAAAAABACQEYAAAAAAAAoIQADAAAAAAAAFBCAAYAAAAAAAAoMY3JP//9K8My551lzpAk293a7QAAAAAAAAD8iIw3r+SL7TpPxuSt4/ibJJuz20QDBgAAAAAAAHhzrJPp6NvHYcyyjLl7dJTPbl/Jp6sPLufSsM+5ec7q5YOrF0OeP/SVaAAAAAAAAIA3weH7u6zfm79dWDIMSw6225w785vsx3XyzasOby5ssz69c4sAAAAAAAAAr9n69C6bC9sT93a7rKdnORin5Otxynzi1JQcfiwCAwAAAAAAALxO69O7HH68TaaT98cp85R8vbp3Nfszv8q0LHn7xMF1sjk/ZzUPmZ/MmWefhAYAAAAAAAD4oayPdjn7223Gn7x6ZrXPnetX8mBKkpv3cufDd/Pufn5FL56SzcVtNheT3dNt8tQlAwAAAAAAAHyv1sm0ySv/9XtsNWZ3I/lHkgzHi7/4XY7WYz5yiwAAAAAAAAA/Ivtcv/3nPEyS1fHa42t5+vNLyX7JoRsCAAAAAAAAePPt1/nbV3/KvePn1Xc371/NYxEYAAAAAAAA4M0yTHk2rvNo2WdzvHZqzN9v/SF3vju3evng/at5fPDLPDu1yuGyZHSVAAAAAAAAAK/XOGe4ueSvZ4e8M8xZbVe5ceuPufvy3Oqkw4+v5emDX+fuuTlLhhwsEYIBAAAAAAAAXpclGR8OuXP0TR4cPM/9z/+SRyfNDf/1TZezOp/87KdjzizJZkhO7edMy/w/nAUAAAAAAADg/zaMWcZkP8/ZLsmLacr2/MV8+cnvs/tP5/4FmLjAq1ifcioAAAAASUVORK5CYII=";
+var EMU, ONEPT, CRLF, LAYOUT_IDX_SERIES_BASE, REGEX_HEX_COLOR, LINEH_MODIFIER, DEF_BULLET_MARGIN, DEF_CELL_BORDER, DEF_CELL_MARGIN_IN, DEF_CHART_BORDER, DEF_CHART_GRIDLINE, DEF_FONT_COLOR, DEF_FONT_SIZE, DEF_FONT_TITLE_SIZE, DEF_PRES_LAYOUT, DEF_PRES_LAYOUT_NAME, DEF_SHAPE_LINE_COLOR, DEF_SHAPE_SHADOW, DEF_SLIDE_MARGIN_IN, DEF_TEXT_SHADOW, DEF_TEXT_GLOW, AXIS_ID_VALUE_PRIMARY, AXIS_ID_VALUE_SECONDARY, AXIS_ID_CATEGORY_PRIMARY, AXIS_ID_CATEGORY_SECONDARY, AXIS_ID_SERIES_PRIMARY, LETTERS, BARCHART_COLORS, PIECHART_COLORS, SLDNUMFLDID, OutputType, ChartType, ShapeType, SchemeColor, AlignH, AlignV, SHAPE_TYPE, CHART_TYPE, SCHEME_COLOR_NAMES, MASTER_OBJECTS, PLACEHOLDER_TYPES, ANIMATION_PRESETS, ANIMATION_DIRECTIONS, IMG_BROKEN, IMG_PLAYBTN;
+var init_core_enums = __esm({
+  "src/core-enums.ts"() {
+    "use strict";
+    EMU = 914400;
+    ONEPT = 12700;
+    CRLF = "\r\n";
+    LAYOUT_IDX_SERIES_BASE = 2147483649;
+    REGEX_HEX_COLOR = /^[0-9a-fA-F]{6}$/;
+    LINEH_MODIFIER = 1.67;
+    DEF_BULLET_MARGIN = 27;
+    DEF_CELL_BORDER = { type: "solid", color: "666666", pt: 1 };
+    DEF_CELL_MARGIN_IN = [0.05, 0.1, 0.05, 0.1];
+    DEF_CHART_BORDER = { type: "solid", color: "363636", pt: 1 };
+    DEF_CHART_GRIDLINE = { color: "888888", style: "solid", size: 1, cap: "flat" };
+    DEF_FONT_COLOR = "000000";
+    DEF_FONT_SIZE = 12;
+    DEF_FONT_TITLE_SIZE = 18;
+    DEF_PRES_LAYOUT = "LAYOUT_16x9";
+    DEF_PRES_LAYOUT_NAME = "DEFAULT";
+    DEF_SHAPE_LINE_COLOR = "333333";
+    DEF_SHAPE_SHADOW = { type: "outer", blur: 3, offset: 23e3 / 12700, angle: 90, color: "000000", opacity: 0.35, rotateWithShape: true };
+    DEF_SLIDE_MARGIN_IN = [0.5, 0.5, 0.5, 0.5];
+    DEF_TEXT_SHADOW = { type: "outer", blur: 8, offset: 4, angle: 270, color: "000000", opacity: 0.75 };
+    DEF_TEXT_GLOW = { size: 8, color: "FFFFFF", opacity: 0.75 };
+    AXIS_ID_VALUE_PRIMARY = "2094734552";
+    AXIS_ID_VALUE_SECONDARY = "2094734553";
+    AXIS_ID_CATEGORY_PRIMARY = "2094734554";
+    AXIS_ID_CATEGORY_SECONDARY = "2094734555";
+    AXIS_ID_SERIES_PRIMARY = "2094734556";
+    LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+    BARCHART_COLORS = [
+      "C0504D",
+      "4F81BD",
+      "9BBB59",
+      "8064A2",
+      "4BACC6",
+      "F79646",
+      "628FC6",
+      "C86360",
+      "C0504D",
+      "4F81BD",
+      "9BBB59",
+      "8064A2",
+      "4BACC6",
+      "F79646",
+      "628FC6",
+      "C86360"
+    ];
+    PIECHART_COLORS = [
+      "5DA5DA",
+      "FAA43A",
+      "60BD68",
+      "F17CB0",
+      "B2912F",
+      "B276B2",
+      "DECF3F",
+      "F15854",
+      "A7A7A7",
+      "5DA5DA",
+      "FAA43A",
+      "60BD68",
+      "F17CB0",
+      "B2912F",
+      "B276B2",
+      "DECF3F",
+      "F15854",
+      "A7A7A7"
+    ];
+    SLDNUMFLDID = "{F7021451-1387-4CA6-816F-3879F97B5CBC}";
+    OutputType = /* @__PURE__ */ ((OutputType2) => {
+      OutputType2["arraybuffer"] = "arraybuffer";
+      OutputType2["base64"] = "base64";
+      OutputType2["binarystring"] = "binarystring";
+      OutputType2["blob"] = "blob";
+      OutputType2["nodebuffer"] = "nodebuffer";
+      OutputType2["uint8array"] = "uint8array";
+      return OutputType2;
+    })(OutputType || {});
+    ChartType = /* @__PURE__ */ ((ChartType2) => {
+      ChartType2["area"] = "area";
+      ChartType2["bar"] = "bar";
+      ChartType2["bar3d"] = "bar3D";
+      ChartType2["bubble"] = "bubble";
+      ChartType2["bubble3d"] = "bubble3D";
+      ChartType2["doughnut"] = "doughnut";
+      ChartType2["line"] = "line";
+      ChartType2["pie"] = "pie";
+      ChartType2["radar"] = "radar";
+      ChartType2["scatter"] = "scatter";
+      return ChartType2;
+    })(ChartType || {});
+    ShapeType = /* @__PURE__ */ ((ShapeType2) => {
+      ShapeType2["accentBorderCallout1"] = "accentBorderCallout1";
+      ShapeType2["accentBorderCallout2"] = "accentBorderCallout2";
+      ShapeType2["accentBorderCallout3"] = "accentBorderCallout3";
+      ShapeType2["accentCallout1"] = "accentCallout1";
+      ShapeType2["accentCallout2"] = "accentCallout2";
+      ShapeType2["accentCallout3"] = "accentCallout3";
+      ShapeType2["actionButtonBackPrevious"] = "actionButtonBackPrevious";
+      ShapeType2["actionButtonBeginning"] = "actionButtonBeginning";
+      ShapeType2["actionButtonBlank"] = "actionButtonBlank";
+      ShapeType2["actionButtonDocument"] = "actionButtonDocument";
+      ShapeType2["actionButtonEnd"] = "actionButtonEnd";
+      ShapeType2["actionButtonForwardNext"] = "actionButtonForwardNext";
+      ShapeType2["actionButtonHelp"] = "actionButtonHelp";
+      ShapeType2["actionButtonHome"] = "actionButtonHome";
+      ShapeType2["actionButtonInformation"] = "actionButtonInformation";
+      ShapeType2["actionButtonMovie"] = "actionButtonMovie";
+      ShapeType2["actionButtonReturn"] = "actionButtonReturn";
+      ShapeType2["actionButtonSound"] = "actionButtonSound";
+      ShapeType2["arc"] = "arc";
+      ShapeType2["bentArrow"] = "bentArrow";
+      ShapeType2["bentUpArrow"] = "bentUpArrow";
+      ShapeType2["bevel"] = "bevel";
+      ShapeType2["blockArc"] = "blockArc";
+      ShapeType2["borderCallout1"] = "borderCallout1";
+      ShapeType2["borderCallout2"] = "borderCallout2";
+      ShapeType2["borderCallout3"] = "borderCallout3";
+      ShapeType2["bracePair"] = "bracePair";
+      ShapeType2["bracketPair"] = "bracketPair";
+      ShapeType2["callout1"] = "callout1";
+      ShapeType2["callout2"] = "callout2";
+      ShapeType2["callout3"] = "callout3";
+      ShapeType2["can"] = "can";
+      ShapeType2["chartPlus"] = "chartPlus";
+      ShapeType2["chartStar"] = "chartStar";
+      ShapeType2["chartX"] = "chartX";
+      ShapeType2["chevron"] = "chevron";
+      ShapeType2["chord"] = "chord";
+      ShapeType2["circularArrow"] = "circularArrow";
+      ShapeType2["cloud"] = "cloud";
+      ShapeType2["cloudCallout"] = "cloudCallout";
+      ShapeType2["corner"] = "corner";
+      ShapeType2["cornerTabs"] = "cornerTabs";
+      ShapeType2["cube"] = "cube";
+      ShapeType2["curvedDownArrow"] = "curvedDownArrow";
+      ShapeType2["curvedLeftArrow"] = "curvedLeftArrow";
+      ShapeType2["curvedRightArrow"] = "curvedRightArrow";
+      ShapeType2["curvedUpArrow"] = "curvedUpArrow";
+      ShapeType2["custGeom"] = "custGeom";
+      ShapeType2["decagon"] = "decagon";
+      ShapeType2["diagStripe"] = "diagStripe";
+      ShapeType2["diamond"] = "diamond";
+      ShapeType2["dodecagon"] = "dodecagon";
+      ShapeType2["donut"] = "donut";
+      ShapeType2["doubleWave"] = "doubleWave";
+      ShapeType2["downArrow"] = "downArrow";
+      ShapeType2["downArrowCallout"] = "downArrowCallout";
+      ShapeType2["ellipse"] = "ellipse";
+      ShapeType2["ellipseRibbon"] = "ellipseRibbon";
+      ShapeType2["ellipseRibbon2"] = "ellipseRibbon2";
+      ShapeType2["flowChartAlternateProcess"] = "flowChartAlternateProcess";
+      ShapeType2["flowChartCollate"] = "flowChartCollate";
+      ShapeType2["flowChartConnector"] = "flowChartConnector";
+      ShapeType2["flowChartDecision"] = "flowChartDecision";
+      ShapeType2["flowChartDelay"] = "flowChartDelay";
+      ShapeType2["flowChartDisplay"] = "flowChartDisplay";
+      ShapeType2["flowChartDocument"] = "flowChartDocument";
+      ShapeType2["flowChartExtract"] = "flowChartExtract";
+      ShapeType2["flowChartInputOutput"] = "flowChartInputOutput";
+      ShapeType2["flowChartInternalStorage"] = "flowChartInternalStorage";
+      ShapeType2["flowChartMagneticDisk"] = "flowChartMagneticDisk";
+      ShapeType2["flowChartMagneticDrum"] = "flowChartMagneticDrum";
+      ShapeType2["flowChartMagneticTape"] = "flowChartMagneticTape";
+      ShapeType2["flowChartManualInput"] = "flowChartManualInput";
+      ShapeType2["flowChartManualOperation"] = "flowChartManualOperation";
+      ShapeType2["flowChartMerge"] = "flowChartMerge";
+      ShapeType2["flowChartMultidocument"] = "flowChartMultidocument";
+      ShapeType2["flowChartOfflineStorage"] = "flowChartOfflineStorage";
+      ShapeType2["flowChartOffpageConnector"] = "flowChartOffpageConnector";
+      ShapeType2["flowChartOnlineStorage"] = "flowChartOnlineStorage";
+      ShapeType2["flowChartOr"] = "flowChartOr";
+      ShapeType2["flowChartPredefinedProcess"] = "flowChartPredefinedProcess";
+      ShapeType2["flowChartPreparation"] = "flowChartPreparation";
+      ShapeType2["flowChartProcess"] = "flowChartProcess";
+      ShapeType2["flowChartPunchedCard"] = "flowChartPunchedCard";
+      ShapeType2["flowChartPunchedTape"] = "flowChartPunchedTape";
+      ShapeType2["flowChartSort"] = "flowChartSort";
+      ShapeType2["flowChartSummingJunction"] = "flowChartSummingJunction";
+      ShapeType2["flowChartTerminator"] = "flowChartTerminator";
+      ShapeType2["folderCorner"] = "folderCorner";
+      ShapeType2["frame"] = "frame";
+      ShapeType2["funnel"] = "funnel";
+      ShapeType2["gear6"] = "gear6";
+      ShapeType2["gear9"] = "gear9";
+      ShapeType2["halfFrame"] = "halfFrame";
+      ShapeType2["heart"] = "heart";
+      ShapeType2["heptagon"] = "heptagon";
+      ShapeType2["hexagon"] = "hexagon";
+      ShapeType2["homePlate"] = "homePlate";
+      ShapeType2["horizontalScroll"] = "horizontalScroll";
+      ShapeType2["irregularSeal1"] = "irregularSeal1";
+      ShapeType2["irregularSeal2"] = "irregularSeal2";
+      ShapeType2["leftArrow"] = "leftArrow";
+      ShapeType2["leftArrowCallout"] = "leftArrowCallout";
+      ShapeType2["leftBrace"] = "leftBrace";
+      ShapeType2["leftBracket"] = "leftBracket";
+      ShapeType2["leftCircularArrow"] = "leftCircularArrow";
+      ShapeType2["leftRightArrow"] = "leftRightArrow";
+      ShapeType2["leftRightArrowCallout"] = "leftRightArrowCallout";
+      ShapeType2["leftRightCircularArrow"] = "leftRightCircularArrow";
+      ShapeType2["leftRightRibbon"] = "leftRightRibbon";
+      ShapeType2["leftRightUpArrow"] = "leftRightUpArrow";
+      ShapeType2["leftUpArrow"] = "leftUpArrow";
+      ShapeType2["lightningBolt"] = "lightningBolt";
+      ShapeType2["line"] = "line";
+      ShapeType2["lineInv"] = "lineInv";
+      ShapeType2["mathDivide"] = "mathDivide";
+      ShapeType2["mathEqual"] = "mathEqual";
+      ShapeType2["mathMinus"] = "mathMinus";
+      ShapeType2["mathMultiply"] = "mathMultiply";
+      ShapeType2["mathNotEqual"] = "mathNotEqual";
+      ShapeType2["mathPlus"] = "mathPlus";
+      ShapeType2["moon"] = "moon";
+      ShapeType2["noSmoking"] = "noSmoking";
+      ShapeType2["nonIsoscelesTrapezoid"] = "nonIsoscelesTrapezoid";
+      ShapeType2["notchedRightArrow"] = "notchedRightArrow";
+      ShapeType2["octagon"] = "octagon";
+      ShapeType2["parallelogram"] = "parallelogram";
+      ShapeType2["pentagon"] = "pentagon";
+      ShapeType2["pie"] = "pie";
+      ShapeType2["pieWedge"] = "pieWedge";
+      ShapeType2["plaque"] = "plaque";
+      ShapeType2["plaqueTabs"] = "plaqueTabs";
+      ShapeType2["plus"] = "plus";
+      ShapeType2["quadArrow"] = "quadArrow";
+      ShapeType2["quadArrowCallout"] = "quadArrowCallout";
+      ShapeType2["rect"] = "rect";
+      ShapeType2["ribbon"] = "ribbon";
+      ShapeType2["ribbon2"] = "ribbon2";
+      ShapeType2["rightArrow"] = "rightArrow";
+      ShapeType2["rightArrowCallout"] = "rightArrowCallout";
+      ShapeType2["rightBrace"] = "rightBrace";
+      ShapeType2["rightBracket"] = "rightBracket";
+      ShapeType2["round1Rect"] = "round1Rect";
+      ShapeType2["round2DiagRect"] = "round2DiagRect";
+      ShapeType2["round2SameRect"] = "round2SameRect";
+      ShapeType2["roundRect"] = "roundRect";
+      ShapeType2["rtTriangle"] = "rtTriangle";
+      ShapeType2["smileyFace"] = "smileyFace";
+      ShapeType2["snip1Rect"] = "snip1Rect";
+      ShapeType2["snip2DiagRect"] = "snip2DiagRect";
+      ShapeType2["snip2SameRect"] = "snip2SameRect";
+      ShapeType2["snipRoundRect"] = "snipRoundRect";
+      ShapeType2["squareTabs"] = "squareTabs";
+      ShapeType2["star10"] = "star10";
+      ShapeType2["star12"] = "star12";
+      ShapeType2["star16"] = "star16";
+      ShapeType2["star24"] = "star24";
+      ShapeType2["star32"] = "star32";
+      ShapeType2["star4"] = "star4";
+      ShapeType2["star5"] = "star5";
+      ShapeType2["star6"] = "star6";
+      ShapeType2["star7"] = "star7";
+      ShapeType2["star8"] = "star8";
+      ShapeType2["stripedRightArrow"] = "stripedRightArrow";
+      ShapeType2["sun"] = "sun";
+      ShapeType2["swooshArrow"] = "swooshArrow";
+      ShapeType2["teardrop"] = "teardrop";
+      ShapeType2["trapezoid"] = "trapezoid";
+      ShapeType2["triangle"] = "triangle";
+      ShapeType2["upArrow"] = "upArrow";
+      ShapeType2["upArrowCallout"] = "upArrowCallout";
+      ShapeType2["upDownArrow"] = "upDownArrow";
+      ShapeType2["upDownArrowCallout"] = "upDownArrowCallout";
+      ShapeType2["uturnArrow"] = "uturnArrow";
+      ShapeType2["verticalScroll"] = "verticalScroll";
+      ShapeType2["wave"] = "wave";
+      ShapeType2["wedgeEllipseCallout"] = "wedgeEllipseCallout";
+      ShapeType2["wedgeRectCallout"] = "wedgeRectCallout";
+      ShapeType2["wedgeRoundRectCallout"] = "wedgeRoundRectCallout";
+      return ShapeType2;
+    })(ShapeType || {});
+    SchemeColor = /* @__PURE__ */ ((SchemeColor2) => {
+      SchemeColor2["text1"] = "tx1";
+      SchemeColor2["text2"] = "tx2";
+      SchemeColor2["background1"] = "bg1";
+      SchemeColor2["background2"] = "bg2";
+      SchemeColor2["accent1"] = "accent1";
+      SchemeColor2["accent2"] = "accent2";
+      SchemeColor2["accent3"] = "accent3";
+      SchemeColor2["accent4"] = "accent4";
+      SchemeColor2["accent5"] = "accent5";
+      SchemeColor2["accent6"] = "accent6";
+      return SchemeColor2;
+    })(SchemeColor || {});
+    AlignH = /* @__PURE__ */ ((AlignH2) => {
+      AlignH2["left"] = "left";
+      AlignH2["center"] = "center";
+      AlignH2["right"] = "right";
+      AlignH2["justify"] = "justify";
+      return AlignH2;
+    })(AlignH || {});
+    AlignV = /* @__PURE__ */ ((AlignV2) => {
+      AlignV2["top"] = "top";
+      AlignV2["middle"] = "middle";
+      AlignV2["bottom"] = "bottom";
+      return AlignV2;
+    })(AlignV || {});
+    SHAPE_TYPE = /* @__PURE__ */ ((SHAPE_TYPE2) => {
+      SHAPE_TYPE2["ACTION_BUTTON_BACK_OR_PREVIOUS"] = "actionButtonBackPrevious";
+      SHAPE_TYPE2["ACTION_BUTTON_BEGINNING"] = "actionButtonBeginning";
+      SHAPE_TYPE2["ACTION_BUTTON_CUSTOM"] = "actionButtonBlank";
+      SHAPE_TYPE2["ACTION_BUTTON_DOCUMENT"] = "actionButtonDocument";
+      SHAPE_TYPE2["ACTION_BUTTON_END"] = "actionButtonEnd";
+      SHAPE_TYPE2["ACTION_BUTTON_FORWARD_OR_NEXT"] = "actionButtonForwardNext";
+      SHAPE_TYPE2["ACTION_BUTTON_HELP"] = "actionButtonHelp";
+      SHAPE_TYPE2["ACTION_BUTTON_HOME"] = "actionButtonHome";
+      SHAPE_TYPE2["ACTION_BUTTON_INFORMATION"] = "actionButtonInformation";
+      SHAPE_TYPE2["ACTION_BUTTON_MOVIE"] = "actionButtonMovie";
+      SHAPE_TYPE2["ACTION_BUTTON_RETURN"] = "actionButtonReturn";
+      SHAPE_TYPE2["ACTION_BUTTON_SOUND"] = "actionButtonSound";
+      SHAPE_TYPE2["ARC"] = "arc";
+      SHAPE_TYPE2["BALLOON"] = "wedgeRoundRectCallout";
+      SHAPE_TYPE2["BENT_ARROW"] = "bentArrow";
+      SHAPE_TYPE2["BENT_UP_ARROW"] = "bentUpArrow";
+      SHAPE_TYPE2["BEVEL"] = "bevel";
+      SHAPE_TYPE2["BLOCK_ARC"] = "blockArc";
+      SHAPE_TYPE2["CAN"] = "can";
+      SHAPE_TYPE2["CHART_PLUS"] = "chartPlus";
+      SHAPE_TYPE2["CHART_STAR"] = "chartStar";
+      SHAPE_TYPE2["CHART_X"] = "chartX";
+      SHAPE_TYPE2["CHEVRON"] = "chevron";
+      SHAPE_TYPE2["CHORD"] = "chord";
+      SHAPE_TYPE2["CIRCULAR_ARROW"] = "circularArrow";
+      SHAPE_TYPE2["CLOUD"] = "cloud";
+      SHAPE_TYPE2["CLOUD_CALLOUT"] = "cloudCallout";
+      SHAPE_TYPE2["CORNER"] = "corner";
+      SHAPE_TYPE2["CORNER_TABS"] = "cornerTabs";
+      SHAPE_TYPE2["CROSS"] = "plus";
+      SHAPE_TYPE2["CUBE"] = "cube";
+      SHAPE_TYPE2["CURVED_DOWN_ARROW"] = "curvedDownArrow";
+      SHAPE_TYPE2["CURVED_DOWN_RIBBON"] = "ellipseRibbon";
+      SHAPE_TYPE2["CURVED_LEFT_ARROW"] = "curvedLeftArrow";
+      SHAPE_TYPE2["CURVED_RIGHT_ARROW"] = "curvedRightArrow";
+      SHAPE_TYPE2["CURVED_UP_ARROW"] = "curvedUpArrow";
+      SHAPE_TYPE2["CURVED_UP_RIBBON"] = "ellipseRibbon2";
+      SHAPE_TYPE2["CUSTOM_GEOMETRY"] = "custGeom";
+      SHAPE_TYPE2["DECAGON"] = "decagon";
+      SHAPE_TYPE2["DIAGONAL_STRIPE"] = "diagStripe";
+      SHAPE_TYPE2["DIAMOND"] = "diamond";
+      SHAPE_TYPE2["DODECAGON"] = "dodecagon";
+      SHAPE_TYPE2["DONUT"] = "donut";
+      SHAPE_TYPE2["DOUBLE_BRACE"] = "bracePair";
+      SHAPE_TYPE2["DOUBLE_BRACKET"] = "bracketPair";
+      SHAPE_TYPE2["DOUBLE_WAVE"] = "doubleWave";
+      SHAPE_TYPE2["DOWN_ARROW"] = "downArrow";
+      SHAPE_TYPE2["DOWN_ARROW_CALLOUT"] = "downArrowCallout";
+      SHAPE_TYPE2["DOWN_RIBBON"] = "ribbon";
+      SHAPE_TYPE2["EXPLOSION1"] = "irregularSeal1";
+      SHAPE_TYPE2["EXPLOSION2"] = "irregularSeal2";
+      SHAPE_TYPE2["FLOWCHART_ALTERNATE_PROCESS"] = "flowChartAlternateProcess";
+      SHAPE_TYPE2["FLOWCHART_CARD"] = "flowChartPunchedCard";
+      SHAPE_TYPE2["FLOWCHART_COLLATE"] = "flowChartCollate";
+      SHAPE_TYPE2["FLOWCHART_CONNECTOR"] = "flowChartConnector";
+      SHAPE_TYPE2["FLOWCHART_DATA"] = "flowChartInputOutput";
+      SHAPE_TYPE2["FLOWCHART_DECISION"] = "flowChartDecision";
+      SHAPE_TYPE2["FLOWCHART_DELAY"] = "flowChartDelay";
+      SHAPE_TYPE2["FLOWCHART_DIRECT_ACCESS_STORAGE"] = "flowChartMagneticDrum";
+      SHAPE_TYPE2["FLOWCHART_DISPLAY"] = "flowChartDisplay";
+      SHAPE_TYPE2["FLOWCHART_DOCUMENT"] = "flowChartDocument";
+      SHAPE_TYPE2["FLOWCHART_EXTRACT"] = "flowChartExtract";
+      SHAPE_TYPE2["FLOWCHART_INTERNAL_STORAGE"] = "flowChartInternalStorage";
+      SHAPE_TYPE2["FLOWCHART_MAGNETIC_DISK"] = "flowChartMagneticDisk";
+      SHAPE_TYPE2["FLOWCHART_MANUAL_INPUT"] = "flowChartManualInput";
+      SHAPE_TYPE2["FLOWCHART_MANUAL_OPERATION"] = "flowChartManualOperation";
+      SHAPE_TYPE2["FLOWCHART_MERGE"] = "flowChartMerge";
+      SHAPE_TYPE2["FLOWCHART_MULTIDOCUMENT"] = "flowChartMultidocument";
+      SHAPE_TYPE2["FLOWCHART_OFFLINE_STORAGE"] = "flowChartOfflineStorage";
+      SHAPE_TYPE2["FLOWCHART_OFFPAGE_CONNECTOR"] = "flowChartOffpageConnector";
+      SHAPE_TYPE2["FLOWCHART_OR"] = "flowChartOr";
+      SHAPE_TYPE2["FLOWCHART_PREDEFINED_PROCESS"] = "flowChartPredefinedProcess";
+      SHAPE_TYPE2["FLOWCHART_PREPARATION"] = "flowChartPreparation";
+      SHAPE_TYPE2["FLOWCHART_PROCESS"] = "flowChartProcess";
+      SHAPE_TYPE2["FLOWCHART_PUNCHED_TAPE"] = "flowChartPunchedTape";
+      SHAPE_TYPE2["FLOWCHART_SEQUENTIAL_ACCESS_STORAGE"] = "flowChartMagneticTape";
+      SHAPE_TYPE2["FLOWCHART_SORT"] = "flowChartSort";
+      SHAPE_TYPE2["FLOWCHART_STORED_DATA"] = "flowChartOnlineStorage";
+      SHAPE_TYPE2["FLOWCHART_SUMMING_JUNCTION"] = "flowChartSummingJunction";
+      SHAPE_TYPE2["FLOWCHART_TERMINATOR"] = "flowChartTerminator";
+      SHAPE_TYPE2["FOLDED_CORNER"] = "folderCorner";
+      SHAPE_TYPE2["FRAME"] = "frame";
+      SHAPE_TYPE2["FUNNEL"] = "funnel";
+      SHAPE_TYPE2["GEAR_6"] = "gear6";
+      SHAPE_TYPE2["GEAR_9"] = "gear9";
+      SHAPE_TYPE2["HALF_FRAME"] = "halfFrame";
+      SHAPE_TYPE2["HEART"] = "heart";
+      SHAPE_TYPE2["HEPTAGON"] = "heptagon";
+      SHAPE_TYPE2["HEXAGON"] = "hexagon";
+      SHAPE_TYPE2["HORIZONTAL_SCROLL"] = "horizontalScroll";
+      SHAPE_TYPE2["ISOSCELES_TRIANGLE"] = "triangle";
+      SHAPE_TYPE2["LEFT_ARROW"] = "leftArrow";
+      SHAPE_TYPE2["LEFT_ARROW_CALLOUT"] = "leftArrowCallout";
+      SHAPE_TYPE2["LEFT_BRACE"] = "leftBrace";
+      SHAPE_TYPE2["LEFT_BRACKET"] = "leftBracket";
+      SHAPE_TYPE2["LEFT_CIRCULAR_ARROW"] = "leftCircularArrow";
+      SHAPE_TYPE2["LEFT_RIGHT_ARROW"] = "leftRightArrow";
+      SHAPE_TYPE2["LEFT_RIGHT_ARROW_CALLOUT"] = "leftRightArrowCallout";
+      SHAPE_TYPE2["LEFT_RIGHT_CIRCULAR_ARROW"] = "leftRightCircularArrow";
+      SHAPE_TYPE2["LEFT_RIGHT_RIBBON"] = "leftRightRibbon";
+      SHAPE_TYPE2["LEFT_RIGHT_UP_ARROW"] = "leftRightUpArrow";
+      SHAPE_TYPE2["LEFT_UP_ARROW"] = "leftUpArrow";
+      SHAPE_TYPE2["LIGHTNING_BOLT"] = "lightningBolt";
+      SHAPE_TYPE2["LINE_CALLOUT_1"] = "borderCallout1";
+      SHAPE_TYPE2["LINE_CALLOUT_1_ACCENT_BAR"] = "accentCallout1";
+      SHAPE_TYPE2["LINE_CALLOUT_1_BORDER_AND_ACCENT_BAR"] = "accentBorderCallout1";
+      SHAPE_TYPE2["LINE_CALLOUT_1_NO_BORDER"] = "callout1";
+      SHAPE_TYPE2["LINE_CALLOUT_2"] = "borderCallout2";
+      SHAPE_TYPE2["LINE_CALLOUT_2_ACCENT_BAR"] = "accentCallout2";
+      SHAPE_TYPE2["LINE_CALLOUT_2_BORDER_AND_ACCENT_BAR"] = "accentBorderCallout2";
+      SHAPE_TYPE2["LINE_CALLOUT_2_NO_BORDER"] = "callout2";
+      SHAPE_TYPE2["LINE_CALLOUT_3"] = "borderCallout3";
+      SHAPE_TYPE2["LINE_CALLOUT_3_ACCENT_BAR"] = "accentCallout3";
+      SHAPE_TYPE2["LINE_CALLOUT_3_BORDER_AND_ACCENT_BAR"] = "accentBorderCallout3";
+      SHAPE_TYPE2["LINE_CALLOUT_3_NO_BORDER"] = "callout3";
+      SHAPE_TYPE2["LINE_CALLOUT_4"] = "borderCallout4";
+      SHAPE_TYPE2["LINE_CALLOUT_4_ACCENT_BAR"] = "accentCallout3=4";
+      SHAPE_TYPE2["LINE_CALLOUT_4_BORDER_AND_ACCENT_BAR"] = "accentBorderCallout4";
+      SHAPE_TYPE2["LINE_CALLOUT_4_NO_BORDER"] = "callout4";
+      SHAPE_TYPE2["LINE"] = "line";
+      SHAPE_TYPE2["LINE_INVERSE"] = "lineInv";
+      SHAPE_TYPE2["MATH_DIVIDE"] = "mathDivide";
+      SHAPE_TYPE2["MATH_EQUAL"] = "mathEqual";
+      SHAPE_TYPE2["MATH_MINUS"] = "mathMinus";
+      SHAPE_TYPE2["MATH_MULTIPLY"] = "mathMultiply";
+      SHAPE_TYPE2["MATH_NOT_EQUAL"] = "mathNotEqual";
+      SHAPE_TYPE2["MATH_PLUS"] = "mathPlus";
+      SHAPE_TYPE2["MOON"] = "moon";
+      SHAPE_TYPE2["NON_ISOSCELES_TRAPEZOID"] = "nonIsoscelesTrapezoid";
+      SHAPE_TYPE2["NOTCHED_RIGHT_ARROW"] = "notchedRightArrow";
+      SHAPE_TYPE2["NO_SYMBOL"] = "noSmoking";
+      SHAPE_TYPE2["OCTAGON"] = "octagon";
+      SHAPE_TYPE2["OVAL"] = "ellipse";
+      SHAPE_TYPE2["OVAL_CALLOUT"] = "wedgeEllipseCallout";
+      SHAPE_TYPE2["PARALLELOGRAM"] = "parallelogram";
+      SHAPE_TYPE2["PENTAGON"] = "homePlate";
+      SHAPE_TYPE2["PIE"] = "pie";
+      SHAPE_TYPE2["PIE_WEDGE"] = "pieWedge";
+      SHAPE_TYPE2["PLAQUE"] = "plaque";
+      SHAPE_TYPE2["PLAQUE_TABS"] = "plaqueTabs";
+      SHAPE_TYPE2["QUAD_ARROW"] = "quadArrow";
+      SHAPE_TYPE2["QUAD_ARROW_CALLOUT"] = "quadArrowCallout";
+      SHAPE_TYPE2["RECTANGLE"] = "rect";
+      SHAPE_TYPE2["RECTANGULAR_CALLOUT"] = "wedgeRectCallout";
+      SHAPE_TYPE2["REGULAR_PENTAGON"] = "pentagon";
+      SHAPE_TYPE2["RIGHT_ARROW"] = "rightArrow";
+      SHAPE_TYPE2["RIGHT_ARROW_CALLOUT"] = "rightArrowCallout";
+      SHAPE_TYPE2["RIGHT_BRACE"] = "rightBrace";
+      SHAPE_TYPE2["RIGHT_BRACKET"] = "rightBracket";
+      SHAPE_TYPE2["RIGHT_TRIANGLE"] = "rtTriangle";
+      SHAPE_TYPE2["ROUNDED_RECTANGLE"] = "roundRect";
+      SHAPE_TYPE2["ROUNDED_RECTANGULAR_CALLOUT"] = "wedgeRoundRectCallout";
+      SHAPE_TYPE2["ROUND_1_RECTANGLE"] = "round1Rect";
+      SHAPE_TYPE2["ROUND_2_DIAG_RECTANGLE"] = "round2DiagRect";
+      SHAPE_TYPE2["ROUND_2_SAME_RECTANGLE"] = "round2SameRect";
+      SHAPE_TYPE2["SMILEY_FACE"] = "smileyFace";
+      SHAPE_TYPE2["SNIP_1_RECTANGLE"] = "snip1Rect";
+      SHAPE_TYPE2["SNIP_2_DIAG_RECTANGLE"] = "snip2DiagRect";
+      SHAPE_TYPE2["SNIP_2_SAME_RECTANGLE"] = "snip2SameRect";
+      SHAPE_TYPE2["SNIP_ROUND_RECTANGLE"] = "snipRoundRect";
+      SHAPE_TYPE2["SQUARE_TABS"] = "squareTabs";
+      SHAPE_TYPE2["STAR_10_POINT"] = "star10";
+      SHAPE_TYPE2["STAR_12_POINT"] = "star12";
+      SHAPE_TYPE2["STAR_16_POINT"] = "star16";
+      SHAPE_TYPE2["STAR_24_POINT"] = "star24";
+      SHAPE_TYPE2["STAR_32_POINT"] = "star32";
+      SHAPE_TYPE2["STAR_4_POINT"] = "star4";
+      SHAPE_TYPE2["STAR_5_POINT"] = "star5";
+      SHAPE_TYPE2["STAR_6_POINT"] = "star6";
+      SHAPE_TYPE2["STAR_7_POINT"] = "star7";
+      SHAPE_TYPE2["STAR_8_POINT"] = "star8";
+      SHAPE_TYPE2["STRIPED_RIGHT_ARROW"] = "stripedRightArrow";
+      SHAPE_TYPE2["SUN"] = "sun";
+      SHAPE_TYPE2["SWOOSH_ARROW"] = "swooshArrow";
+      SHAPE_TYPE2["TEAR"] = "teardrop";
+      SHAPE_TYPE2["TRAPEZOID"] = "trapezoid";
+      SHAPE_TYPE2["UP_ARROW"] = "upArrow";
+      SHAPE_TYPE2["UP_ARROW_CALLOUT"] = "upArrowCallout";
+      SHAPE_TYPE2["UP_DOWN_ARROW"] = "upDownArrow";
+      SHAPE_TYPE2["UP_DOWN_ARROW_CALLOUT"] = "upDownArrowCallout";
+      SHAPE_TYPE2["UP_RIBBON"] = "ribbon2";
+      SHAPE_TYPE2["U_TURN_ARROW"] = "uturnArrow";
+      SHAPE_TYPE2["VERTICAL_SCROLL"] = "verticalScroll";
+      SHAPE_TYPE2["WAVE"] = "wave";
+      return SHAPE_TYPE2;
+    })(SHAPE_TYPE || {});
+    CHART_TYPE = /* @__PURE__ */ ((CHART_TYPE2) => {
+      CHART_TYPE2["AREA"] = "area";
+      CHART_TYPE2["BAR"] = "bar";
+      CHART_TYPE2["BAR3D"] = "bar3D";
+      CHART_TYPE2["BUBBLE"] = "bubble";
+      CHART_TYPE2["BUBBLE3D"] = "bubble3D";
+      CHART_TYPE2["DOUGHNUT"] = "doughnut";
+      CHART_TYPE2["LINE"] = "line";
+      CHART_TYPE2["PIE"] = "pie";
+      CHART_TYPE2["RADAR"] = "radar";
+      CHART_TYPE2["SCATTER"] = "scatter";
+      return CHART_TYPE2;
+    })(CHART_TYPE || {});
+    SCHEME_COLOR_NAMES = /* @__PURE__ */ ((SCHEME_COLOR_NAMES2) => {
+      SCHEME_COLOR_NAMES2["TEXT1"] = "tx1";
+      SCHEME_COLOR_NAMES2["TEXT2"] = "tx2";
+      SCHEME_COLOR_NAMES2["BACKGROUND1"] = "bg1";
+      SCHEME_COLOR_NAMES2["BACKGROUND2"] = "bg2";
+      SCHEME_COLOR_NAMES2["ACCENT1"] = "accent1";
+      SCHEME_COLOR_NAMES2["ACCENT2"] = "accent2";
+      SCHEME_COLOR_NAMES2["ACCENT3"] = "accent3";
+      SCHEME_COLOR_NAMES2["ACCENT4"] = "accent4";
+      SCHEME_COLOR_NAMES2["ACCENT5"] = "accent5";
+      SCHEME_COLOR_NAMES2["ACCENT6"] = "accent6";
+      return SCHEME_COLOR_NAMES2;
+    })(SCHEME_COLOR_NAMES || {});
+    MASTER_OBJECTS = /* @__PURE__ */ ((MASTER_OBJECTS2) => {
+      MASTER_OBJECTS2["chart"] = "chart";
+      MASTER_OBJECTS2["image"] = "image";
+      MASTER_OBJECTS2["line"] = "line";
+      MASTER_OBJECTS2["rect"] = "rect";
+      MASTER_OBJECTS2["text"] = "text";
+      MASTER_OBJECTS2["placeholder"] = "placeholder";
+      return MASTER_OBJECTS2;
+    })(MASTER_OBJECTS || {});
+    PLACEHOLDER_TYPES = /* @__PURE__ */ ((PLACEHOLDER_TYPES2) => {
+      PLACEHOLDER_TYPES2["title"] = "title";
+      PLACEHOLDER_TYPES2["body"] = "body";
+      PLACEHOLDER_TYPES2["image"] = "pic";
+      PLACEHOLDER_TYPES2["chart"] = "chart";
+      PLACEHOLDER_TYPES2["table"] = "tbl";
+      PLACEHOLDER_TYPES2["media"] = "media";
+      return PLACEHOLDER_TYPES2;
+    })(PLACEHOLDER_TYPES || {});
+    ANIMATION_PRESETS = {
+      // Entrance effects (presetClass: 'entr')
+      "appear": { presetId: 1, presetClass: "entr" },
+      "fly-in": { presetId: 2, presetClass: "entr" },
+      "blinds": { presetId: 3, presetClass: "entr" },
+      "box": { presetId: 4, presetClass: "entr" },
+      "checkerboard": { presetId: 5, presetClass: "entr" },
+      "circle": { presetId: 6, presetClass: "entr" },
+      "crawl": { presetId: 7, presetClass: "entr" },
+      "diamond": { presetId: 8, presetClass: "entr" },
+      "dissolve": { presetId: 9, presetClass: "entr" },
+      "fade": { presetId: 10, presetClass: "entr" },
+      "flash-once": { presetId: 11, presetClass: "entr" },
+      "float": { presetId: 12, presetClass: "entr" },
+      "glide": { presetId: 13, presetClass: "entr" },
+      "grow-and-turn": { presetId: 14, presetClass: "entr" },
+      "newsflash": { presetId: 15, presetClass: "entr" },
+      "peek": { presetId: 16, presetClass: "entr" },
+      "pinwheel": { presetId: 17, presetClass: "entr" },
+      "plus": { presetId: 18, presetClass: "entr" },
+      "random-bars": { presetId: 19, presetClass: "entr" },
+      "random": { presetId: 20, presetClass: "entr" },
+      "spiral": { presetId: 21, presetClass: "entr" },
+      "split": { presetId: 22, presetClass: "entr" },
+      "stretch": { presetId: 23, presetClass: "entr" },
+      "strips": { presetId: 24, presetClass: "entr" },
+      "swivel": { presetId: 25, presetClass: "entr" },
+      "wedge": { presetId: 26, presetClass: "entr" },
+      "wheel": { presetId: 27, presetClass: "entr" },
+      "wipe": { presetId: 28, presetClass: "entr" },
+      "zoom": { presetId: 29, presetClass: "entr" },
+      "bounce": { presetId: 30, presetClass: "entr" },
+      "expand": { presetId: 31, presetClass: "entr" },
+      // Exit effects (presetClass: 'exit')
+      "disappear": { presetId: 1, presetClass: "exit" },
+      "fly-out": { presetId: 2, presetClass: "exit" },
+      "fade-out": { presetId: 10, presetClass: "exit" },
+      "zoom-out": { presetId: 29, presetClass: "exit" },
+      // Emphasis effects (presetClass: 'emph')
+      "pulse": { presetId: 1, presetClass: "emph" },
+      "color-pulse": { presetId: 2, presetClass: "emph" },
+      "teeter": { presetId: 3, presetClass: "emph" },
+      "spin": { presetId: 4, presetClass: "emph" },
+      "grow-shrink": { presetId: 5, presetClass: "emph" }
+    };
+    ANIMATION_DIRECTIONS = {
+      "from-bottom": 1,
+      "from-bottom-left": 2,
+      "from-left": 3,
+      "from-top-left": 4,
+      "from-top": 5,
+      "from-top-right": 6,
+      "from-right": 7,
+      "from-bottom-right": 8,
+      "horizontal": 9,
+      "vertical": 10,
+      "in": 16,
+      "out": 32,
+      "in-horizontal": 17,
+      "in-vertical": 18,
+      "out-horizontal": 33,
+      "out-vertical": 34
+    };
+    IMG_BROKEN = "data:image/png;base64,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";
+    IMG_PLAYBTN = "data:image/png;base64,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AAAAAACAlFAAAwAAAAAAAKSEAhgAAAAAAAAgJRTAAAAAAAAAACmhAAYAAAAAAABICQUwAAAAAAAAQEoogAEAAAAAAABSQgEMAAAAAAAAkBIKYAAAAAAAAICUUAADAAAAAAAApIQCGAAAAAAAACAlFMAAAAAAAAAAKaEABgAAAAAAAEgJBTAAAAAAAABASiiAAQAAAAAAAFJCAQwAAAAAAACQEgpgAAAAAAAAgJRQAAMAAAAAAACkhAIYAAAAAAAAICUUwAAAAAAAAAApoQAGAAAAAAAASAkFMAAAAAAAAEBKKIABAAAAAAAAUkIBDAAAAAAAAJASCmAAAAAAAACAlFAAAwAAAAAAAKSEAhgAAAAAAAAgJRTAAAAAAAAAACmhAAYAAAAAAABICQUwAAAAAAAAQEoogAEAAAAAAABSQgEMAAAAAAAAkBIKYAAAAAAAAICUUAADAAAAAAAApIQCGAAAAAAAACAlFMAAAAAAAAAAKaEABgAAAAAAAEgJBTAAAAAAAABASiiAAQAAAAAAAFJCAQwAAAAAAACQEgpgAAAAAAAAgJRQAAMAAAAAAACkhAIYAAAAAAAAICUUwAAAAAAAAAApoQAGAAAAAAAASAkFMAAAAAAAAEBKKIABAAAAAAAAUkIBDAAAAAAAAJASCmAAAAAAAACAlFAAAwAAAAAAAKSEAhgAAAAAAAAgJRTAAAAAAAAAACmhAAYAAAAAAABICQUwAAAAAAAAQEoogAEAAAAAAABSQgEMAAAAAAAAkBIKYAAAAAAAAICUUAADAAAAAAAApIQCGAAAAAAAACAlFMAAAAAAAAAAKaEABgAAAAAAAEgJBTAAAAAAAABASiiAAQAAAAAAAFJCAQwAAAAAAACQEgpgAAAAAAAAgJRQAAMAAAAAAACkhAIYAAAAAAAAICUUwAAAAAAAAAApoQAGAAAAAAAASAkFMAAAAAAAAEBKKIABAAAAAAAAUkIBDAAAAAAAAJASCmAAAAAAAACAlFAAAwAAAAAAAKSEAhgAAAAAAAAgJRTAAAAAAAAAACmhAAYAAAAAAABICQUwAAAAAAAAQEoogAEAAAAAAABSQgEMAAAAAAAAkBIKYAAAAAAAAICUUAADAAAAAAAApIQCGAAAAAAAACAlFMAAAAAAAAAAKaEABgAAAAAAAEgJBTAAAAAAAABASiiAAQAAAAAAAFJCAQwAAAAAAACQEgpgAAAAAAAAgJRQAAMAAAAAAACkhAIYAAAAAAAAICUUwAAAAAAAAAApoQAGAAAAAAAASAkFMAAAAAAAAEBKKIABAAAAAAAAUkIBDAAAAAAAAJASCmAAAAAAAACAlFAAAwAAAAAAAKSEAhgAAAAAAAAgJRTAAAAAAAAAACmhAAYAAAAAAABICQUwAAAAAAAAQEoogAEAAAAAAABSQgEMAAAAAAAAkBIKYAAAAAAAAICUUAADAAAAAAAApIQCGAAAAAAAACAlFMAAAAAAAAAAKaEABgAAAAAAAEgJBTAAAAAAAABASiiAAQAAAAAAAFJCAQwAAAAAAACQEgpgAAAAAAAAgJRQAAMAAAAAAACkhAIYAAAAAAAAICUUwAAAAAAAAAApoQAGAAAAAAAASAkFMAAAAAAAAEBKKIABAAAAAAAAUkIBDAAAAAAAAJASCmAAAAAAAACAlFAAAwAAAAAAAKSEAhgAAAAAAAAgJRTAAAAAAAAAACmhAAYAAAAAAABICQUwAAAAAAAAQEoogAEAAAAAAABSQgEMAAAAAAAAkBIKYAAAAAAAAICUUAADAAAAAAAApIQCGAAAAAAAACAlFMAAAAAAAAAAKaEABgAAAAAAAEgJBTAAAAAAAABASiiAAQAAAAAAAFJCAQwAAAAAAACQEgpgAAAAAAAAgJRQAAMAAAAAAACkhAIYAAAAAAAAICUUwAAAAAAAAAApoQAGAAAAAAAASAkFMAAAAAAAAEBKKIABAAAAAAAAUkIBDAAAAAAAAJASCmAAAAAAAACAlFAAAwAAAAAAAKSEAhgAAAAAAAAgJRTAAAAAAAAAACmhAAYAAAAAAABICQUwAAAAAAAAQEoogAEAAAAAAABSQgEMAAAAAAAAkBIKYAAAAAAAAICUUAADAAAAAAAApIQCGAAAAAAAACAlFMAAAAAAAAAAKaEABgAAAAAAAEgJBTAAAAAAAABASiiAAQAAAAAAAFJCAQwAAAAAAACQEgpgAAAAAAAAgJRQAAMAAAAAAACkhAIYAAAAAAAAICUUwAAAAAAAAAApoQAGAAAAAAAASAkFMAAAAAAAAEBKKIABAAAAAAAAUkIBDAAAAAAAAJASCmAAAAAAAACAlFAAAwAAAAAAAKSEAhgAAAAAAAAgJRTAAAAAAAAAACmhAAYAAAAAAABICQUwAAAAAAAAQEoogAEAAAAAAABSQgEMAAAAAAAAkBIKYAAAAAAAAICUUAADAAAAAAAApIQCGAAAAAAAACAlFMAAAAAAAAAAKaEABgAAAAAAAEgJBTAAAAAAAABASiiAAQAAAAAAAFJCAQwAAAAAAACQEgpgAAAAAAAAgJRQAAMAAAAAAACkhAIYAAAAAAAAICUUwAAAAAAAAAApoQAGAAAAAAAASAkFMAAAAAAAAEBKKIABAAAAAAAAUkIBDAAAAAAAAJASCmAAAAAAAACAlFAAAwAAAAAAAKSEAhgAAAAAAAAgJRTAAAAAAAAAACmhAAYAAAAAAABICQUwAAAAAAAAQEoogAEAAAAAAABSQgEMAAAAAAAAkBIKYAAAAAAAAICUUAADAAAAAAAApIQCGAAAAAAAACAlFMAAAAAAAAAAKaEABgAAAAAAAEgJBTAAAAAAAABASiiAAQAAAAAAAFJCAQwAAAAAAACQEgpgAAAAAAAAgJRQAAMAAAAAAACkhAIYAAAAAAAAICUUwAAAAAAAAAApoQAGAAAAAAAASAkFMAAAAAAAAEBKKIABAAAAAAAAUkIBDAAAAAAAAJASCmAAAAAAAACAlFAAAwAAAAAAAKREkRUAAACwrUpLSwuGDRvWfMCAAS26du3avKysrLiioqKkZcuWzZs1a1bcvHnz0tLS0rJsNtusuLi4ebNmzUoLCgo+8/eijY2N9Zs3b66pra2tqqur21xTU1NdVVVVs2nTptqNGzdWbdiwoeYvf/nL5hUrVlQtWLBgw6xZs6pqamoaJQYAAEDaKYABAACIiIghQ4aUHnTQQW379u3bql27dq3at2/fpkWLFq2bN29eWVpa2qpZs2bNCwsLm2ez2fLCwsLyoqKi8sLCwtKknK+hoaG6vr6+qqGh4S91dXV/aWhoqNq8eXNVTU3NuqqqqvUbNmxYu2rVqjWrV69e99Zbb6177rnnPpgzZ06NTwYAAABJogAGAADIA8OGDWt+xBFHdBwwYECnLl26dGjdunXHFi1adCgtLe1YUlLSvlmzZq0KCgqK07yDwsLCssLCwrKIaPdp/zuNjY21mzdvXrdp06ZVNTU172/YsGHl2rVr31+2bNnKBQsWrHjyySffnzVrVpVPGAAAAE1Fpuexsd9HfaF+ZcSal0ptCAAAIAE6deqUPf744zvtueeeXbp3796lbdu2XSorKzuXlpZ2KS0t7VBYWFhhSztGQ0PDxpqampU1NTXL169fv+yDDz5Y9s477yybPXv2sj/96U8rVqxYUWdLAAAAbE9t9q6Jog4f/TUFMAAAQEJks9nMt7/97Y4jRozo1bdv397t2rXrXl5e3rWsrKxzcXFx+4gosKUmp7G2tnZVTU3Nso0bNy5btWrV0tdff/2tJ598cvG999672noAAADYFgpgAACAhPne977X6a9Fb/v27Xu1bNmyV1lZWa8kvXOXLauvr9/wl7/8ZdG6desWL1u2bNHChQsX/fGPf1w8derUjbYDAADAliiAAQAAmqhsNps59dRTuxx66KH9+/Tp87n27dv3Ly8v719UVOSRzXlq06ZNKzZu3Pj6+++//8abb775xqOPPvrG3XffvcpmAAAA+CsFMAAAQBNx6qmndvniF784qHfv3v3btWv3uYqKis8VFhaW2wxbUl9fv37Dhg1vfPDBB68vXrz4jccee2z+jTfeuNxmAAAA8pMCGAAAYBc45phjWn/rW9/aq3///kPatGnTv6Kiop9HOLO9NDQ0VG/cuPGtNWvWLFy4cOGcO+6445WHHnporc0AAACknwIYAABgJzjjjDO6f+lLX9qrV69eg1u3bj2orKysR0RkbIadJFddXb103bp18xcvXjz30UcffeXqq69+x1oAAADSRwEMAACwnZWWlhb86le/2u3QQw8d1r17931btmw5qLCwsMxmaEoaGhqqP/zww/nvvPPOzGeeeWbW2LFj36ipqWm0GQAAgGRTAAMAAGwHP/7xj7t+9atf3bdXr15D27Ztu1c2m21jKyRJXV3dmg8++OCVRYsWvfznP/95xh/+8IdltgIAAJA8CmAAAIBtcOKJJ7Y75ZRTDujXr9+w1q1bD81ms61shTSpq6tbt3bt2pfffPPNWbfccsvUe++9d7WtAAAANH0KYAAAgE+hoqKi4IILLhg0YsSI/bp27bpfy5YtB2YymUKbIR/kcrmGDz/8cP6777474/nnn59x4YUXvrZx40aPiwYAAGiCFMAAAAAf4/jjj2/7/e9//8D+/fsf2Lp1630KCgpKbAUiGhsbN61fv37eW2+9NeWGG2545u67715lKwAAAE2DAhgAAOB/ZLPZzAUXXPC5I4888sDu3bsfWFFRsVtEFNgMbFl1dfWSd999d8qsWbNmnnvuuS+vW7euwVYAAAB2DQUwAACQ10pLSwsuvfTSQYcccsjBXbt2HVFWVtbDVmDb1dbWrnr//fdfmDp16uRf/vKXL65evbreVgAAAHYeBTAAAJB3Bg0aVHrBBRd8fs899zywQ4cOBxQVFbWwFdj+Ghsba9euXTtrzpw5T59//vmTX3755WpbAQAA2LEUwAAAQF4YNmxY8/POO+/gIUOGHOZ9vrDz/W0ZfNFFFz07a9asKlsBAADY/hTAAABAarVq1arwyiuv3HfEiBEjO3TocFBhYWGZrcCu19DQUP3+++8/O2XKlIk/+clPZm7cuLHRVgAAALYPBTAAAJAqrVq1Kvztb3+7/3777Xd4x44dRxQWFpbbCjRdDQ0NG99///0pM2bMeOqHP/zhC8pgAACAz0YBDAAApMJZZ53V45vf/OaRvXr1GllaWtrVRiB5ampq3l28ePHEO++8c9LVV1/9jo0AAABsPQUwAACQWMOHDy+/6KKLvjB48OCjW7RoMdBGID0+/PDDV+fNmzfhvPPOe3L69Ol/sREAAIBPRwEMAAAkSqtWrQpvuOGGQ/bbb79/atOmzX6ZTCZrK5BeuVyubs2aNTNmzJjx2JgxYyavW7euwVYAAAA+ngIYAABIhB//+Mddv/e9732lZ8+e/1RcXNzWRiD/1NbWfvD2228/dssttzz029/+9l0bAQAA+L8UwAAAQJNVUVFRcO21137+4IMPPrZ169b7ZTKZAlsBIqJxzZo1M59//vnxp5122hR3BQMAAPx/CmAAAKDJOeWUUzqefvrpx/bu3ftL2Wy2jY0AH6e+vn7j0qVLH/vd7373x+uvv36ZjQAAAPlOAQwAADQJ2Ww2c+uttx5wyCGHnNC6deu9I8LdvsDWaFy7du1L06ZN+/OPfvSjZ1evXl1vJQAAQD5SAAMAALtU//79S6655pp/2nPPPY8tLy/vayPAZ1VTU7NswYIF488999wHp06dutFGAACAfKIABgAAdomf//znPU855ZQTu3btemRhYWGZjQDbW2NjY92KFSuevOWWW+689NJLF9kIAACQDxTAAADATuMxz8Cusn79+rlPP/30f5188slT6+rqcjYCAACklQIYAADY4fr27Vv8hz/84a+Pee5nI8CuUlNT8+68efPu/8EPfvDgwoULN9kIAACQNgpgAABghxkyZEjpNddc89XBgwefWFxc3MFGgKaitrZ21dy5c+/5yU9+8uc5c+bU2AgAAJAWWyqAPYoNAADYJqNHj+4wb968n06ZMuXRYcOGnaH8BZqa4uLi9sOGDTtjypQpj86bN++nJ510UntbAQAA0s4dwAAAwFY599xze33/+9//dufOnY/IZDJZGwGSIpfL1S1fvvzJG2644fbLLrvsbRsBAACSyiOgAQCAz+y8887r+53vfOfbHTt2PDyTyRTaCJBUuVyuYcWKFU/cdNNN//XrX/96sY0AAABJowAGAAC22WWXXTboG9/4xg9at249zDaAtFm7du2su++++9pzzjnnNdsAAACSQgEMAABsNcUvkE8UwQAAQJIogAEAgE9N8Qvks7Vr18665557rvv5z38+3zYAAICmaksFcGHlwOj6UV9orIqoWZG1PQAAyBO/+MUvet9xxx3nHHrooT8pLS3tYiNAPiotLe2y7777HvP973+/X1lZ2ZIpU6assxUAAKCpKetcHwXlH/01BTAAAOS5M844o/u99957zpe//OWflZeX94qIjK0AeS5TXl7e8+CDDx71/e9/v3dEvDVjxowPrQUAAGgqFMAAAMD/ceKJJ7a77777fjJq1Kh/KS8v7xOKX4B/lCkvL+99+OGHj/rWt77VfvXq1Qvnz59fbS0AAMCutqUC2DuAAQAgzwwdOrTs+uuvP6l///4nFRYWltkI20NjY2Ns2rQpqquro6amJurr62PTpk2xefPmqK+vj+rq6qivr4/NmzfHpk2boqGhYZv/fxUWFkZJSUk0a9YsioqKoqysLIqKiqJZs2ZRUlISRUVFUVpa+r9/FRQUCIjtoqGhoeq11167a8yYMffMmTOnxkYAAIBdZUvvAFYAAwBAnujUqVP2nnvuGbXXXnudnM1mK22Ej9PQ0BAbN26MDRs2/J+/Nm7cGBs3boyamprYtGlTbNq0KWpqaqK2trbJnqe4uDhKSkqitLT0f/9eUVERFRUV0aJFi//zV0VFRRQWFvog8LHq6urWvvjii7eceOKJf169enW9jQAAADubAhgAAPLcXXfdddAXv/jF00tLS7vZRn7L5XKxYcOGWLt2baxbty7Wrl37d3+tW7cuNmzYkPd7atGiRbRu3TpatWoVrVu3jjZt2vzvf27dunW0aNHCh4morq5e+sgjj1zzne98Z6ptAAAAO5MCGAAA8tTVV189+MQTTzyzoqJioG3kj8bGxli5cmUsX748Pvjgg1i9evX//n3t2rXR2NhoSZ9RYWFhtGrVKtq1axdt27b937937tw5OnTo4LHTeWbDhg3z77333qvOPPPMebYBAADsDApgAADIM1/72tfaXHrppad27979qIjQRKVUQ0NDrFq1KlasWBHvv//+//595cqVTfqRzGlXXFwcHTp0iI4dO0bnzp2jY8eO0alTp2jXrp1HS6dYLpdrfOeddx76+c9/fv2ECRPW2QgAALAjKYABACBP9OrVq9ldd931jT322OM7hYWFZTaSHh9++GG88847sXTp0njvvfdixYoVsXr16mhoaLCchCgsLIz27dtHp06dolu3btG9e/fo3r27x0mnTENDQ9W8efNu++Y3v/nHJUuWbLYRAABgR1AAAwBAHrjrrrtG/NM//dOZJSUlXWwj2davXx9Lly6Nd955539L3w8//NBiUqqysvJ/y+C//tWqVSuLSbiamppljz322G9Gjx49xTYAAIDtTQEMAAAp9qtf/arPD3/4w5+1atVqL9tIno0bN8aSJUvirbfeikWLFsV7770XmzZtspg8V1JSEl27do0+ffpE3759o3fv3lFeXm4xCbRu3bqXr7322ivGjh27yDYAAIDtRQEMAAApNGjQoNI77rjju7vttttJBQUFWRtJhtWrV8ebb74ZixcvjiVLlsTy5cujsbHRYtiigoKC6Ny5c/Tu3Tt69+4d/fr1i7Zt21pMQjQ2Nta98cYbd33rW9+6ff78+TU2AgAAfFYKYAAASJHS0tKCBx988Jj99tvvn7PZbBsbaboaGhri7bffjrfeeisWLFgQS5YscXcv201FRUX06tUr+vbtG3379o2ePXtGYWGhxTRhdXV1a2bMmHHjV77ylYdqamr85gcAALDNFMAAAJASp59+erdf/vKX51ZWVu5jG03T6tWr47XXXouFCxfGm2++GRs3brQUdooWLVpE3759Y8CAATFw4EB3CDdh69evf/E//uM//vPqq69+xzYAAIBtoQAGAICEGzRoUOm99977w969ex+byWTc4teErF+/PubNmxcLFiyIN954Q+FLk9GiRYvo169fDBgwIPbYY4+orKy0lCYkl8s1LF68eNyJJ554rcdCAwAAW0sBDAAACXbNNdcMOemkk35RVlbWyzZ2vVwuF++++27MnTs3XnvttViyZIl3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B7lcrm7y5Mm//vKXv/yIbQAAwK63pXcAK4ABAMg7paWlBTNnzjyzT58+x9vG39uwYUOMGzcuZsyY4VHPQF7KZDKx3377xde//vWoqKiwkH+waNGiP+27775X1dTUeCwEAADsQgpgAAD4H926dctOnjz5V506dRppG/9fLpeLqVOnxp///OfYuHGjhQB5r6KiIkaNGhX777+/x0L/g+XLlz9+6KGHXvLuu+/W2QYAAOwaWyqAvQMYAIC8MXz48PInnnjiynbt2o2wjf/vnXfeiWuvvTaee+652Lx5s4UARMTmzZtjzpw58dprr0XPnj2jRYsWlvI/Kioq+n7rW98aMnXq1Ofee+89f3AAAMAusKV3ACuAAQDIC9/+9rc73n777X9o0aLFANv4b1VVVXHXXXfFvffeG+vXr7cQgI+wbt26eP7552P9+vWx2267RVFRkaVERElJSefjjjvuoA8++GDKK6+88hcbAQCAnUsBDABAXjv//PP7XXzxxX8oKSnpbBv/bfr06XHttdfGokWLLAPgU3jnnXdi2rRp0bp16+jc2R8nERHZbLbyC1/4whElJSUvTp48eY2NAADAzqMABgAgb/3ud7/b60c/+tFVRUVFrWwjYs2aNXHzzTfHpEmTora21kIAtkJtbW289NJL8c4770Tfvn2jtLQ073dSWFhYNnz48C/26dNn4UMPPbTMpwQAAHYOBTAAAHnp1ltv3f+b3/zmfxYWFjbP913kcrl4/vnn4/rrr4/ly5f7cAB8BitXroxp06ZFRUVFdOvWLTKZTF7vo6CgIDto0KBDBw0atOiBBx54xycEAAB2vC0VwJmex8Z+H/WF+pURa17ym6wAACTTww8//KXDDjvsXzKZTN6/rPGDDz6I22+/Pd544w0fDIDtbMCAAfGtb30r2rRpk/e7yOVyjVOmTPn1yJEjH/LJAACAHavN3jVR1OGjv6YABgAgdV555ZXTPve5z30r3/fQ0NAQjz32WDz++ONRV1fngwGwg2Sz2Tj66KPjC1/4QhQUFOT9Pl5//fU79tprr9/7ZAAAwI6jAAYAIC9ks9nMyy+/fFafPn2Oz/ddvPvuu3HbbbfFe++954MBsJN069YtvvOd70S3bt3yfhdLliy5f5999rmypqam0ScDAAC2PwUwAACpV1paWjBr1qyzevfufVw+7yGXy8WTTz4ZDz74oLt+AXaBbDYbxxxzTBxxxBF5fzfw0qVLHxg6dOjlSmAAANj+FMAAAKRar169mk2ePHlsu3btDsrnPaxcuTJuueWWePvtt30oAHaxnj17ximnnBIdOnTI6z2sXr16yiGHHPIvS5Ys2exTAQAA28+WCuDCyoHR9aO+0FgVUbMia3sAADRpQ4cOLXvqqacub9Omzf75uoNcLhfPPPNMXH/99bF27VofCoAmYP369TFlypQoKSmJnj17RiaTycs9NG/evPtJJ500ZPLkyc+sWLHCoykAAGA7KetcHwXlH/01BTAAAIk1ZMiQ0kceeeSKVq1a7Z2vO6iuro7bb789nnjiiWhs9IRNgKaksbEx5s+fH++//34MGDAgstn8/DlLaWlpp6997WuDn3rqqadXrlxZ75MBAACfnQIYAIDUOfTQQ1s8+OCDv2/ZsuUe+bqDOXPmxNVXX+2RzwBN3PLly+OFF16Ijh075u0joUtLSzudcMIJ+7/00ktPv/3227U+FQAA8NkogAEASJVhw4Y1v++++37TsmXLQfl4/vr6+hg/fnz88Y9/jNpaP0MHSILNmzfHiy++GJs3b47ddtstCgoK8m4HxcXFbY866qg9n3vuuaeXL1/ucdAAAPAZKIABAEiNI488snLcuHG/b9GixcB8PP97770XV111VcyZM8eHASCBFi1aFC+//HL069cvWrRokXfnLykp6XDcccftP2fOnGcWLVq0yScCAAC2jQIYAIBUOPLIIyvvvPPO35aXl++Wj+d/+umn48Ybb4wPP/zQhwEgwf7yl7/ECy+8ECUlJdGrV6+8O3+zZs3aHHXUUfspgQEAYNspgAEASLxjjz227W233faH5s2b98m3s1dVVcXNN98cTz31VDQ2NvowAKRAY2NjzJ8/P5YtWxYDBgyIZs2a5dX5mzVr1uaYY4458M0333xm4cKFNT4RAACwdRTAAAAk2qGHHtritttuuzofy9+33347rrnmmli8eLEPAkAKvf/++/HKK69Enz59orKyMq/Ons1mK4888sh9Zs6c+dTSpUs3+zQAAMCnpwAGACCxjjjiiJb33nvvteXl5f3y6dy5XC4mTZoUN998c1RVVfkgAKRYVVVVTJ06NbLZbPTp0ycymUzenL24uLjtV7/61c+/8sorTy1evLjWpwEAAD4dBTAAAIl06KGHtrj33nt/l2/lb3V1ddx0000xefLkyOVyPggAeSCXy8WCBQvi3Xffjd133z2y2fz5mUyzZs1aH3300fvNmDHjSXcCAwDAp6MABgAgcYYOHVo2fvz4qysqKgbk07mXLVsWV111lUc+A+SplStXxiuvvBKf+9znoqKiIm/O3axZszZHH3300GeeeebJFStW1PkkAADAlimAAQBIlCFDhpQ++uij17Rs2XL3fDr31KlT49prr42NGzf6EADksaqqqpg+fXq0bds2unTpkjfnLikpaT9q1KihTz755JMrV66s90kAAICPt6UCuMB6AABoSjp16pSdMGHCv1dWVu6RL2dubGyMcePGxR133BF1dW56AiCitrY2br755hg/fnw0NjbmzbkrKyv3mDBhwr9369bNXQkAALCNFMAAADQZrVq1Kpw+ffolbdq02T9fzlxdXR2/+93vYtKkSd73C8DfyeVy8fjjj8fvf//7qK6uzptzt2nTZv8pU6Zc0qpVq0KfAgAA2HoKYAAAmoSKioqC2bNnX9KuXbuD8uXMS5cujYsuuijmz5/vAwDAx3r11VfjoosuiqVLl+bNmdu1a3fQ7Nmz/72iosLPrgAAYCu5iAYAoEmYOXPmz9q1a3dIvpz35ZdfjiuuuCLWrVsnfAA+0bp16+KKK66Il19+OW/O3K5du4Nnzpz5M+kDAMDWUQADALDLvfjii2N69OgxKh/Omsvl4oEHHogbbrghamtrhQ/Ap1ZbWxs33HBDPPDAA3nz2oAePXqMevHFF8dIHwAAPj0FMAAAu9SkSZO+NnDgwFPy4ax1dXVx8803x8SJE73vF4BtksvlYuLEiXHLLbdEXV1dXpx54MCBJ0+aNOlr0gcAgE9HAQwAwC7z6KOPHnXggQeekw9nXbduXfz617+OWbNmCR6Az2zmzJnx61//Ol9eJZA58MADz3n00UePkjwAAHyywsqB0fWjvtBYFVGzImtDAADsEDfeeOO+Rx999EWZTKYw7Wddvnx5XHXVVbFy5UrBA7DdbNiwIWbPnh0DBw6MioqKtB8307179/179uz56sMPP7xc+gAA5LuyzvVRUP7RX1MAAwCw011xxRV7fPe7372qoKCgWdrPOmfOnPjtb38bGzduFDwA2111dXVMmzYtOnfuHB07dkz1WTOZTOHuu+9+eJs2bV6aNGnSKukDAJDPFMAAADQZZ5xxRvef/exnvy0sLCxP+1knTJgQd999d9TX1wsegB2moaEhXnrppchms9G3b99UnzWTyRTttddeB/3lL395dubMmRukDwBAvlIAAwDQJBx00EEVf/jDH64pLi7ulOZz5nK5eOCBB+Kxxx4TOgA77c+eBQsWRF1dXfTv3z8ymUxqz1pQUFBywAEHDJs+ffqkpUuXbpY+AAD5aEsFcIH1AACwMwwaNKj0vvvuu7qsrKxXms9ZV1cX1113XUyaNEnoAOx0EydOjOuvvz7q6upSfc6ysrJef/rTn67u379/idQBAODvKYABANjhKioqCh577LGLKyoqBqb5nNXV1XHNNdfE7NmzhQ7ALvPKK6/ElVdeGVVVVak+Z4sWLQZOnDhxbEVFhZ9vAQDA33CBDADADjdz5syftW3b9sA0n3HdunVx2WWXxRtvvCFwAHa5xYsXx2WXXRZr165N9TnbtWt34MyZM38mcQAA+P8UwAAA7FBPPvnkqB49eoxK8xlXrVoVV1xxRSxfvlzgADQZK1asiCuuuCJWrlyZ6nP26NFj1KRJk0ZJHAAA/lth5cDo+lFfaKyKqFmRtSEAALbZjTfeuO+XvvSlCzOZTGp/8fDdd9+NK6+8MtatWydwAJqc6urqmDVrVvTv3z8qKytTe85u3boN79mz57yHH37Yb2MBAJAXyjrXR0H5R39NAQwAwA5x3nnn9T311FOvLigoKE7rGV977bW45pprorq6WuAANFmbN2+OGTNmRI8ePaJ9+/apPGMmkykYNGjQIYWFhVOee+45v5UFAEDqKYABANipjjrqqFb/8R//8YdmzZq1SusZX3755bj++uujrq5O4AA0eQ0NDfHSSy9Fp06dolOnTqk8Y0FBQXbYsGGfnz9//qQ33nhjk9QBAEizLRXA3gEMAMB21a1bt+wNN9zwnyUlJR3TesYpU6bEjTfeGPX19QIHIDHq6+vjxhtvjKlTp6b2jCUlJZ1uuOGG/+jWrZu7GgAAyFsKYAAAtqunn376XyorK/dI6/kmTZoUd955ZzQ2NgobgMRpbGyMO+64I5588snUnrGysnLw008//UtpAwCQrxTAAABsN88///w3unTp8k9pPd/EiRNj3LhxkcvlhA1AYuVyubj//vtTXQJ36dLlS88+++yJ0gYAIB95BzAAANvFTTfdNPzII488L5PJZNJ4vsceeyzGjx8vaABS47XXXotmzZpF3759U3m+zp0779urV695Dz/88DJpAwCQNlt6B7ACGACAz+wXv/hF7x/+8IdXFxQUNEvj+R544IF45JFHBA1A6ixYsCDq6upiwIABqTtbJpPJDBo06ODGxsbnpk6dul7aAACkiQIYAIAd5oADDqj43e9+99tmzZq1TeP5xo0bF5MmTRI0AKm1aNGi2Lx5cwwcODB1ZysoKMjut99+w5577rnH33vvvc3SBgAgLbZUAHsHMAAA2yybzWbuvPPOfyktLe2exvNNmDBB+QtAXpg0aVI89NBDqTxbaWlpj3vuuedfstlsRtIAAOQDBTAAANvs+eef/06HDh0OTePZHn744Xj44YeFDEDeeOSRR+LPf/5zKs/WoUOHw5599tlvSxkAgHygAAYAYJvcd999hw8ePPjUNJ7t/vvvjwkTJggZgLzz2GOPxX333ZfKs+25554/+NOf/nSYlAEASDvvAAYAYKudccYZ3ceMGXN5QUFBcdrONnHixHjkkUeEDEDeWrx4cWSz2ejbt2/ajpbp06fPvn/5y18mz5w5c4OkAQBIsi29A1gBDADAVhk2bFjzG2+88Q/NmjVrl7azPfroo6l99CUAbI2FCxdGUVFR9OvXL1XnKigoKD7wwAP3e/LJJx9dsWJFnaQBAEiqLRXAHgENAMBWuffee39ZWlraPW3nevzxx+PBBx8UMAD8jz//+c8xceLE1J2rtLS0x3333fdLCQMAkFYKYAAAPrVJkyaN6tSp0xEpPFeMHz9ewADwD8aPHx+TJ09O3bk6der0hUmTJn1VwgAApJFHQAMA8Kmcd955fU888cR/z2QyRWk618yZM+Puu+8WMAB8jNdeey06duwYnTt3TtW5unbtuk9BQcHzzz333DopAwCQNN4BDADAZ3LEEUe0vOKKK67NZrOVaTrXyy+/HDfffHPkcjkhA8DHyOVyMXv27OjSpUt06tQpNefKZDJF++yzz/CpU6c+9u67726WNAAASeIdwAAAbLNsNpu55ZZb/q2kpKRjms61YMGCuPnmm6OxsVHIAPAJGhsb4+abb44333wzVecqLS3tcvfdd5+fzWYzUgYAIC0UwAAAbNGkSZO+3rZt2wPTdKZly5bFDTfcEPX19QIGgE+prq4urr322li+fHmqztWuXbsDH3/88VESBgAgLTwCGgCAj3XZZZcN+upXvzo2k8mk5hcH33///bjyyiujqqpKwACwlerq6uLll1+OIUOGRHl5eWrO1aVLl31LS0unPvPMM2ukDABAEngENAAAW61///4lJ5988q8ymUxRWs60YcOG+P3vfx8bN24UMABso40bN8bvfve7VP15WlBQkP3hD394ft++fYslDABA4q9vrQAAgI/y4IMPnl1WVtYrLeeprq6O3/zmN7Fq1SrhAsBntGrVqrjyyiujuro6NWcqKyvr8/DDD58lXQAAkk4BDADA/zF+/Pgju3XrdnRazlNfX5/KdxYCwK60fPnyuO6666K+vj41Z+rRo8dXx40bd4R0AQBIMgUwAAB/53vf+16nI4444py0nCeXy8Vtt90Wb7zxhnABYDt7/fXX47bbbotcLpeaMx155JHnfvvb3+4oXQAAkkoBDADA/6qoqCi4+OKLLywsLCxPy5nGjx8fs2bNEi4A7CCzZs2Khx56KDXnKSwsrPj1r399QUVFhZ+bAQCQSC5kAQD4XxMnThxdWVk5OC3nef7552PixImCBYAd7LHHHosXXnghNeeprKzc89FHHz1RsgAAJFFh5cDo+lFfaKyKqFmRtSEAgDxxwQUX7DZq1KgLM5lMYRrO8+qrr8Ytt9ySqkdSAkBT/7O3d+/e0a5du1Scp2PHjkNzudxzU6ZMWSddAACamrLO9VHwMc/wcwcwAADRt2/f4h//+McXZzKZVPwG4HvvvRc33HBDNDY2ChcAdpKGhoa47rrrYtmyZak4T0FBQfbss88e27dv32LpAgCQqGtZKwAAYPz48T8qKyvrkYazbNiwIX7/+99HbW2tYAFgJ9u0aVP8/ve/j40bN6biPGVlZb3GjRs3RrIAACSJAhgAIM/ddNNNw/v06XN8Gs5SX18f1157baxdu1awALCLrFmzJq699tqor69PxXn69ev3jd///vdDJQsAQFIogAEA8thBBx1Uceyxx/5rRGTScJ477rgjFi9eLFgA2MUWLVoUd955Z1qOU/CNb3zj34YNG9ZcsgAAJOIC1goAAPLXzTfffFZxcXG7NJxl4sSJMX36dKECQBMxbdq0mDRpUirOUlJS0unOO+88Q6oAACSBAhgAIE/913/914FdunT5UhrO8tprr8Wf//xnoQJAEzN+/PhYsGBBKs7SrVu3o2+66abhUgUAoKlTAAMA5KEvfelLlV/5yld+lYazrFixIq6//vpobGwULAA0MY2NjXHdddfFihUr0nCczHHHHfergw46qEKyAAA0ZQpgAIA8dPXVV5+ezWYrk36OmpqauPbaa2PTpk1CBYAmatOmTXHttddGTU1N4s+SzWbb3njjjT+RKgAATZkCGAAgz9x6663Du3Tp8uWknyOXy8Utt9wSK1euFCoANHErV66MW2+9NXK5XOLP4lHQAAA0dQpgAIA8MnTo0LKvfvWrv0jDWSZMmBBz584VKgAkxJw5c+Kxxx5LxVlGjRr1i6FDh5ZJFQCApkgBDACQR+64444fFRcXd0z6OV5++eV45JFHBAoACfPQQw+l4he4SkpKOt5xxx0/lCgAAE2RAhgAIE9cfvnlu/fs2XNU0s/xwQcfxB133JGKR0gCQL7J5XJx2223xZo1axJ/lp49ex57+eWX7y5VAACaGgUwAEAe6NatW/a73/3uv2YymURf/9XX18cNN9wQ1dXVQgWAhKqqqoobb7wx6uvrE32OTCZT8N3vfvdX3bp1y0oVAICmRAEMAJAHxo8ff0pZWVmvpJ/jnnvuiaVLlwoUABJuyZIlcd999yX+HGVlZT3Hjx9/ikQBAGhKFMAAACn385//vOeAAQNGJ/0c06dPjylTpggUAFJi8uTJMWPGjMSfY8CAAaN//vOf95QoAABNhQIYACDFstls5qyzzjo3k8kk+tGEK1asiLvvvlugAJAyd911V6xYsSLRZ8hkMtmzzjrr3Gw2m5EoAABNgQIYACDFxo0b98XKysq9knyG2trauOGGG6K2tlagAJAyf/1zfvPmzYk+R2Vl5V7jxo0bKVEAAJoCBTAAQEoNHz68/OCDDz4t6ee4//77Y/ny5QIFgJRavnx5jBs3LvHnGDFixI+HDRvWXKIAAOxqCmAAgJS69dZbT8tms22TfIYZM2bEc889J0wASLnJkyfHzJkzE32G4uLitrfffvtp0gQAYFdTAAMApNBVV121R48ePb6S5DOsXLky7rrrLmECQJ64++6744MPPkj0GXr27PnVK664Yg9pAgCwKymAAQBSprS0tOAb3/jGT5N8rdfY2Bi333679/4CQB6pqamJ2267LRobG5N8jIJvfvObZ5aWlvqZGwAAu+6i1AoAANJlwoQJX6uoqBiQ5DOMHz8+Fi1aJEwAyDNvvvlmPPjgg4k+Q4sWLQY9+OCDx0gTAIBdRQEMAJAiRx55ZOWwYcN+kOQzzJ07N5544glhAkCemjhxYixYsCDRZxg+fPiPjjjiiJbSBABgV1AAAwCkyBVXXHFyUVFRRVLnr6qqijvvvDNyuZwwASBP5XK5uP3226O6ujqxZygqKmrxm9/85mRpAgCwKyiAAQBS4vzzz+/Xu3fv45J8httvvz0+/PBDYQJAnlu3bl3cfvvtiT5D7969jz///PP7SRMAgJ1NAQwAkALZbDZz6qmn/jyTyST2+m769OkxZ84cYQIAERExe/bsmDFjRmLnz2QyBaeeeurPs9lsRpoAAOxMCmAAgBT44x//eERlZeXgpM6/du3auPfeewUJAPyde+65J9atW5fY+SsrKwf/6U9/+oIkAQDYmRTAAAAJ17dv3+JDDjnkR0k+w9133x01NTXCBAD+Tk1NTdx9992JPsPBBx/8o759+xZLEwCAnUUBDACQcHfdddc3S0pKOiV1/smTJ8e8efMECQB8pLlz58azzz6b2PlLSko63nPPPd+SJAAAO4sCGAAgwb70pS9VDhw48KSkzr9mzZoYP368IAGALXrggQdizZo1iZ2/f//+Jx111FGtJAkAwM6gAAYASLArrrji1MLCwvIkzp7L5eK2226LTZs2CRIA2KJNmzbFbbfdFrlcLpHzFxYWll1++eU/kCQAADuDAhgAIKF+8Ytf9O7evftXkjr/s88+G2+88YYgAYBP5Y033ojnn38+sfN369bt6F/96ld9JAkAwI6mAAYASKgf/vCHP8pkMom8nvvggw/igQceECIAsFXGjRsX69atS+TsmUym4NRTT/2xFAEA2NEUwAAACXTdddcNa9eu3YFJnD2Xy8Udd9wRtbW1ggQAtsqmTZvizjvvTOz8bdq02f+mm27aT5IAAOxICmAAgIQpLS0t+NrXvnZ6Uud/4YUXYuHChYIEALbJq6++GjNmzEjs/Mccc8zpFRUVfiYHAMAO42ITACBhbr/99oMrKip2S+LsGzZsiHHjxgkRAPhM7r///qiqqkrk7OXl5X3/67/+6wgpAgCwoyiAAQASpKKiouCwww47Nanz33vvvYn9YS0A0HRs2LAh7r///sTOf9BBB/1zq1atCiUJAMCOoAAGAEiQ+++//+iysrKeSZx9zpw58dJLLwkRANguXnjhhViwYEEiZy8tLe32xz/+8StSBABgR1AAAwAkRN++fYv33Xfff07i7LW1tXHvvfcKEQDYru6+++6oq6tL5Oz77bffKf379y+RIgAA25sCGAAgIW6++eZRxcXFbZM4+yOPPBJr164VIgCwXa1atSoee+yxRM6ezWbb3njjjV+TIgAA25sCGAAgAYYOHVq21157fSeJs7/33nvxxBNPCBEA2CEmTpwYK1asSOTsQ4YM+c7QoUPLpAgAwPakAAYASIBrr732xKKiosqkzZ3L5eKee+6JxsZGIQIAO0R9fX3cddddkcvlEjd7UVFR5bXXXnuCFAEA2J4UwAAATdwBBxxQMWDAgG8kcfYZM2bEW2+9JUQAYId6880348UXX0zk7AMGDPjG8OHDy6UIAMD2ogAGAGjirrrqqhOKiooqkjb3pk2b4oEHHhAgALBT3H///VFbW5u4uYuKilpcffXV7gIGAGC7UQADADRhBx10UEX//v0Teffvww8/HB9++KEQAYCdYv369TFhwoREzj5w4MBvHHDAARVSBABge1AAAwA0Yf/5n/95bGFhYfOkzb1q1aqYPHmyAAGAnerpp5+O1atXJ27uwsLC8ssuu2yUBAEA2B4UwAAATdQBBxxQMWjQoNFJnP3uu++O+vp6IQIAO1V9fX3cddddiZx99913/+bQoUPLpAgAwGelAAYAaKIuv/zyYwsLC8uTNvfcuXNjwYIFAgQAdokFCxbE3LlzEzd3UVFRi9/97ndflyAAAJ+VAhgAoAkaOnRo2aBBgxL37t+6urr405/+JEAAYJf605/+FHV1dYmbe/fdd//mkCFDSiUIAMBnoQAGAGiCfvOb33ylqKioZdLmfu655xL53j0AIF1Wr14dzz33XOLmLioqann11VcfLUEAAD4LBTAAQBPTq1evZoMHD/5m0uaurq6ORx55RIAAQJPwyCOPRHV1deLmHjJkyLe6deuWlSAAANtKAQwA0MTcdNNNxxQXF7dN2twTJkyIqqoqAQIATUJVVVUifzmtuLi43a233uouYAAAtpkCGACgCWnVqlXhXnvtdVLS5l61alU8++yzAgQAmpTJkyfHqlWrEjf30KFDR7dq1apQggAAbAsFMABAE3LLLbccXlJS0jlpcz/44INRX18vQACgSamvr48HH3wwcXOXlJR0vummmw6VIAAA20IBDADQRGSz2cwBBxzw7aTNvWjRonjppZcECAA0SS+99FIsXrw4cXOPGDHiO9lsNiNBAAC2lgIYAKCJuOaaa/YuLy/vm7S5H3roocjlcgIEAJqkXC6XyLuAy8vL+1111VV7SRAAgK2lAAYAaCK+8pWvfDdpM8+bNy8WLlwoPACgSVu4cGG8+uqrrg8BAMgLCmAAgCbgsssuG1RZWblPkmbO5XIxfvx44QEAifDAAw8k7qklrVu33veSSy7pLz0AALaGAhgAoAkYNWrUCUmbefbs2bFs2TLhAQCJsGzZsnjllVcSN/cJJ5xwovQAANgaCmAAgF3sn//5nzt37NjxiCTN3NjYGA888IDwAIBEGT9+fDQ0NCRq5k6dOn1h9OjRHaQHAMCnpQAGANjFfvSjH30tk8kk6rps2rRpsWrVKuEBAImyatWqeOGFFxI1cyaTKfzpT386SnoAAHxaCmAAgF1o0KBBpX369Plqkmaur6+PCRMmCA8ASKQJEyZEXV1dombu27fvV/r27VssPQAAPg0FMADALnTZZZcdXlRUVJGkmadOnRpr164VHgCQSOvXr48pU6YkauaioqLK3/zmN0dIDwCAT0MBDACwi2Sz2cy+++57UpJmrqurc/cvAJB4jz76aOLuAt5///1PymazGekBAPBJFMAAALvI1VdfPbSsrKx3kmaeMmVKbNiwQXgAQKJt2LAhnn/++UTNXFZW1ueqq67aS3oAAHwSBTAAwC7y5S9/+bgkzVtfXx8TJ04UHACQCo8//nji7gL+0pe+dLzkAAD4JApgAIBdYPTo0R3atm07IkkzT5s2LdatWyc8ACAVPvzww5g+fXqiZm7fvv2I0aNHd5AeAABbogAGANgFfvrTn47KZDKFSZm3vr4+HnnkEcEBAKnyyCOPRH19fWLmzWQyhT/96U+/JjkAALZEAQwAsJN16tQp26dPn6OTNLO7fwGANFq3bl1MmzYtUTP36dPnmE6dOmWlBwDAx1EAAwDsZFddddUB2Wy2dVLmbWxsjEmTJgmOVOvYsWN06OCJmgD5aNKkSdHY2JiYebPZbOurrrrqAMkBAPBxFMAAADvZiBEjvp6keV988cVYtWqV4Ei1Ll26xIUXXhinnXZadO3a1UIA8siqVavipZdecj0JAEBqKIABAHaiM844o3tlZeXeSZk3l8vFxIkTBUdeyGQyMXjw4PjVr34VY8aMcUcwQB55/PHHI5fLJWbeysrKvc8444zukgMA4KMogAEAdqJTTjnlqxGRScq8CxYsiPfee09w5JVMJhN77713XHjhhTFmzJho3769pQCk3HvvvRcLFy5M1B9X/3NdCQAA/4cCGABgJ+nVq1ezXr16fTlJM3v3L/nsr0XwBRdcECeffHK0bdvWUgBSLGnXPb169fpyr169mkkOAIB/pAAGANhJrrjiioOLiopaJmXeBN4JAztEYWFhDB8+PC688MIYPXp0VFZWWgpACi1YsCCWLVuWmHmLiopaXnnllYdIDgCAf6QABgDYSYYPH/6VJM2btHfhwY5WVFQUI0aMiEsuuSRGjx4dLVu2tBSAFMnlcvH4448naub99tvvK5IDAOAfKYABAHaC0aNHd6isrByalHnXrl0bL7/8suDgI/y1CL744ovjhBNOiBYtWlgKQEq89NJLsW7dusTMW1lZudfo0aM7SA4AgL+lAAYA2AlOP/30o5J07fXMM89EQ0OD4GALiouL47DDDouxY8fGqFGjoqyszFIAEq6hoSGeeeaZJI1c8D/XmQAA8P8vEq0AAGDHymazmX79+n05KfPW1tbGlClTBAefUnFxcYwcOTIuvfTSGDVqVJSWlloKQII9//zzUVtbm5h5+/Xr9+VsNpuRHAAAf6UABgDYwX7zm9/sWVJS0jkp886YMSOqq6sFB1uppKQkRo4cGZdcckkcffTRUVJSYikACVRdXR0zZ85M0p8/na+44orBkgMA4K8UwAAAO9gXvvCFLyVl1lwuF08//bTQ4DNo3rx5HHXUUXHJJZfEyJEjI5vNWgpAwjz11FORy+USM++RRx75ZakBAPBXCmAAgB1oyJAhpZ07dz4iKfO+/vrrsWLFCsHBdlBeXh6jRo2KSy+9VBEMkDArVqyI119/PTHzdunS5fD+/ft79AQAABGhAAYA2KHGjh17aGFhYWJeCOruX9j+KioqYtSoUXHxxRfH4YcfHkVFRZYC4LpouyosLGz+H//xHwdLDQCACAUwAMAOteeeex6ZlFnXrl0b8+bNExrsIK1atYrjjz8+LrroohgxYkQUFPh2DKApmzdvXqxZsyYx8+61115HSg0AgAgFMADADnPMMce0bt269b5Jmfe5556LxsZGwcEO1qZNmxg9enRcfPHFimCAJqyxsTGee+65JP35MvyYY45pLTkAAPykAQBgBznzzDMPz2Qyibje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FpafffbZvaQFAJA+CmAAgE9p//3375+EOV9//XVhAXmjvLw8Ro0aFf/+7/8eI0eOjGw2aymA67FP6fOf//xAaQEApI8CGADgU+rRo8fuTX3G2traePvtt4UF5J2KiooYNWpUXHzxxXH44Yc3+XdvAum2ePHiRLySo1evXoOkBQCQPgpgAIBPqXXr1k3+DoklS5ZEQ0ODsIC81apVqzj++OPj4osvjhEjRkRBgW97gZ2voaEhlixZ0uTnbNOmjQIYACCFfCcMAPApDBkypLR58+a9m/qcb775prAAIqJ169YxevToGDt2rCIYcF32MZo3b95n0KBBpdICAEgX3wEDAHwKp556av9MJtPkr53eeustYQH8jTZt2sTo0aPjvPPOi+HDhyuCAddlfyOTyRT84Ac/+Jy0AADSxXe+AACfwuDBg5v84/Hq6+tj0aJFwgL4CJ06dYqTTz45/u3f/i323nvvyGQylgLsUIsXL07Eqzn23HPPgdICAEgXBTAAwKfQpUuXAU19xnfeeSfq6uqEBbAFnTt3jjFjxiiCgR2utrY23n333SRc53oPMABAyiiAAQA+hZYtW/Zv6jN6/DPAp9elS5cYM2ZMnHvuuTF48GALAfL2+iwJ17kAAGwdBTAAwCcYPnx4eUlJSeemPqfHPwNsvV69esVpp50W55xzTvTvrwMB8u/6rLS0tPPw4cPLpQUAkB4KYACAT/Ctb31rt4ho8s8IXbx4sbAAtlGfPn3irLPOinPOOSd22203CwG2i4T8gl7m29/+dj9pAQCkhwIYAOAT7L777k2+CVi7dm1s2LBBWACfUZ8+feLss8+OM888M3r27GkhwGfy4Ycfxrp165r8nAMHDlQAAwCkSJEVAABsWadOnZr8D8TefvttQQFsRwMGDIgBAwbEggULYvz48bF06VJLAbb5Oq1Vq1audwEA2GkUwAAAn6CyslIBDJCnBgwYEP3794958+bFQw89FO+++66lAFtlyZIlsddeezX1613PvgcASBEFMADAFnTq1CnbvHnzXk19ziVLlggLYAfJZDIxePDg2GOPPeLll1+OBx98MFauXGkxQGqu05o3b967Xbt2RatXr66XGABA8nkHMADAFowZM6ZnJpPJNuUZGxsbPZoUYCfIZDKx9957x4UXXhhjxoyJ9u3bWwrwiZYuXRqNjY1NesaCgoLsqaee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k8nE7NmzY+LEibFmzRoNAXif/VNSzJo161kTAwBongTAAAC70O233/7KOeecszU/P78022sdMGBAtG/f3tWu0My9+uqrMWnSpFi1apVmALyPjh07xgEHHJCIWhsbG6u/8Y1v/NXUAACaJwEwAMAutHLlyob169fP6tat2+hsrzWVSsXhhx8ekyZNMjhohubMmROTJ0+OJUuWaAbAh3D44YdHKpVKRK3r16+fVVFR0WhqAADNU54WAADsWq+++mpirts77LDDDAyamTfffDP+/d//PX7yk58IfwE+pFQqFSNGjEhMva+88sozpgYA0Hw5AQwAsIvddNNNz5166qnV+fn5rbO91m7dukX//v1j4cKFBgc5btmyZfHYY4/F/PnzNQPgIzrggAOic+fOiai1sbFxy4033jjL1AAAmi8BMADALrZy5cqG8vLyGT179vx0Euo9+uijBcCQw5YvXx7jxo0T/AJ8wv1SUpSXlz9TXl7eYGoAAM2XABgAYDeYMWPGUxdccEEiAuAhQ4ZE69ato7q62uAgh6xcuTImTJgQc+fOjUwmoyEAH1ObNm3i0EMPTUy9zz777FOmBgDQvPkGMADAbvDVr371lYaGhk1JqLWgoCCOOOIIQ4McsW7duvj5z38ed955Z8yZM0f4C/AJjRw5MvLz8xNRa0NDw8abbrrpVVMDAGjenAAGANgNKisrm1atWjW9T58+5ySh3qOPPjqefPJJQREk2Pr16+Oxxx6L2bNn+3cZYBdJpVIxatSoxNS7cuXKadXV1WmTAwBo3pwABgDYTaZNm5aY6/c6duwYAwYMMDRIoA0bNsSvf/3r+Nd//dd49dVXhb8Au9CAAQOiY8eOian36aefftLUAAAQAAMA7CZf+9rX5tTX11ckpd6jjjrK0CBBqqqq4v77749vf/vb8eKLL0ZTU5OmAOxiRx55ZGJqra+vX/eNb3zjdVMDAMAV0AAAu0ltbW16xYoVT++///6fT0K9hx56aLRt2zaqqqoMD7LYli1bYsqUKfHcc8/F9u3bNQRgN2nbtm0MGTIkMfUuX778qdraWtc/AwDgBDAAwO70xz/+cUJSas3Pz4/jjjvO0CBL1dTUxKOPPhq33XZb/OUvfxH+Auxmxx57bOTn5yel3Myvf/3rCaYGAECEABgAYLe66667llZXV89PSr1HH310tGjRwuAgi7wd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qATAAABZ4umnn968fPnyxF3xN3r06GjXrp0BAgBZqUOHDnH88ccnru5ly5ZNmD59+hYTBADgoxIAAwBkkbvvvvtPmUymKUk1FxYWxumnn254AEBWOvPMMxP3yYpMJtN41113/dH0AAD4OATAAABZ5Be/+MWatWvXTkta3UcccUT06tXLAAGArNK7d+847LDDEld3eXn5X+6///51JggAwMchAAYAyDIPP/zwn5JWcyqVijPPPNPwAICsMmbMmEilUomr+8EHH/yT6QEA8HEJgAEAsszXv/71NzZs2DAraXUPHDgwDj74YAMEALLCoEGDYsCAAYmru6KiYuatt966wAQBAPi4BMAAAFlo3Lhxv01i3WPGjIm8PFtMAGDvysvLizFjxiSy9j//+c+/NUEAAD7RflgLAACyz/XXXz+nqqrqr0mru1evXnHUUUcZIACwVx1zzDHRvXv3xNW9adOmV2666aa5JggAwCchAAYAyFJ/+tOf7k1i3WPGjInS0lIDBAD2ijZt2sRZZ52VyNofeOCBe00QAIBPSgAMAJClbrrpprlJPAVcXFwcZ555pgECAHvFWWedFS1btkxc3Zs2bXrl5ptvnmeCAAB8UgJgAIAsNm7cuF8lse5Ro0ZF7969DRAA2KP69OkTI0eOTGTtjz322K9MEACAXUEADACQxcaOHTu7qqrqb0mrO5VKxfnnnx+pVMoQAYA9tv/4/Oc/n8j9R2Vl5d+uueaav5kiAAC7ggAYACDLTZ069bdJrLtv374xZMgQAwQA9ojDDjsssTeQTJ48+TcmCADAriIABgDIcpdeeumLVVVVryax9s9//vNRXFxsiADAblVaWhrnn39+Imuvqqr66+WXX/6SKQIAsKsIgAEAEuChhx76WRLrLisri9NPP90AAYDd6qyzzoqSkpIklp753e9+91MTBABgVxIAAwAkwA033DB3w4YNs5JY+3HHHRd9+vQxRABgt+jbt28cddRRiay9oqJi1te//vU3TBEAgF1JAAwAkBA///nPfxoR6aTVnUql4vOf/3zk5dl6AgC7Vn5+flx00UWRSqWSWH76F7/4xX+bIgAAu5q3cAAACXHHHXe8tW7duulJrL13795xzDHHGCIAsEudcMIJ0b1790TWXl5e/pc77rjjLVMEAGBXEwADACTI3XfffW8mk2lKYu1nnXVWtG3b1hAB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onv37vEv//IvccABBzSrdWcymaYnnnji9s997nPPeAoAAODDEQADAJBYDz/88NJjjjlmY+/evY+KiGZzFKq0tDSGDx8eq1evjvXr13sQAHLcwIED45prrol27do1t6VnZsyY8YOzzjprqqcAAAA+PAEwAACJdv/99795zDHHVO6zzz5HRDMKgVu0aBGHHXZYtGzZMhYuXBjpdNrDAJBjCgoK4pxzzonzzz8/WrRo0dyWn37uuefuOuWUUyZ4EgAA4KMRAAMAkHi///3v5w8bNmxF3759j2lO10GnUqno27dvDB06NBYvXhxbtmzxMADkiJ49e8YNN9wQgwcPblbf+434x7XPU6ZM+fbpp58+2ZMAAAAfnQAYAICc8OCDDy4ZNmzYin79+jWrEDgionXr1nHEEUdEfX19LF261MMAkGCpVCpOOOGEuOKKK6JNmzbNbv07wt9vnXPOOX/xNAAAwMcjAAYAIGc89NBDS4YNG7a8X79+xza3EDg/Pz8OPvjg6NWrV8yfPz8aGho8EAAJU1JSEpdffnmccMIJkZ+f3+zWn8lkGp944olvffazn53maQAAgI9PAAwAQE556KGHlo4cOXJdnz59RqWa252ZEdG1a9cYNmxYLFu2LCorKz0QAAnRt2/fuO6662K//fZrluvPZDLpp59++rvnnHPO054GAAD4ZATAAADknD/96U+LDj300KX7779/s7sOOiKiuLg4jjzyyCgpKYk333wz0um0hwIgSxUUFMRnP/vZuPDCC6OkpKRZ9iCdTjc88sgjt5x//vnTPREAAPDJCYABAMhJDz/88NId3wQelUqlmt09mqlUKvr06RMHH3xwLFy4MLZt2+ahAMgynTt3jrFjx8bQoUOjGV5aERH/CH+feOKJ2y+88MLnPBEAALBrCIABAMhZDz300JIePXq8NmjQoGPz8vJaNMcetG3bNkaNGhVNTU2xZMkSDwVAFkilUjF69Oi48soro0OHDs22D01NTdt++9vf/stll132oqcCAAB2HQEwAAA5bdKkSeXdu3efM3jw4GYbAufn58eAAQOiV69esWDBgti+fbsHA2Avad26dVx66aVx/PHHR35+frPtQ2NjY/WvfvWrf7nuuute81QAAMCuJQAGACDnTZ48eW1jY+OMI4444uiCgoKS5tqHrl27xqhRo2Lbtm2xcuVKDwbAHpRKpWLUqFExduzY6NWrV7PuRX19/fo77rjjK9/61rcWejIAAGDXEwADANAsPP/881UbNmx45rjjjjuqsLCwrLn2obCwMAYNGhT77bdfLF68OGpraz0cALtZ+/bt44orrogTTzwxCgub9/uU2tralTfffPPVP/nJT1Z7MgAAYPcQAAMA0Gz87W9/27p27doZJ5xwwsjCwsK2zbkXnTp1ipEjR0Z1dbXTwAC70ciRI+Pqq6+OHj16NPte1NTULL/hhhuu/e1vf7vOkwEAALuPABgAgGbltdde2zpv3rynTznllKFFRUWdmnMvCgsL49BDD4399tsvFi1a5DQwwC709qnfk08+udmf+o2I2Lx587yLL774unHjxm30dAAAwO71fgFwat9zYsTOftC4LmLjq610DwCAxOrVq1fhs88++69du3Y9QTciGhoaYurUqTF58uRobGzUEICPqaCgIE499dQYPXq04HeH8vLyp4499tjvrly5skE3AABg9+swrDYKuuz8ZwJgAAByWuvWrfNeeumlm/fdd9+zdeMfVq9eHffff38sWbJEMwA+ov322y8uuugi1z2/w8KFC38/fPjwnzY0NGR0AwAA9gwBMAAAzd7zzz9/8aGHHnp1RKR0IyKTycTMmTPjz3/+c9TV1WkIwAcoKSmJ8847L0aMGBGplL9Kdki//PLL9xx77LEPagUAAOxZ7xcA+wYwAADNwn333Tfn+OOP39yrV6/DQwgcqVQqevfuHcOHD49169ZFRUWFhwTgPRxyyCExduzY6N+/v/B3h0wm0/jMM8/828knnzxONwAAYM97v28AC4ABAGg2fve7370xePDgJf369Ts6lUrl60hEcXFxjBgxInr06BFLly6N2tpaTQHYoUOHDvGFL3whzjzzzCguLtaQHZqammoeeOCBWz73uc9N1w0AANg7BMAAALDDww8/vKygoOC54cOHH1FQUFCqI//QrVu3OO6446K0tDQWL14cTU1NmgI0Wy1btoxzzjknLr300ujevbuGvENtbe2K22677arbbrvtDd0AAIC9RwAMAADv8Oyzz25avHjx0yeddNKQoqKiTjryD3l5edGnT58YOXJkbN26NVatWqUpQLNz+OGHx1e+8pUYMGBA5OXlacg7VFVV/e3CCy+8/oEHHvDdAAAA2MsEwAAA8C7z58+vefbZZ58+44wz+hcX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OigOOOCAKCoq0pQs0djYuGXmzJk/PvPMMyc2NDS4XgAAAPjQBMAAAJADjjzyyNY/+9nPrujbt++5EZGnI9mluro6Fi5cGPPnz4958+ZFZWWlprBXtGvXLg455JAYMGBA9O/fP1q39nsjWSj91ltv/fmqq676xaxZs6q1AwAA+KgEwAAAkEN++ctfjhgzZsyNrVq16q0b2SmdTsfKlStj0aJFsXDhwli8eHFs27ZNY9gtSkpKol+/ftG/f//Yf//9o1evXpGX53dEslVNTc3yRx999EdXXnnlK7oBAAB8XAJgAADIMd26dSt8+OGHPzd48ODL8vPzbdyzXCaTiTVr1sTChQtj0aJFsWjRotiyZYvG8LGUlZVF//79/xn6du/ePVKplMZkuaampprXXnvtV2PGjHmgoqKiUUcAAIBPQgAMAAA56rjjjiv7r//6r8tdC508mzdvjuXLl8eKFSti+fLlsXjx4qipqdEY/pfi4uLo169f9O7dO/bZZ5/Yd999o6ysTGMSJJPJpJcsWfLn66677pfTp0/3mx8AAMAuIQAGAIAc99Of/nTIueeee3NpaWlf3UimxsbGWLlyZSxdujSWLVsWy5cvj3Xr1kUmk9GcZiKVSkWXLl1in332iT59+kSfPn2iV69eUVBQoDkJtXXr1sUPPvjgj6699tq/6wYAALArCYABAKAZaNeuXf64cePOGTp06BUFBQWtdST56uvrY+XKlf88KbxixYpYu3ZtpNNpzUm4vLy86Nq1a+yzzz7//KdXr17RsmVLzckBjY2NW/7617/+4pxzznm0srKySUcAAIBdTQAMAADNyIknntjmnnvuuXzfffcdk0qlHB3MMdu3b481a9bEmjVrYu3atbF27dooLy+PDRs2CIazUF5eXnTs2DG6desWXbt2jW7dukW3bt2iR48eUVhYqEE5JpPJNC5ZsuRR1z0DAAC7mwAYAACaoa9+9av7Xnfdddd16NDhCN3IfY2Njf8MhNetWxfr1q2LioqKWLduXWzbtk2DdrPS0tLo3LnzP//p0qVLdO3aNbp27eoK52Ziw4YNM//rv/7rxz/60Y+W6wYAALC7CYABAKAZ++UvfznirLPOuq64uNj3gZupmpqaWL9+/T//qaioiMrKyqisrIxNmzZFY2OjJn2AgoKCaN++fbRr1y7at28fHTt2jC5dukSnTp2ic+fOUVxcrEnN1NatW98aP378PVdcccXLugEAAOwpAmAAAGjm2rVrl//ggw+eOWLEiCsLCwvb6gjvtHnz5n+GwZs2bYrKysqorq6OLVu2xJYtW6K6ujqqq6sjk8nk3NpTqVS0bt06WrduHWVlZdGmTZsoLS39X2Fvu3btok2bNh4U/peGhobKl1566efnnHPO+OrqavevAwAAe5QAGAAAiIiIoUOHFt97770XHHjggRfk5+c7ssiHlk6n/xkEV1dXR01Nzfv+k8lkora2NtLpdNTX10dTU1PU1dXt0u8U5+XlRcuWLSM/Pz+KiooiLy8vWrVqFalUKoqLi3f6T0lJSbRq1eqfgW9paWnk5eUZMB9aU1NTzYIFC/745S9/+Y+zZ8+u0REAAGBvEAADAAD/y2mnndb2rrvuurRPnz5n5+XlFeoIe9LbgfDbtm/f/r7XUBcUFESLFi3++b/fDnxhT8pkMg1LliwZd8stt/xq0qRJVToCAADsTQJgAABgp0477bS2d95554X777//5wTBAP9XJpNpWLhw4QO33nrrHwS/AABAtni/ADi/7UHRc2c/SG+LqC33/gcAAHLZokWL6u69995X0un0swcddFCnkpKS3roC8A8VFRUz/7//7/+77aKLLpq6aNGiOh0BAACyRXH3xsgr3fnPBMAAAEDMnDmz8u67736qqalpWr9+/Ypbt27dN5VKpXQGaG4ymUx6zZo1U+65555/Peeccx6cOXNmpa4AAADZRgAMAAB8KDNnzqz88Y9//Gw6nZ4uCAaak7eD37vvvvtfzz///McEvwAAQDYTAAMAAB+JIBhoLgS/AABAEgmAAQCAj+XtILisrOyFvn37diwuLu4VEYJgIBdkKioqnrv33nu/PWbMmEcEvwAAQJK8XwCc2vecGLGzHzSui9j4aivdAwAA/unqq6/u8ZWvfOX8Pn36nJWXl9dCR4CkSafT9UuXLh3/X//1Xw/84he/WKMjAABAEnUYVhsFXXb+MwEwAADwkZ1xxhntb7/99rMPPPDA8/Pz81vrCJDtmpqaqhcsWPDgd77znUcmTpzotC8AAJBoAmAAAGC3GD58eMkPf/jDzwwePPjioqKijjoCZJv6+voNr7322u9vvPHGx2fPnl2jIwAAQC4QAAMAALvV0KFDi++5556zDjnkkPOKioq66giwt9XV1a19/fXXH7z++uvHC34BAIBcIwAGAAD2iFatWuXdc889w0455ZTzO3bseJSOAHtYZsOGDbOmTJny4PXXX/9qbW1tWksAAIBcJAAGAAD2uH/913/tf/7555/dq1ev0/Ly8lroCLC7pNPp+pUrV05+4IEHHvnOd76zSEcAAIBcJwAGAAD2mjPOOKP97bfffvYBBxzw2YKCgjY6AuwqjY2NVW+++eafv/e97z06YcKETToCAAA0FwJgAABgrxs+fHjJ97///dGDBg0aU1paur+OAB9XdXX1wtdee+3Rr371q1Nfe+21Wh0BAACaGwEwAACQVb761a/ue8EFF3y6b9++ZxUUFLTWEeCDNDY2bnnrrbfG/+EPf5j4ox/9aLmOAAAAzZkAGAAAyEpDhw4t/sEPfnDy4MGDz27dunV/HQHerbq6+s2XX375weuuu+7ppUuXbtcRAAAAATAAAJDlCgsLU3ffffeQ0aNHn9G1a9fj8vLyinQFmq90Ol1XXl4+bcqUKROuvfbav+sIAADA/yYABgAAEqNPnz4t/v3f/33UyJEjz2rfvv2nIiKlK9AsZDZt2vTXF1544bGvfe1rzzntCwAA8N4EwAAAQCJddNFFXa6++uqTDzzwwLNbtmzZTUcg99TV1a1ZsGDBuJ/+9KdP3n///et0BAAA4IMJgAEAgETr1q1b4d13333k4YcffmqHDh2OyMvLK9QVSK50Ot2wcePGWbNmzZp8/fXXz6qoqGjUFQAAgA9PAAwAAOSMo48+uvWtt956/CGHHHJKu3btBkdEnq5AIqQrKytfmzdv3uQ777xz+owZM6q1BAAA4OMRAAMAADnpuOOOK/vGN75x/CGHHHJa27ZtB4bvBUO2yVRVVc2dN2/epO9///vTpk+fvkVLAAAAPjkBMAAAkPNuu+22vmedddZJffr0Oa5Vq1a9dQT2ntra2uXLly+f/uijjz51xx13vKUjAAAAu5YAGAAAaFa+9KUvdbv44ouP7t+//wlOBsMekamqqpq7cOHCv/z+97+fcd9995VrCQAAwO4jAAYAAJqtSy65pOtll112jDAYdrl0VVXVvIULF/7lV7/61bO/+93v1moJAADAniEABgAAiIirr766x/nnnz9q//33P7JNmzZDUqlUga7Ah5fJZBoqKyv/vnjx4uf+9Kc/zbr33ntX6woAAMCeJwAGAAB4l379+hV97WtfGzRy5MhRPXv2PLaoqKizrsD/VV9fv37VqlXPvPDCC8/9+7//+5zFixfX6woAAMDeJQAGAAB4H61bt8678847Bx599NFHde/efURpaen+4apomq/M1q1bF69Zs+bF5557btY3v/nNOdXV1WltAQAAyB4CYAAAgI9g8ODBrcaOHXvI8OHDD+vevfvw1q1bHxACYXJXprq6+s01a9a88sorr7z8k5/8ZN5rr71Wqy0AAADZSwAMAADwCVx//fX7nHHGGYf169dvePv27Yfm5+e31hWSrLGxsXrjxo2vvvXWWy+PHz/+lR//+McrdQUAACA5BMAAAAC70Je//OUe55xzzvA+ffoM7tix45CioqKuukI2q6+vX7t27doXFy9ePGfixImv3Xvvvat1BQAAILkEwAAAALvRl7/85R6f+cxnBvfr129Qly5dDm/ZsqVAmL2qrq5u7bp16wS+AAAAOUoADAAAsIe0atUq75prrtnn2GOPPXi//fY7uH379oeUlpb2TaVS+brDbpKuqalZtnHjxnlvvfXW3GeffXbef/3Xfy2vra1Naw0AAEBuEgADAADsRQceeGDLq6+++oAhQ4Yc3LNnz4Pbtm17sGuj+biampqqq6qqXi8vL583Z86ceb/85S/nvfjii1t1BgAAoPkQAAMAAGSZoUOHFn/xi1/cf9CgQQf26NHjwHbt2h3YqlWr3qlUKk932CFdU1OzvLKycsHq1asXzJkzZ8Gf//znJTNmzKjWGgAAgOZNAAwAAJAAxx13XNkFF1xw4MEHH3xA165dDywtLd23pKRkn1QqVag7uS2TyTRs27ZtRXV19dJ169YtfOONNxZOmDBh4YQJEzbpDgAAAO8mAAYAAEiw8847r+OJJ57Yp3///vt16dKlT5s2bfZr3bp1v/z8/GLdSZampqaa6urqxZs3b16ybt26pQsXLlzy9NNPL33ooYc26A4AAAAflgAYAAAgx7Rr1y7/kksu6TFkyJCe++67b89OnTr1Kisr61VcXNyzZcuW3VKpVL4u7R2ZTKaprq6uvKamZtWWLVtWVlRUrFy6dOnK2bNnr7r//vvXVFZWNukSAAAAn4QAGAAAoBnp1KlTwec+97luQ4cO7bnPPvv0aNeuXafWrVt3Li4u7tqyZcvORUVFnfLy8lro1MeTTqe319fXr6+rq6uoqalZW11dvb6y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AACAEgIwAAAAAAAAQAkBGAAAAAAAAKCEAAwAAAAAAABQQgAGAAAAAAAAKCEAAwAAAAAAAJQQgAEAAAAAAABKCMAAAAAAAAAAJQRgAAAAAAAAgBICMAAAAAAAAEAJARgAAAAAAACghAAMAAAAAAAAUEIABgAAAAAAACghAAMAAAAAAACUEIABAAAAAAAASgjAAAAAAAAAACUEYAAAAAAAAIASAjAAAAAAAABACQEYAAAAAAAAoIQADAAAAAAAAFBCAAYAAAAAAAAoIQADAAAAAAAAlBCAAQAAAAAAAEoIwAAAAAAAAAAlBGAAAAAAAACAEgIwAAAAAAAAQAkBGAAAAAAAAKCEAAwAAAAAAABQQgAGAAAAAAAAKCEAAwAAAAAAAJQQgAEAAAAAAABKCMAAAAAAAAAAJQRgAAAAAAAAgBICMAAAAAAAAEAJARgAAAAAAACghAAMAAAAAAAAUEIABgAAAAAAACghAAMAAAAAAACUEIABAAAAAAAASgjAAAAAAAAAACUEYAAAAAAAAIASAjAAAAAAAABACQEYAAAAAAAAoIQADAAAAAAAAFBCAAYAAAAAAAAoIQADAAAAAAAAlBCAAQAAAAAAAEoIwAAAAAAAAAAlBGAAAAAAAACAEgIwAAAAAAAAQAkBGAAAAAAAAKCEAAwAAAAAAABQQgAGAAAAAAAAKCEAAwAAAAAAAJQQgAEAAAAAAABKCMAAAAAAAAAAJQRgAAAAAAAAgBICMAAAAAAAAEAJARgAAAAAAACghAAMAAAAAAAAUEIABgAAAAAAACghAAMAAAAAAACUEIABAAAAAAAASgjAAAAAAAAAACUEYAAAAAAAAIASAjAAAAAAAABACQEYAAAAAAAAoIQADAAAAAAAAFBCAAYAAAAAAAAoIQADAAAAAAAAlBCAAQAAAAAAAEoIwAAAAAAAAAAlBGAAAAAAAACAEgIwAAAAAAAAQAkBGAAAAAAAAKCEAAwAAAAAAABQQgAGAAAAAAAAKCEAAwAAAAAAAJQQgAEAAAAAAABKCMAAAAAAAAAAJQRgAAAAAAAAgBICMAAAAAAAAEAJARgAAAAAAACghAAMAAAAAAAAUEIABgAAAAAAACghAAMAAAAAAACUEIABAAAAAAAASgjAAAAAAAAAACUEYAAAAAAAAIASAjAAAAAAAABACQEYAAAAAAAAoIQADAAAAAAAAFBCAAYAAAAAAAAoIQADAAAAAAAAlBCAAQAAAAAAAEoIwAAAAAAAAAAlBGAAAAAAAACAEgIwAAAAAAAAQAkBGAAAAAAAAKCEAAwAAAAAAABQQgAGAAAAAAAAKCEAAwAAAAAAAJQQgAEAAAAAAABKCMAAAAAAAAAAJQRgAAAAAAAAgBICMAAAAAAAAEAJARgAAAAAAACghAAMAAAAAAAAUEIABgAAAAAAACghAAMAAAAAAACUEIABAAAAAAAASgjAAAAAAAAAACUEYAAAAAAAAIASAjAAAAAAAABACQEYAAAAAAAAoIQADAAAAAAAAFBCAAYAAAAAAAAoIQADAAAAAAAAlBCAAQAAAAAAAEoIwAAAAAAAAAAlBGAAAAAAAACAEgIwAAAAAAAAQAkBGAAAAAAAAKCEAAwAAAAAAABQQgAGAAAAAAAAKCEAAwAAAAAAAJQQgAEAAAAAAABKCMAAAAAAAAAAJQRgAAAAAAAAgBICMAAAAAAAAEAJARgAAAAAAACghAAMAAAAAAAAUEIABgAAAAAAACghAAMAAAAAAACUEIABAAAAAAAASgjAAAAAAAAAACUEYAAAAAAAAIASAjAAAAAAAABACQEYAAAAAAAAoIQADAAAAAAAAFBCAAYAAAAAAAAoIQADAAAAAAAAlBCAAQAAAAAAAEoIwAAAAAAAAAAlBGAAAAAAAACAEgIwAAAAAAAAQAkBGAAAAAAAAKCEAAwAAAAAAABQQgAGAAAAAAAAKCEAAwAAAAAAAJQQgAEAAAAAAABKCMAAAAAAAAAAJQRgAAAAAAAAgBICMAAAAAAAAEAJARgAAAAAAACghAAMAAAAAAAAUEIABgAAAAAAACghAAMAAAAAAACUEIABAAAAAAAASgjAAAAAAAAAACUEYAAAAAAAAIASAjAAAAAAAABACQEYAAAAAAAAoIQADAAAAAAAAFBCAAYAAAAAAAAoIQADAAAAAAAAlBCAAQAAAAAAAEoIwAAAAAAAAAAlBGAAAAAAAACAEgIwAAAAAAAAQAkBGAAAAAAAAKCEAAwAAAAAAABQQgAGAAAAAAAAKCEAAwAAAAAAAJQQgAEAAAAAAABKCMAAAAAAAAAAJQRgAAAAAAAAgBICMAAAAAAAAEAJARgAAAAAAACghAAMAAAAAAAAUEIABgAAAAAAACghAAMAAAAAAACUEIABAAAAAAAASgjAAAAAAAAAACUEYAAAAAAAAIASAjAAAAAAAABACQEYAAAAAAAAoIQADAAAAAAAAFBCAAYAAAAAAAAoIQADAAAAAAAAlBCAAQAAAAAAAEoIwAAAAAAAAAAlBGAAAAAAAACAEgIwAAAAAAAAQAkBGAAAAAAAAKCEAAwAAAAAAABQQgAGAAAAAAAAKCEAAwAAAAAAAJQQgAEAAAAAAABKCMAAAAAAAAAAJQRgAAAAAAAAgBICMAAAAAAAAEAJARgAAAAAAACghAAMAAAAAAAAUEIABgAAAAAAACghAAMAAAAAAACUEIABAAAAAAAASgjAAAAAAAAAACUEYAAAAAAAAIASAjAAAAAAAABACQEYAAAAAAAAoIQADAAAAAAAAFBCAAYAAAAAAAAoMY3JP//9K8My551lzpAk293a7QAAAAAAAAD8iIw3r+SL7TpPxuSt4/ibJJuz20QDBgAAAAAAAHhzrJPp6NvHYcyyjLl7dJTPbl/Jp6sPLufSsM+5ec7q5YOrF0OeP/SVaAAAAAAAAIA3weH7u6zfm79dWDIMSw6225w785vsx3XyzasOby5ssz69c4sAAAAAAAAAr9n69C6bC9sT93a7rKdnORin5Otxynzi1JQcfiwCAwAAAAAAALxO69O7HH68TaaT98cp85R8vbp3Nfszv8q0LHn7xMF1sjk/ZzUPmZ/MmWefhAYAAAAAAAD4oayPdjn7223Gn7x6ZrXPnetX8mBKkpv3cufDd/Pufn5FL56SzcVtNheT3dNt8tQlAwAAAAAAAHyv1sm0ySv/9XtsNWZ3I/lHkgzHi7/4XY7WYz5yiwAAAAAAAAA/Ivtcv/3nPEyS1fHa42t5+vNLyX7JoRsCAAAAAAAAePPt1/nbV3/KvePn1Xc371/NYxEYAAAAAAAA4M0yTHk2rvNo2WdzvHZqzN9v/SF3vju3evng/at5fPDLPDu1yuGyZHSVAAAAAAAAAK/XOGe4ueSvZ4e8M8xZbVe5ceuPufvy3Oqkw4+v5emDX+fuuTlLhhwsEYIBAAAAAAAAXpclGR8OuXP0TR4cPM/9z/+SRyfNDf/1TZezOp/87KdjzizJZkhO7edMy/w/nAUAAAAAAADg/zaMWcZkP8/ZLsmLacr2/MV8+cnvs/tP5/4FmLjAq1ifcioAAAAASUVORK5CYII=";
+  }
+});
 
 // src/gen-utils.ts
 function getSmartParseNumber(size, xyDir, layout) {
@@ -745,10 +737,10 @@ function createGlowElement(options, defaults) {
   let strXml = "";
   const opts = __spreadValues(__spreadValues({}, defaults), options);
   const size = Math.round(((_a = opts.size) != null ? _a : 0) * ONEPT);
-  const color = (_b = opts.color) != null ? _b : "FFFFFF";
+  const color2 = (_b = opts.color) != null ? _b : "FFFFFF";
   const opacity = Math.round(((_c = opts.opacity) != null ? _c : 0.75) * 1e5);
   strXml += `<a:glow rad="${size}">`;
-  strXml += createColorElement(color, `<a:alpha val="${opacity}"/>`);
+  strXml += createColorElement(color2, `<a:alpha val="${opacity}"/>`);
   strXml += "</a:glow>";
   return strXml;
 }
@@ -780,14 +772,14 @@ function genXmlColorSelection(props) {
   }
   return outText;
 }
-function generateGradientFillXml(gradient) {
+function generateGradientFillXml(gradient2) {
   var _a, _b;
-  const gradientType = (_a = gradient.type) != null ? _a : "linear";
-  const angle = (_b = gradient.angle) != null ? _b : 90;
+  const gradientType = (_a = gradient2.type) != null ? _a : "linear";
+  const angle = (_b = gradient2.angle) != null ? _b : 90;
   const ooxmlAngle = angle * 6e4;
   let xml2 = "<a:gradFill>";
   xml2 += "<a:gsLst>";
-  for (const stop of gradient.stops) {
+  for (const stop of gradient2.stops) {
     const position = Math.round(stop.position * 1e3);
     let stopInnerElements = "";
     if (stop.transparency) {
@@ -837,6 +829,12 @@ function correctShadowOptions(ShadowProps) {
   }
   return ShadowProps;
 }
+var init_gen_utils = __esm({
+  "src/gen-utils.ts"() {
+    "use strict";
+    init_core_enums();
+  }
+});
 
 // src/gen-tables.ts
 function parseTextToLines(cell, colWidth, verbose) {
@@ -1305,6 +1303,13 @@ function genTableToSlides(pptx, tabEleId, options = {}, masterSlide) {
     if (opts.addText) newSlide.addText(opts.addText.text, opts.addText.options || {});
   });
 }
+var init_gen_tables = __esm({
+  "src/gen-tables.ts"() {
+    "use strict";
+    init_core_enums();
+    init_gen_utils();
+  }
+});
 
 // src/gen-objects.ts
 function createSlideMaster(props, target) {
@@ -2026,6 +2031,14 @@ function createHyperlinkRels(target, text, options) {
     }
   });
 }
+var init_gen_objects = __esm({
+  "src/gen-objects.ts"() {
+    "use strict";
+    init_core_enums();
+    init_gen_tables();
+    init_gen_utils();
+  }
+});
 
 // src/layout/layout-engine.ts
 function normalizeGapValue(gap) {
@@ -2067,65 +2080,21 @@ function calculateGridLayout(options, childrenCount) {
   }
   return positions;
 }
+var init_layout_engine = __esm({
+  "src/layout/layout-engine.ts"() {
+    "use strict";
+  }
+});
+
+// src/layout/index.ts
+var init_layout = __esm({
+  "src/layout/index.ts"() {
+    "use strict";
+    init_layout_engine();
+  }
+});
 
 // src/styles/shadow-presets.ts
-var SHADOW_PRESETS = {
-  none: void 0,
-  /** Extra small - very subtle, barely visible */
-  xs: {
-    type: "outer",
-    blur: 2,
-    offset: 0.5,
-    angle: 90,
-    color: "000000",
-    opacity: 0.05
-  },
-  /** Subtle - gentle shadow for light interfaces */
-  subtle: {
-    type: "outer",
-    blur: 3,
-    offset: 1,
-    angle: 90,
-    color: "000000",
-    opacity: 0.08
-  },
-  /** Small - light shadow */
-  sm: {
-    type: "outer",
-    blur: 3,
-    offset: 1,
-    angle: 45,
-    color: "000000",
-    opacity: 0.1
-  },
-  /** Medium - default shadow */
-  md: {
-    type: "outer",
-    blur: 6,
-    offset: 3,
-    angle: 45,
-    color: "000000",
-    opacity: 0.15
-  },
-  /** Large - prominent shadow */
-  lg: {
-    type: "outer",
-    blur: 10,
-    offset: 5,
-    angle: 45,
-    color: "000000",
-    opacity: 0.2
-  },
-  /** Extra large - dramatic shadow */
-  xl: {
-    type: "outer",
-    blur: 15,
-    offset: 8,
-    angle: 45,
-    color: "000000",
-    opacity: 0.25
-  }
-};
 function isShadowWithPreset(value) {
   return typeof value === "object" && value !== null && "preset" in value;
 }
@@ -2152,6 +2121,69 @@ function resolveShadowPreset(shadowValue) {
   }
   return shadowValue;
 }
+var SHADOW_PRESETS;
+var init_shadow_presets = __esm({
+  "src/styles/shadow-presets.ts"() {
+    "use strict";
+    SHADOW_PRESETS = {
+      none: void 0,
+      /** Extra small - very subtle, barely visible */
+      xs: {
+        type: "outer",
+        blur: 2,
+        offset: 0.5,
+        angle: 90,
+        color: "000000",
+        opacity: 0.05
+      },
+      /** Subtle - gentle shadow for light interfaces */
+      subtle: {
+        type: "outer",
+        blur: 3,
+        offset: 1,
+        angle: 90,
+        color: "000000",
+        opacity: 0.08
+      },
+      /** Small - light shadow */
+      sm: {
+        type: "outer",
+        blur: 3,
+        offset: 1,
+        angle: 45,
+        color: "000000",
+        opacity: 0.1
+      },
+      /** Medium - default shadow */
+      md: {
+        type: "outer",
+        blur: 6,
+        offset: 3,
+        angle: 45,
+        color: "000000",
+        opacity: 0.15
+      },
+      /** Large - prominent shadow */
+      lg: {
+        type: "outer",
+        blur: 10,
+        offset: 5,
+        angle: 45,
+        color: "000000",
+        opacity: 0.2
+      },
+      /** Extra large - dramatic shadow */
+      xl: {
+        type: "outer",
+        blur: 15,
+        offset: 8,
+        angle: 45,
+        color: "000000",
+        opacity: 0.25
+      }
+    };
+  }
+});
 
 // src/styles/index.ts
 function normalizeFillValue(fill) {
@@ -2161,6 +2193,12 @@ function normalizeFillValue(fill) {
   }
   return fill;
 }
+var init_styles = __esm({
+  "src/styles/index.ts"() {
+    "use strict";
+    init_shadow_presets();
+  }
+});
 
 // src/components/Card.ts
 function normalizePaddingValue(padding) {
@@ -2179,34 +2217,6 @@ function normalizePaddingValue(padding) {
     left: (_d = padding.left) != null ? _d : defaultPadding
   };
 }
-var CARD_DEFAULTS = {
-  background: "F5F5F5",
-  borderRadius: 0.1,
-  borderColor: "E0E0E0",
-  borderWidth: 1,
-  shadow: "sm",
-  padding: 0.2,
-  align: "left",
-  // Title defaults
-  titleColor: "555555",
-  titleFontSize: 14,
-  titleFontFace: "Arial",
-  titleLineHeight: 1.4,
-  // Heading defaults
-  headingColor: "333333",
-  headingFontSize: 16,
-  headingFontFace: "Arial",
-  headingBold: true,
-  headingLineHeight: 1.5,
-  // Body defaults
-  bodyColor: "555555",
-  bodyFontSize: 13,
-  bodyFontFace: "Arial",
-  bodyItalic: false,
-  contentGap: 0.15,
-  highlightColor: "E3F2FD"
-  // Light blue for highlighted cards
-};
 function normalizeAccentLine(accentLine) {
   var _a, _b;
   if (!accentLine) {
@@ -2329,6 +2339,49 @@ function resolveCardConfig(options) {
     bodyH
   };
 }
+var CARD_DEFAULTS;
+var init_Card = __esm({
+  "src/components/Card.ts"() {
+    "use strict";
+    init_styles();
+    CARD_DEFAULTS = {
+      background: "F5F5F5",
+      borderRadius: 0.1,
+      borderColor: "E0E0E0",
+      borderWidth: 1,
+      shadow: "sm",
+      padding: 0.2,
+      align: "left",
+      // Title defaults
+      titleColor: "555555",
+      titleFontSize: 14,
+      titleFontFace: "Arial",
+      titleLineHeight: 1.4,
+      // Heading defaults
+      headingColor: "333333",
+      headingFontSize: 16,
+      headingFontFace: "Arial",
+      headingBold: true,
+      headingLineHeight: 1.5,
+      // Body defaults
+      bodyColor: "555555",
+      bodyFontSize: 13,
+      bodyFontFace: "Arial",
+      bodyItalic: false,
+      contentGap: 0.15,
+      highlightColor: "E3F2FD"
+      // Light blue for highlighted cards
+    };
+  }
+});
+
+// src/components/index.ts
+var init_components = __esm({
+  "src/components/index.ts"() {
+    "use strict";
+    init_Card();
+  }
+});
 
 // src/utils/color.ts
 function parseHexColorToRgb(hex) {
@@ -2364,12 +2417,25 @@ function interpolateColors(colorFrom, colorTo, steps) {
   }
   return colors;
 }
-function lightenColor(color, amount) {
-  return interpolateColor(color, "FFFFFF", amount);
+function lightenColor(color2, amount) {
+  return interpolateColor(color2, "FFFFFF", amount);
 }
-function darkenColor(color, amount) {
-  return interpolateColor(color, "000000", amount);
+function darkenColor(color2, amount) {
+  return interpolateColor(color2, "000000", amount);
 }
+var init_color = __esm({
+  "src/utils/color.ts"() {
+    "use strict";
+  }
+});
+
+// src/utils/index.ts
+var init_utils = __esm({
+  "src/utils/index.ts"() {
+    "use strict";
+    init_color();
+  }
+});
 
 // src/rich-text.ts
 function textStyle(options) {
@@ -2417,723 +2483,1021 @@ function convertRichTextToTextProps(strings, values, defaultOptions = {}) {
   }
   return result;
 }
+function parseMarkdownToTextProps(text, options = {}) {
+  const _a = options, { boldColor, italicColor, x, y, w, h } = _a, styleOptions = __objRest(_a, ["boldColor", "italicColor", "x", "y", "w", "h"]);
+  const result = [];
+  const defaultStyle = {};
+  for (const [key, value] of Object.entries(styleOptions)) {
+    if (value !== void 0) {
+      defaultStyle[key] = value;
+    }
+  }
+  const pattern = /(\*\*(.+?)\*\*)|('([^']+)')|(\*(.+?)\*)/g;
+  let lastIndex = 0;
+  let match;
+  while ((match = pattern.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      const beforeText = text.slice(lastIndex, match.index);
+      if (beforeText) {
+        result.push({
+          text: beforeText,
+          options: __spreadValues({}, defaultStyle)
+        });
+      }
+    }
+    if (match[2]) {
+      result.push({
+        text: match[2],
+        options: __spreadValues(__spreadProps(__spreadValues({}, defaultStyle), {
+          bold: true
+        }), boldColor ? { color: boldColor } : {})
+      });
+    } else if (match[4]) {
+      result.push({
+        text: `'${match[4]}'`,
+        options: __spreadValues(__spreadProps(__spreadValues({}, defaultStyle), {
+          bold: true
+        }), boldColor ? { color: boldColor } : {})
+      });
+    } else if (match[6]) {
+      result.push({
+        text: match[6],
+        options: __spreadValues(__spreadProps(__spreadValues({}, defaultStyle), {
+          italic: true
+        }), italicColor ? { color: italicColor } : {})
+      });
+    }
+    lastIndex = match.index + match[0].length;
+  }
+  if (lastIndex < text.length) {
+    result.push({
+      text: text.slice(lastIndex),
+      options: __spreadValues({}, defaultStyle)
+    });
+  }
+  if (result.length === 0 && text) {
+    result.push({
+      text,
+      options: __spreadValues({}, defaultStyle)
+    });
+  }
+  return result;
+}
+var init_rich_text = __esm({
+  "src/rich-text.ts"() {
+    "use strict";
+  }
+});
 
 // src/slide.ts
-var Slide = class {
-  constructor(params) {
-    this._newAutoPagedSlides = [];
-    /**
-     * @type {boolean}
-     */
-    this._hidden = false;
-    var _a;
-    this.addSlide = params.addSlide;
-    this.getSlide = params.getSlide;
-    this._name = `Slide ${params.slideNumber}`;
-    this._presLayout = params.presLayout;
-    this._rId = params.slideRId;
-    this._rels = [];
-    this._relsChart = [];
-    this._relsMedia = [];
-    this._setSlideNum = params.setSlideNum;
-    this._slideId = params.slideId;
-    this._slideLayout = params.slideLayout;
-    this._slideNum = params.slideNumber;
-    this._slideObjects = [];
-    this._animations = [];
-    this._slideNumberProps = (_a = this._slideLayout) == null ? void 0 : _a._slideNumberProps;
-  }
-  set background(props) {
-    this._background = props;
-    if (props) addBackgroundDefinition(props, this);
-  }
-  get background() {
-    return this._background;
-  }
-  set color(value) {
-    this._color = value;
-  }
-  get color() {
-    return this._color;
-  }
-  set hidden(value) {
-    this._hidden = value;
-  }
-  get hidden() {
-    return this._hidden;
-  }
-  /**
-   * @type {SlideNumberProps}
-   */
-  set slideNumber(value) {
-    this._slideNumberProps = value;
-    this._setSlideNum(value);
-  }
-  get slideNumber() {
-    return this._slideNumberProps;
-  }
-  /**
-   * Slide transition
-   * @since v4.1.0
-   * @example slide.transition = { type: 'fade' }
-   * @example slide.transition = { type: 'morph', durationMs: 2000 }
-   * @example slide.transition = { type: 'push', direction: 'l', speed: 'slow' }
-   */
-  set transition(value) {
-    this._transition = value;
-  }
-  get transition() {
-    return this._transition;
-  }
-  get newAutoPagedSlides() {
-    return this._newAutoPagedSlides;
-  }
-  /**
-   * Add chart to Slide
-   * @param {CHART_NAME|IChartMulti[]} type - chart type
-   * @param {object[]} data - data object
-   * @param {IChartOpts} options - chart options
-   * @return {ShapeRef} reference to the added chart for animation targeting
-   * @since v4.2.0 - returns ShapeRef instead of Slide
-   */
-  addChart(type, data, options) {
-    const optionsWithType = options || {};
-    optionsWithType._type = type;
-    addChartDefinition(this, type, data, optionsWithType);
-    return this._createShapeRef();
-  }
-  /**
-   * Add image to Slide
-   * @param {ImageProps} options - image options
-   * @return {ShapeRef} reference to the added image for animation targeting
-   * @since v4.2.0 - returns ShapeRef instead of Slide
-   */
-  addImage(options) {
-    addImageDefinition(this, options);
-    return this._createShapeRef();
-  }
-  /**
-   * Add media (audio/video) to Slide
-   * @param {MediaProps} options - media options
-   * @return {Slide} this Slide
-   */
-  addMedia(options) {
-    addMediaDefinition(this, options);
-    return this;
-  }
-  /**
-   * Add speaker notes to Slide
-   * @docs https://gitbrent.github.io/PptxGenJS/docs/speaker-notes.html
-   * @param {string} notes - notes to add to slide
-   * @return {Slide} this Slide
-   */
-  addNotes(notes) {
-    addNotesDefinition(this, notes);
-    return this;
-  }
-  /**
-   * Add shape to Slide
-   * @param {SHAPE_NAME} shapeName - shape name
-   * @param {ShapeProps} options - shape options
-   * @return {ShapeRef} reference to the added shape for animation targeting
-   * @since v4.2.0 - returns ShapeRef instead of Slide
-   */
-  addShape(shapeName, options) {
-    addShapeDefinition(this, shapeName, options || {});
-    return this._createShapeRef();
-  }
-  /**
-   * Add table to Slide
-   * @param {TableRow[]} tableRows - table rows
-   * @param {TableProps} options - table options
-   * @return {Slide} this Slide
-   */
-  addTable(tableRows, options) {
-    this._newAutoPagedSlides = addTableDefinition(this, tableRows, options || {}, this._slideLayout, this._presLayout, this.addSlide, this.getSlide);
-    return this;
-  }
-  /**
-   * Add text to Slide
-   * @param {string|TextProps[]} text - text string or complex object
-   * @param {TextPropsOptions} options - text options
-   * @return {ShapeRef} reference to the added text for animation targeting
-   * @since v4.2.0 - returns ShapeRef instead of Slide
-   */
-  addText(text, options) {
-    const textParam = typeof text === "string" || typeof text === "number" ? [{ text, options }] : text;
-    addTextDefinition(this, textParam, options || {}, false);
-    return this._createShapeRef();
-  }
-  addRichText(optionsOrStrings, ...values) {
-    if (Array.isArray(optionsOrStrings) && "raw" in optionsOrStrings) {
-      const strings = optionsOrStrings;
-      const textProps = convertRichTextToTextProps(strings, values, {});
-      addTextDefinition(this, textProps, {}, false);
-      return this._createShapeRef();
-    }
-    const options = optionsOrStrings;
-    return (strings, ...templateValues) => {
-      const textProps = convertRichTextToTextProps(strings, templateValues, options);
-      addTextDefinition(this, textProps, options, false);
-      return this._createShapeRef();
-    };
-  }
-  /**
-   * Add animation to a shape on this slide
-   * @since v4.1.0
-   * @since v4.2.0 - accepts ShapeRef in addition to numeric index
-   * @param {ShapeRef|number} shapeOrIndex - ShapeRef returned by addShape/addText/addImage, or numeric index (0-based)
-   * @param {AnimationProps} options - animation options
-   * @return {Slide} this Slide
-   * @example slide.addAnimation(shape, { type: 'fade' }) // using ShapeRef (recommended)
-   * @example slide.addAnimation(0, { type: 'fade' }) // using numeric index
-   */
-  addAnimation(shapeOrIndex, options) {
-    let shapeIndex;
-    if (typeof shapeOrIndex === "number") {
-      shapeIndex = shapeOrIndex;
-    } else if (shapeOrIndex && typeof shapeOrIndex === "object" && "_shapeIndex" in shapeOrIndex) {
-      if (shapeOrIndex._slideRef !== this) {
-        console.warn("PptxGenJS: addAnimation - ShapeRef belongs to a different slide");
+var Slide;
+var init_slide = __esm({
+  "src/slide.ts"() {
+    "use strict";
+    init_core_enums();
+    init_gen_objects();
+    init_layout();
+    init_components();
+    init_utils();
+    init_rich_text();
+    Slide = class {
+      constructor(params) {
+        this._newAutoPagedSlides = [];
+        /**
+         * @type {boolean}
+         */
+        this._hidden = false;
+        var _a;
+        this.addSlide = params.addSlide;
+        this.getSlide = params.getSlide;
+        this._name = `Slide ${params.slideNumber}`;
+        this._presLayout = params.presLayout;
+        this._rId = params.slideRId;
+        this._rels = [];
+        this._relsChart = [];
+        this._relsMedia = [];
+        this._setSlideNum = params.setSlideNum;
+        this._slideId = params.slideId;
+        this._slideLayout = params.slideLayout;
+        this._slideNum = params.slideNumber;
+        this._slideObjects = [];
+        this._animations = [];
+        this._slideNumberProps = (_a = this._slideLayout) == null ? void 0 : _a._slideNumberProps;
+      }
+      set background(props) {
+        this._background = props;
+        if (props) addBackgroundDefinition(props, this);
+      }
+      get background() {
+        return this._background;
+      }
+      set color(value) {
+        this._color = value;
+      }
+      get color() {
+        return this._color;
+      }
+      set fontFace(value) {
+        this._fontFace = value;
+      }
+      get fontFace() {
+        return this._fontFace;
+      }
+      set accentColor(value) {
+        this._accentColor = value;
+      }
+      get accentColor() {
+        return this._accentColor;
+      }
+      set hidden(value) {
+        this._hidden = value;
+      }
+      get hidden() {
+        return this._hidden;
+      }
+      /**
+       * @type {SlideNumberProps}
+       */
+      set slideNumber(value) {
+        this._slideNumberProps = value;
+        this._setSlideNum(value);
+      }
+      get slideNumber() {
+        return this._slideNumberProps;
+      }
+      /**
+       * Slide transition
+       * @since v4.1.0
+       * @example slide.transition = { type: 'fade' }
+       * @example slide.transition = { type: 'morph', durationMs: 2000 }
+       * @example slide.transition = { type: 'push', direction: 'l', speed: 'slow' }
+       */
+      set transition(value) {
+        this._transition = value;
+      }
+      get transition() {
+        return this._transition;
+      }
+      get newAutoPagedSlides() {
+        return this._newAutoPagedSlides;
+      }
+      /**
+       * Add chart to Slide
+       * @param {CHART_NAME|IChartMulti[]} type - chart type
+       * @param {object[]} data - data object
+       * @param {IChartOpts} options - chart options
+       * @return {ShapeRef} reference to the added chart for animation targeting
+       * @since v4.2.0 - returns ShapeRef instead of Slide
+       */
+      addChart(type, data, options) {
+        const optionsWithType = options || {};
+        optionsWithType._type = type;
+        addChartDefinition(this, type, data, optionsWithType);
+        return this._createShapeRef();
+      }
+      /**
+       * Add image to Slide
+       * @param {ImageProps} options - image options
+       * @return {ShapeRef} reference to the added image for animation targeting
+       * @since v4.2.0 - returns ShapeRef instead of Slide
+       */
+      addImage(options) {
+        addImageDefinition(this, options);
+        return this._createShapeRef();
+      }
+      /**
+       * Add media (audio/video) to Slide
+       * @param {MediaProps} options - media options
+       * @return {Slide} this Slide
+       */
+      addMedia(options) {
+        addMediaDefinition(this, options);
         return this;
       }
-      shapeIndex = shapeOrIndex._shapeIndex;
-    } else {
-      console.warn("PptxGenJS: addAnimation - invalid shapeOrIndex parameter");
-      return this;
-    }
-    if (shapeIndex < 0 || shapeIndex >= this._slideObjects.length) {
-      console.warn(`PptxGenJS: addAnimation - invalid shapeIndex ${shapeIndex}. Slide has ${this._slideObjects.length} shapes.`);
-      return this;
-    }
-    const preset = ANIMATION_PRESETS[options.type];
-    if (!preset) {
-      console.warn(`PptxGenJS: addAnimation - unknown animation type '${options.type}'`);
-      return this;
-    }
-    let presetSubtype;
-    if (options.direction && ANIMATION_DIRECTIONS[options.direction]) {
-      presetSubtype = ANIMATION_DIRECTIONS[options.direction];
-    }
-    const animation = {
-      shapeIndex,
-      options,
-      presetId: preset.presetId,
-      presetClass: preset.presetClass,
-      presetSubtype
-    };
-    this._animations.push(animation);
-    return this;
-  }
-  /**
-   * Create a ShapeRef for the most recently added shape
-   * @internal
-   */
-  _createShapeRef() {
-    return {
-      _shapeIndex: this._slideObjects.length - 1,
-      _slideRef: this
-    };
-  }
-  // ============================================================================
-  // COMPOSITIONAL API - High-level components and layouts
-  // ============================================================================
-  /**
-   * Add a title to the slide with sensible defaults.
-   * Convenience method that wraps addText with common title styling.
-   *
-   * @since v5.0.0
-   * @param text - Title text
-   * @param options - Optional title configuration
-   * @returns ShapeRef to the title text
-   *
-   * @example
-   * slide.addTitle('My Presentation')
-   *
-   * @example // With custom color
-   * slide.addTitle('My Presentation', { color: '2A9D8F' })
-   *
-   * @example // With gradient
-   * slide.addTitle('Gradient Title', { gradient: { from: '1E88E5', to: '26A69A' } })
-   */
-  addTitle(text, options) {
-    const titleDefaults = {
-      x: 0.5,
-      y: 0.4,
-      w: 9,
-      h: 0.7,
-      fontSize: 32,
-      fontFace: "Arial",
-      bold: true
-    };
-    const config = __spreadValues(__spreadValues({}, titleDefaults), options);
-    if (config.gradient) {
-      return this.addGradientText(text, {
-        x: config.x,
-        y: config.y,
-        w: config.w,
-        h: config.h,
-        fontSize: config.fontSize,
-        fontFace: config.fontFace,
-        bold: config.bold,
-        gradientFrom: config.gradient.from,
-        gradientTo: config.gradient.to,
-        gradientMode: "word"
-      });
-    }
-    return this.addText(text, {
-      x: config.x,
-      y: config.y,
-      w: config.w,
-      h: config.h,
-      fontSize: config.fontSize,
-      fontFace: config.fontFace,
-      bold: config.bold,
-      color: config.color
-    });
-  }
-  /**
-   * Add text with a gradient color effect.
-   * Creates a visual gradient by splitting the text into segments with interpolated colors.
-   *
-   * @since v5.0.0
-   * @param text - Text to display
-   * @param options - Gradient and text options
-   * @returns ShapeRef to the text
-   *
-   * @example
-   * slide.addGradientText('Hello World', {
-   *   x: 1, y: 1, w: 6, h: 0.5,
-   *   gradientFrom: '1E88E5',
-   *   gradientTo: '26A69A',
-   *   fontSize: 24,
-   *   bold: true,
-   * })
-   */
-  addGradientText(text, options) {
-    const _a = options, { gradientFrom, gradientTo, gradientMode = "word" } = _a, textOptions = __objRest(_a, ["gradientFrom", "gradientTo", "gradientMode"]);
-    const segments = gradientMode === "character" ? text.split("") : text.split(/(\s+)/);
-    const nonEmptySegments = segments.filter((s) => s.length > 0);
-    const colors = interpolateColors(gradientFrom, gradientTo, nonEmptySegments.length);
-    const textProps = nonEmptySegments.map((segment, index) => ({
-      text: segment,
-      options: {
-        color: colors[index],
-        fontSize: textOptions.fontSize,
-        fontFace: textOptions.fontFace,
-        bold: textOptions.bold,
-        italic: textOptions.italic,
-        underline: textOptions.underline
+      /**
+       * Add speaker notes to Slide
+       * @docs https://gitbrent.github.io/PptxGenJS/docs/speaker-notes.html
+       * @param {string} notes - notes to add to slide
+       * @return {Slide} this Slide
+       */
+      addNotes(notes) {
+        addNotesDefinition(this, notes);
+        return this;
       }
-    }));
-    return this.addText(textProps, {
-      x: textOptions.x,
-      y: textOptions.y,
-      w: textOptions.w,
-      h: textOptions.h,
-      valign: textOptions.valign,
-      align: textOptions.align
-    });
-  }
-  /**
-   * Add a card component to the slide.
-   * A card is a rounded rectangle with optional shadow, heading, and body text.
-   *
-   * @since v5.0.0
-   * @param options - Card configuration
-   * @returns ShapeRef to the card's background shape
-   *
-   * @example
-   * slide.addCard({
-   *   x: 0.5, y: 1.0, w: 4, h: 2,
-   *   heading: '1. LEARNING',
-   *   headingColor: 'C5A636',
-   *   body: 'How machines acquire knowledge from data.',
-   *   shadow: 'sm',
-   * })
-   *
-   * @example // Card without border
-   * slide.addCard({ ..., border: false })
-   *
-   * @example // Highlighted card
-   * slide.addCard({ ..., highlight: true })
-   * slide.addCard({ ..., highlight: 'E3F2FD' }) // Custom highlight color
-   */
-  addCard(options) {
-    const config = resolveCardConfig(options);
-    this.addShape("roundRect" /* roundRect */, {
-      x: config.x,
-      y: config.y,
-      w: config.w,
-      h: config.h,
-      fill: config.backgroundFill,
-      line: config.hasBorder ? { color: config.borderColor, width: config.borderWidth } : { color: "FFFFFF", width: 0 },
-      // No visible border
-      rectRadius: config.borderRadius,
-      shadow: config.shadow
-    });
-    const backgroundShapeRef = this._createShapeRef();
-    if (config.title) {
-      this.addText(config.title, {
-        x: config.titleX,
-        y: config.titleY,
-        w: config.titleW,
-        h: config.titleH,
-        fontSize: config.titleFontSize,
-        fontFace: config.titleFontFace,
-        color: config.titleColor,
-        align: config.align
-      });
-    }
-    if (config.heading) {
-      this.addText(config.heading, {
-        x: config.headingX,
-        y: config.headingY,
-        w: config.headingW,
-        h: config.headingH,
-        fontSize: config.headingFontSize,
-        fontFace: config.headingFontFace,
-        bold: config.headingBold,
-        color: config.headingColor,
-        align: config.align
-      });
-    }
-    if (config.body) {
-      this.addText(config.body, {
-        x: config.bodyX,
-        y: config.bodyY,
-        w: config.bodyW,
-        h: config.bodyH,
-        fontSize: config.bodyFontSize,
-        fontFace: config.bodyFontFace,
-        color: config.bodyColor,
-        italic: config.bodyItalic,
-        align: config.align,
-        valign: "top"
-      });
-    }
-    if (config.hasAccentLine && config.accentLineColor) {
-      let lineX = config.x;
-      let lineY = config.y;
-      let lineW = config.w;
-      let lineH = config.accentLineThickness;
-      switch (config.accentLinePosition) {
-        case "top":
-          break;
-        case "bottom":
-          lineY = config.y + config.h - config.accentLineThickness;
-          break;
-        case "left":
-          lineW = config.accentLineThickness;
-          lineH = config.h;
-          break;
-        case "right":
-          lineX = config.x + config.w - config.accentLineThickness;
-          lineW = config.accentLineThickness;
-          lineH = config.h;
-          break;
+      /**
+       * Add shape to Slide
+       * @param {SHAPE_NAME} shapeName - shape name
+       * @param {ShapeProps} options - shape options
+       * @return {ShapeRef} reference to the added shape for animation targeting
+       * @since v4.2.0 - returns ShapeRef instead of Slide
+       */
+      addShape(shapeName, options) {
+        addShapeDefinition(this, shapeName, options || {});
+        return this._createShapeRef();
       }
-      this.addShape("rect" /* rect */, {
-        x: lineX,
-        y: lineY,
-        w: lineW,
-        h: lineH,
-        fill: { color: config.accentLineColor },
-        line: { color: config.accentLineColor, width: 0 }
-      });
-    }
-    return backgroundShapeRef;
-  }
-  /**
-   * Add a circular badge with text inside (e.g., numbered circle).
-   *
-   * @since v5.0.0
-   * @param options - Badge configuration
-   * @returns ShapeRef to the badge
-   *
-   * @example
-   * slide.addBadge({
-   *   x: 1, y: 1, size: 0.3,
-   *   text: '1',
-   *   color: '29B6F6',
-   * })
-   */
-  addBadge(options) {
-    const {
-      x,
-      y,
-      size,
-      text,
-      color,
-      textColor = "FFFFFF",
-      fontSize = Math.round(size * 72 * 0.5),
-      // Auto-size based on badge size
-      fontFace = "Arial",
-      bold = true
-    } = options;
-    this.addShape("ellipse" /* ellipse */, {
-      x,
-      y,
-      w: size,
-      h: size,
-      fill: { color },
-      line: { color, width: 0 }
-    });
-    const shapeRef = this._createShapeRef();
-    this.addText(text, {
-      x,
-      y,
-      w: size,
-      h: size,
-      fontSize,
-      fontFace,
-      color: textColor,
-      bold,
-      align: "center",
-      valign: "middle"
-    });
-    return shapeRef;
-  }
-  /**
-   * Add a bullet list with optional colored badges.
-   *
-   * @since v5.0.0
-   * @param options - Bullet list configuration
-   * @returns This slide for chaining
-   *
-   * @example
-   * slide.addBulletList({
-   *   x: 0.7, y: 2.1, w: 4,
-   *   items: [
-   *     { badge: { text: '1', color: '29B6F6' }, text: 'First item' },
-   *     { badge: { text: '2', color: 'EF5350' }, text: 'Second item' },
-   *     { badge: { text: '3', color: '66BB6A' }, text: 'Third item' },
-   *   ],
-   * })
-   */
-  addBulletList(options) {
-    var _a;
-    const {
-      x,
-      y,
-      w,
-      items,
-      itemHeight = 0.5,
-      showBullets = true,
-      bulletChar = "\u2022",
-      color = "555555",
-      fontSize = 16,
-      fontFace = "Arial",
-      badgeSize = 0.3,
-      bulletBadgeGap = 0.1,
-      badgeTextGap = 0.15
-    } = options;
-    const bulletX = x;
-    const bulletW = showBullets ? 0.25 : 0;
-    const badgeX = bulletX + bulletW + bulletBadgeGap;
-    const textX = badgeX + badgeSize + badgeTextGap;
-    const textW = w - (textX - x);
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
-      const itemY = y + i * itemHeight;
-      if (showBullets) {
-        this.addText(bulletChar, {
-          x: bulletX,
-          y: itemY,
-          w: bulletW,
-          h: itemHeight,
+      /**
+       * Add table to Slide
+       * @param {TableRow[]} tableRows - table rows
+       * @param {TableProps} options - table options
+       * @return {Slide} this Slide
+       */
+      addTable(tableRows, options) {
+        this._newAutoPagedSlides = addTableDefinition(this, tableRows, options || {}, this._slideLayout, this._presLayout, this.addSlide, this.getSlide);
+        return this;
+      }
+      /**
+       * Add text to Slide. Supports markdown: **bold**, *italic*, 'quoted'.
+       *
+       * @param {string|TextProps[]} text - text string (with optional markdown) or TextProps[]
+       * @param {TextPropsOptions} options - text options
+       * @return {ShapeRef} reference to the added text for animation targeting
+       *
+       * @example // Plain text
+       * slide.addText('Hello world', { x: 1, y: 1 })
+       *
+       * @example // Markdown - **bold** uses slide.accentColor automatically
+       * slide.accentColor = '4FC3F7'
+       * slide.addText("This has **bold keywords** in it", { x: 1, y: 1 })
+       */
+      addText(text, options) {
+        var _a;
+        let textParam;
+        const mergedOptions = __spreadValues({
+          fontFace: this._getDefaultFontFace(options == null ? void 0 : options.fontFace),
+          color: (_a = options == null ? void 0 : options.color) != null ? _a : this._color
+        }, options);
+        if (typeof text === "string" || typeof text === "number") {
+          const str = String(text);
+          const hasMarkdown = /\*\*.*?\*\*|\*.*?\*|'[^']+'/.test(str);
+          if (hasMarkdown) {
+            textParam = parseMarkdownToTextProps(str, __spreadProps(__spreadValues({}, mergedOptions), {
+              boldColor: this._accentColor
+            }));
+          } else {
+            textParam = [{ text: str, options: mergedOptions }];
+          }
+        } else {
+          textParam = text.map((fragment3) => {
+            var _a2, _b, _c;
+            return __spreadProps(__spreadValues({}, fragment3), {
+              options: __spreadValues({
+                fontFace: this._getDefaultFontFace((_a2 = fragment3.options) == null ? void 0 : _a2.fontFace),
+                color: (_c = (_b = fragment3.options) == null ? void 0 : _b.color) != null ? _c : this._color
+              }, fragment3.options)
+            });
+          });
+        }
+        addTextDefinition(this, textParam, mergedOptions, false);
+        return this._createShapeRef();
+      }
+      addRichText(optionsOrStrings, ...values) {
+        if (Array.isArray(optionsOrStrings) && "raw" in optionsOrStrings) {
+          const strings = optionsOrStrings;
+          const textProps = convertRichTextToTextProps(strings, values, {});
+          addTextDefinition(this, textProps, {}, false);
+          return this._createShapeRef();
+        }
+        const options = optionsOrStrings;
+        return (strings, ...templateValues) => {
+          const textProps = convertRichTextToTextProps(strings, templateValues, options);
+          addTextDefinition(this, textProps, options, false);
+          return this._createShapeRef();
+        };
+      }
+      /**
+       * Add animation to a shape on this slide
+       * @since v4.1.0
+       * @since v4.2.0 - accepts ShapeRef in addition to numeric index
+       * @param {ShapeRef|number} shapeOrIndex - ShapeRef returned by addShape/addText/addImage, or numeric index (0-based)
+       * @param {AnimationProps} options - animation options
+       * @return {Slide} this Slide
+       * @example slide.addAnimation(shape, { type: 'fade' }) // using ShapeRef (recommended)
+       * @example slide.addAnimation(0, { type: 'fade' }) // using numeric index
+       */
+      addAnimation(shapeOrIndex, options) {
+        let shapeIndex;
+        if (typeof shapeOrIndex === "number") {
+          shapeIndex = shapeOrIndex;
+        } else if (shapeOrIndex && typeof shapeOrIndex === "object" && "_shapeIndex" in shapeOrIndex) {
+          if (shapeOrIndex._slideRef !== this) {
+            console.warn("PptxGenJS: addAnimation - ShapeRef belongs to a different slide");
+            return this;
+          }
+          shapeIndex = shapeOrIndex._shapeIndex;
+        } else {
+          console.warn("PptxGenJS: addAnimation - invalid shapeOrIndex parameter");
+          return this;
+        }
+        if (shapeIndex < 0 || shapeIndex >= this._slideObjects.length) {
+          console.warn(`PptxGenJS: addAnimation - invalid shapeIndex ${shapeIndex}. Slide has ${this._slideObjects.length} shapes.`);
+          return this;
+        }
+        const preset = ANIMATION_PRESETS[options.type];
+        if (!preset) {
+          console.warn(`PptxGenJS: addAnimation - unknown animation type '${options.type}'`);
+          return this;
+        }
+        let presetSubtype;
+        if (options.direction && ANIMATION_DIRECTIONS[options.direction]) {
+          presetSubtype = ANIMATION_DIRECTIONS[options.direction];
+        }
+        const animation = {
+          shapeIndex,
+          options,
+          presetId: preset.presetId,
+          presetClass: preset.presetClass,
+          presetSubtype
+        };
+        this._animations.push(animation);
+        return this;
+      }
+      /**
+       * Create a ShapeRef for the most recently added shape
+       * @internal
+       */
+      _createShapeRef() {
+        return {
+          _shapeIndex: this._slideObjects.length - 1,
+          _slideRef: this
+        };
+      }
+      /**
+       * Get the default font face, checking slide-level default.
+       * @internal
+       */
+      _getDefaultFontFace(explicit) {
+        var _a;
+        return (_a = explicit != null ? explicit : this._fontFace) != null ? _a : "Arial";
+      }
+      /**
+       * Get the default color, checking slide-level default.
+       * @internal
+       */
+      _getDefaultColor(explicit) {
+        var _a;
+        return (_a = explicit != null ? explicit : this._color) != null ? _a : "000000";
+      }
+      // ============================================================================
+      // COMPOSITIONAL API - High-level components and layouts
+      // ============================================================================
+      /**
+       * Add a title to the slide with sensible defaults.
+       * Convenience method that wraps addText with common title styling.
+       *
+       * @since v5.0.0
+       * @param text - Title text
+       * @param options - Optional title configuration
+       * @returns ShapeRef to the title text
+       *
+       * @example
+       * slide.addTitle('My Presentation')
+       *
+       * @example // With custom color
+       * slide.addTitle('My Presentation', { color: '2A9D8F' })
+       *
+       * @example // With gradient
+       * slide.addTitle('Gradient Title', { gradient: { from: '1E88E5', to: '26A69A' } })
+       */
+      addTitle(text, options) {
+        const titleDefaults = {
+          x: 0.5,
+          y: 0.4,
+          w: 9,
+          h: 0.7,
+          fontSize: 32,
+          fontFace: this._getDefaultFontFace(options == null ? void 0 : options.fontFace),
+          bold: true
+        };
+        const config = __spreadValues(__spreadValues({}, titleDefaults), options);
+        if (config.gradient) {
+          return this.addGradientText(text, {
+            x: config.x,
+            y: config.y,
+            w: config.w,
+            h: config.h,
+            fontSize: config.fontSize,
+            fontFace: config.fontFace,
+            bold: config.bold,
+            gradientFrom: config.gradient.from,
+            gradientTo: config.gradient.to,
+            gradientMode: "word"
+          });
+        }
+        return this.addText(text, {
+          x: config.x,
+          y: config.y,
+          w: config.w,
+          h: config.h,
+          fontSize: config.fontSize,
+          fontFace: config.fontFace,
+          bold: config.bold,
+          color: config.color
+        });
+      }
+      /**
+       * Add text with a gradient color effect.
+       * Creates a visual gradient by splitting the text into segments with interpolated colors.
+       *
+       * @since v5.0.0
+       * @param text - Text to display
+       * @param options - Gradient and text options
+       * @returns ShapeRef to the text
+       *
+       * @example
+       * slide.addGradientText('Hello World', {
+       *   x: 1, y: 1, w: 6, h: 0.5,
+       *   gradientFrom: '1E88E5',
+       *   gradientTo: '26A69A',
+       *   fontSize: 24,
+       *   bold: true,
+       * })
+       */
+      addGradientText(text, options) {
+        const _a = options, { gradientFrom, gradientTo, gradientMode = "word" } = _a, textOptions = __objRest(_a, ["gradientFrom", "gradientTo", "gradientMode"]);
+        const segments = gradientMode === "character" ? text.split("") : text.split(/(\s+)/);
+        const nonEmptySegments = segments.filter((s) => s.length > 0);
+        const colors = interpolateColors(gradientFrom, gradientTo, nonEmptySegments.length);
+        const textProps = nonEmptySegments.map((segment, index) => ({
+          text: segment,
+          options: {
+            color: colors[index],
+            fontSize: textOptions.fontSize,
+            fontFace: textOptions.fontFace,
+            bold: textOptions.bold,
+            italic: textOptions.italic,
+            underline: textOptions.underline
+          }
+        }));
+        return this.addText(textProps, {
+          x: textOptions.x,
+          y: textOptions.y,
+          w: textOptions.w,
+          h: textOptions.h,
+          valign: textOptions.valign,
+          align: textOptions.align
+        });
+      }
+      /**
+       * Add a card component to the slide.
+       * A card is a rounded rectangle with optional shadow, heading, and body text.
+       *
+       * @since v5.0.0
+       * @param options - Card configuration
+       * @returns ShapeRef to the card's background shape
+       *
+       * @example
+       * slide.addCard({
+       *   x: 0.5, y: 1.0, w: 4, h: 2,
+       *   heading: '1. LEARNING',
+       *   headingColor: 'C5A636',
+       *   body: 'How machines acquire knowledge from data.',
+       *   shadow: 'sm',
+       * })
+       *
+       * @example // Card without border
+       * slide.addCard({ ..., border: false })
+       *
+       * @example // Highlighted card
+       * slide.addCard({ ..., highlight: true })
+       * slide.addCard({ ..., highlight: 'E3F2FD' }) // Custom highlight color
+       */
+      addCard(options) {
+        const config = resolveCardConfig(options);
+        this.addShape("roundRect" /* roundRect */, {
+          x: config.x,
+          y: config.y,
+          w: config.w,
+          h: config.h,
+          fill: config.backgroundFill,
+          line: config.hasBorder ? { color: config.borderColor, width: config.borderWidth } : { color: "FFFFFF", width: 0 },
+          // No visible border
+          rectRadius: config.borderRadius,
+          shadow: config.shadow
+        });
+        const backgroundShapeRef = this._createShapeRef();
+        if (config.title) {
+          this.addText(config.title, {
+            x: config.titleX,
+            y: config.titleY,
+            w: config.titleW,
+            h: config.titleH,
+            fontSize: config.titleFontSize,
+            fontFace: config.titleFontFace,
+            color: config.titleColor,
+            align: config.align
+          });
+        }
+        if (config.heading) {
+          this.addText(config.heading, {
+            x: config.headingX,
+            y: config.headingY,
+            w: config.headingW,
+            h: config.headingH,
+            fontSize: config.headingFontSize,
+            fontFace: config.headingFontFace,
+            bold: config.headingBold,
+            color: config.headingColor,
+            align: config.align
+          });
+        }
+        if (config.body) {
+          this.addText(config.body, {
+            x: config.bodyX,
+            y: config.bodyY,
+            w: config.bodyW,
+            h: config.bodyH,
+            fontSize: config.bodyFontSize,
+            fontFace: config.bodyFontFace,
+            color: config.bodyColor,
+            italic: config.bodyItalic,
+            align: config.align,
+            valign: "top"
+          });
+        }
+        if (config.hasAccentLine && config.accentLineColor) {
+          let lineX = config.x;
+          let lineY = config.y;
+          let lineW = config.w;
+          let lineH = config.accentLineThickness;
+          switch (config.accentLinePosition) {
+            case "top":
+              break;
+            case "bottom":
+              lineY = config.y + config.h - config.accentLineThickness;
+              break;
+            case "left":
+              lineW = config.accentLineThickness;
+              lineH = config.h;
+              break;
+            case "right":
+              lineX = config.x + config.w - config.accentLineThickness;
+              lineW = config.accentLineThickness;
+              lineH = config.h;
+              break;
+          }
+          this.addShape("rect" /* rect */, {
+            x: lineX,
+            y: lineY,
+            w: lineW,
+            h: lineH,
+            fill: { color: config.accentLineColor },
+            line: { color: config.accentLineColor, width: 0 }
+          });
+        }
+        return backgroundShapeRef;
+      }
+      /**
+       * Add a circular badge with text inside (e.g., numbered circle).
+       *
+       * @since v5.0.0
+       * @param options - Badge configuration
+       * @returns ShapeRef to the badge
+       *
+       * @example
+       * slide.addBadge({
+       *   x: 1, y: 1, size: 0.3,
+       *   text: '1',
+       *   color: '29B6F6',
+       * })
+       */
+      addBadge(options) {
+        const {
+          x,
+          y,
+          size,
+          text,
+          color: color2,
+          textColor = "FFFFFF",
+          fontSize = Math.round(size * 72 * 0.5),
+          // Auto-size based on badge size
+          bold: bold2 = true
+        } = options;
+        const fontFace = this._getDefaultFontFace(options.fontFace);
+        this.addShape("ellipse" /* ellipse */, {
+          x,
+          y,
+          w: size,
+          h: size,
+          fill: { color: color2 },
+          line: { color: color2, width: 0 }
+        });
+        const shapeRef = this._createShapeRef();
+        this.addText(text, {
+          x,
+          y,
+          w: size,
+          h: size,
           fontSize,
-          color,
           fontFace,
+          color: textColor,
+          bold: bold2,
+          align: "center",
           valign: "middle"
         });
+        return shapeRef;
       }
-      if (item.badge) {
-        const badgeY = itemY + (itemHeight - badgeSize) / 2;
-        this.addBadge({
-          x: badgeX,
-          y: badgeY,
-          size: badgeSize,
-          text: item.badge.text,
-          color: item.badge.color,
-          textColor: item.badge.textColor,
-          fontSize: Math.round(badgeSize * 72 * 0.45)
+      /**
+       * Add a pill - a rounded rectangle with centered text.
+       *
+       * @since v5.0.0
+       * @param options - Pill configuration
+       * @returns ShapeRef to the pill
+       *
+       * @example
+       * slide.addPill({
+       *   x: 1, y: 1, w: 4, h: 0.65,
+       *   text: 'Equally good',
+       *   fill: '2ECC71',
+       * })
+       */
+      addPill(options) {
+        const {
+          x,
+          y,
+          w,
+          h,
+          text,
+          fill,
+          color: color2 = "FFFFFF",
+          fontSize = 16,
+          rectRadius = 0.15,
+          animation
+        } = options;
+        const fontFace = this._getDefaultFontFace(options.fontFace);
+        const shapeRef = this.addShape("roundRect" /* roundRect */, {
+          x,
+          y,
+          w,
+          h,
+          fill: { color: fill },
+          line: { color: fill, width: 0 },
+          rectRadius
         });
+        const textRef = this.addText(text, {
+          x,
+          y,
+          w,
+          h,
+          fontSize,
+          fontFace,
+          color: color2,
+          align: "center",
+          valign: "middle"
+        });
+        if (animation) {
+          this.addAnimation(shapeRef, animation);
+          this.addAnimation(textRef, __spreadProps(__spreadValues({}, animation), { trigger: "withPrevious", delayMs: 0 }));
+        }
+        return shapeRef;
       }
-      this.addText(item.text, {
-        x: textX,
-        y: itemY,
-        w: textW,
-        h: itemHeight,
-        fontSize,
-        fontFace,
-        color: (_a = item.color) != null ? _a : color,
-        bold: item.bold,
-        valign: "middle"
-      });
-    }
-    return this;
-  }
-  /**
-   * Add a two-column layout with render functions for each column.
-   *
-   * @since v5.0.0
-   * @param options - Two-column layout configuration
-   * @returns This slide for chaining
-   *
-   * @example
-   * slide.addTwoColumn({
-   *   x: 0.5, y: 1, w: 9, h: 4,
-   *   gap: 0.5,
-   *   left: { ratio: 0.45 },
-   *   renderLeft: (bounds) => {
-   *     slide.addText('Left content', { ...bounds })
-   *   },
-   *   renderRight: (bounds) => {
-   *     slide.addCard({ ...bounds, heading: 'Right card' })
-   *   },
-   * })
-   */
-  addTwoColumn(options) {
-    const {
-      x,
-      y,
-      w,
-      h,
-      gap = 0.5,
-      left = {},
-      right = {},
-      renderLeft,
-      renderRight
-    } = options;
-    const availableWidth = w - gap;
-    let leftWidth;
-    if (left.w !== void 0) {
-      leftWidth = left.w;
-    } else if (left.ratio !== void 0) {
-      leftWidth = availableWidth * left.ratio;
-    } else if (right.w !== void 0) {
-      leftWidth = availableWidth - right.w;
-    } else if (right.ratio !== void 0) {
-      leftWidth = availableWidth * (1 - right.ratio);
-    } else {
-      leftWidth = availableWidth / 2;
-    }
-    const rightWidth = availableWidth - leftWidth;
-    const leftBounds = { x, y, w: leftWidth, h };
-    const rightBounds = { x: x + leftWidth + gap, y, w: rightWidth, h };
-    renderLeft(leftBounds);
-    renderRight(rightBounds);
-    return this;
-  }
-  /**
-   * Add vertically stacked elements with automatic Y positioning.
-   *
-   * @since v5.0.0
-   * @param options - Stack configuration (position, width, gap)
-   * @param builder - Callback function that receives a builder for adding items
-   * @returns This slide for chaining
-   *
-   * @example
-   * ```typescript
-   * const keyword = textStyle({ bold: true, color: '5DADE2' })
-   *
-   * slide.addStack({ x: 0.65, y: 1.0, w: 9, gap: 0.25 }, (add) => {
-   *   add.text('The Title', { h: 0.7, fontSize: 40, bold: true, color: 'FFFFFF' })
-   *   add.space(0.1) // extra spacing
-   *   add.richText({ h: 0.8, fontSize: 22, color: 'FFFFFF' })`First paragraph with ${keyword('emphasis')}.`
-   *   add.richText({ h: 0.8, fontSize: 22, color: '9EAAB8' })`Second paragraph.`
-   * })
-   * ```
-   */
-  addStack(options, builder) {
-    const { x, y, w, gap = 0.2, defaults = {} } = options;
-    let currentY = y;
-    const stackBuilder = {
-      get currentY() {
-        return currentY;
-      },
-      text: (text, itemOptions) => {
-        const _a = itemOptions, { h } = _a, textOptions = __objRest(_a, ["h"]);
-        const mergedOptions = __spreadProps(__spreadValues(__spreadValues({}, defaults), textOptions), { x, y: currentY, w, h });
-        const ref = this.addText(text, mergedOptions);
-        currentY += h + gap;
-        return ref;
-      },
-      richText: (itemOptions) => {
-        const _a = itemOptions, { h } = _a, textOptions = __objRest(_a, ["h"]);
-        return (strings, ...values) => {
-          const mergedOptions = __spreadProps(__spreadValues(__spreadValues({}, defaults), textOptions), { x, y: currentY, w, h });
-          const textProps = convertRichTextToTextProps(strings, values, mergedOptions);
-          addTextDefinition(this, textProps, mergedOptions, false);
-          const ref = this._createShapeRef();
-          currentY += h + gap;
-          return ref;
+      /**
+       * Add a bullet list with optional colored badges.
+       *
+       * @since v5.0.0
+       * @param options - Bullet list configuration
+       * @returns This slide for chaining
+       *
+       * @example
+       * slide.addBulletList({
+       *   x: 0.7, y: 2.1, w: 4,
+       *   items: [
+       *     { badge: { text: '1', color: '29B6F6' }, text: 'First item' },
+       *     { badge: { text: '2', color: 'EF5350' }, text: 'Second item' },
+       *     { badge: { text: '3', color: '66BB6A' }, text: 'Third item' },
+       *   ],
+       * })
+       */
+      addBulletList(options) {
+        var _a, _b, _c;
+        const {
+          x,
+          y,
+          w,
+          items,
+          itemHeight = 0.5,
+          showBullets = true,
+          bulletChar = "\u2022",
+          fontSize = 16,
+          badgeSize = 0.3,
+          bulletBadgeGap = 0.1,
+          badgeTextGap = 0.15
+        } = options;
+        const fontFace = this._getDefaultFontFace(options.fontFace);
+        const color2 = (_b = (_a = options.color) != null ? _a : this._color) != null ? _b : "555555";
+        const bulletX = x;
+        const bulletW = showBullets ? 0.25 : 0;
+        const badgeX = bulletX + bulletW + bulletBadgeGap;
+        const textX = badgeX + badgeSize + badgeTextGap;
+        const textW = w - (textX - x);
+        for (let i = 0; i < items.length; i++) {
+          const item = items[i];
+          const itemY = y + i * itemHeight;
+          if (showBullets) {
+            this.addText(bulletChar, {
+              x: bulletX,
+              y: itemY,
+              w: bulletW,
+              h: itemHeight,
+              fontSize,
+              color: color2,
+              fontFace,
+              valign: "middle"
+            });
+          }
+          if (item.badge) {
+            const badgeY = itemY + (itemHeight - badgeSize) / 2;
+            this.addBadge({
+              x: badgeX,
+              y: badgeY,
+              size: badgeSize,
+              text: item.badge.text,
+              color: item.badge.color,
+              textColor: item.badge.textColor,
+              fontSize: Math.round(badgeSize * 72 * 0.45)
+            });
+          }
+          this.addText(item.text, {
+            x: textX,
+            y: itemY,
+            w: textW,
+            h: itemHeight,
+            fontSize,
+            fontFace,
+            color: (_c = item.color) != null ? _c : color2,
+            bold: item.bold,
+            valign: "middle"
+          });
+        }
+        return this;
+      }
+      /**
+       * Add a numbered list with auto-numbering, auto-spacing, and rich text support.
+       *
+       * @since v5.0.0
+       * @param options - Numbered list configuration
+       * @returns This slide for chaining
+       *
+       * @example
+       * slide.accentColor = '4FC3F7'  // **bold** text uses this color
+       * slide.addNumberedList({
+       *   x: 0.6, y: 1.5, w: 9,
+       *   items: [
+       *     "Normative reasons can be either **'given'** or **'created'** reasons.",
+       *     "We create reasons by **willing**, under the right conditions.",
+       *     "Thus we have **robust normative powers** — the power to will.",
+       *   ],
+       * })
+       */
+      addNumberedList(options) {
+        var _a;
+        const {
+          x,
+          y,
+          w,
+          items,
+          startNumber = 1,
+          numberColor,
+          numberBold = true,
+          fontSize = 18,
+          lineHeight,
+          itemGap = 0.3
+        } = options;
+        const fontFace = this._getDefaultFontFace(options.fontFace);
+        const color2 = this._getDefaultColor(options.color);
+        const accentColor = this._accentColor;
+        const calculatedLineHeight = lineHeight != null ? lineHeight : fontSize / 72 * 1.5;
+        let currentY = y;
+        for (let i = 0; i < items.length; i++) {
+          const itemText = items[i];
+          const number = startNumber + i;
+          const numberStyle = {
+            color: (_a = numberColor != null ? numberColor : accentColor) != null ? _a : color2,
+            fontSize,
+            fontFace,
+            bold: numberBold
+          };
+          const parsedText = parseMarkdownToTextProps(itemText, {
+            color: color2,
+            fontSize,
+            fontFace,
+            boldColor: accentColor
+          });
+          const textContent = [
+            { text: `${number}.`, options: numberStyle },
+            ...parsedText.map((fragment3, idx) => __spreadProps(__spreadValues({}, fragment3), {
+              text: idx === 0 ? `    ${fragment3.text}` : fragment3.text
+            }))
+          ];
+          const textLength = textContent.reduce((len, t) => {
+            var _a2, _b;
+            return len + ((_b = (_a2 = t.text) == null ? void 0 : _a2.length) != null ? _b : 0);
+          }, 0);
+          const charsPerLine = Math.floor(w / (fontSize / 72) * 1.8);
+          const estimatedLines = Math.ceil(textLength / charsPerLine);
+          const itemHeight = Math.max(calculatedLineHeight, calculatedLineHeight * estimatedLines);
+          const textParam = textContent;
+          addTextDefinition(this, textParam, { x, y: currentY, w, h: itemHeight, fontFace, valign: "top" }, false);
+          currentY += itemHeight + itemGap;
+        }
+        return this;
+      }
+      /**
+       * Add text with simple markdown-like formatting.
+       * Supports **bold** and 'quoted' text with optional custom colors.
+       *
+       * @since v5.0.0
+       * @param text - Text with markdown formatting
+       * @param options - Text options including boldColor for styling bold/quoted text
+       * @returns ShapeRef to the text
+       *
+       * @example
+       * slide.addMarkdownText(
+       *   "Normative reasons can be either **'given'** or **'created'** reasons.",
+       *   {
+       *     x: 0.6, y: 1.5, w: 9, h: 0.5,
+       *     color: 'FFFFFF',
+       *     boldColor: '4FC3F7',
+       *     fontSize: 18,
+       *   }
+       * )
+       */
+      addMarkdownText(text, options) {
+        var _a;
+        const mergedOptions = __spreadValues({
+          fontFace: this._getDefaultFontFace(options == null ? void 0 : options.fontFace),
+          color: (_a = options == null ? void 0 : options.color) != null ? _a : this._color
+        }, options);
+        const textProps = parseMarkdownToTextProps(text, mergedOptions);
+        addTextDefinition(this, textProps, mergedOptions, false);
+        return this._createShapeRef();
+      }
+      /**
+       * Add a two-column layout with render functions for each column.
+       *
+       * @since v5.0.0
+       * @param options - Two-column layout configuration
+       * @returns This slide for chaining
+       *
+       * @example
+       * slide.addTwoColumn({
+       *   x: 0.5, y: 1, w: 9, h: 4,
+       *   gap: 0.5,
+       *   left: { ratio: 0.45 },
+       *   renderLeft: (bounds) => {
+       *     slide.addText('Left content', { ...bounds })
+       *   },
+       *   renderRight: (bounds) => {
+       *     slide.addCard({ ...bounds, heading: 'Right card' })
+       *   },
+       * })
+       */
+      addTwoColumn(options) {
+        const {
+          x,
+          y,
+          w,
+          h,
+          gap = 0.5,
+          left = {},
+          right = {},
+          renderLeft,
+          renderRight
+        } = options;
+        const availableWidth = w - gap;
+        let leftWidth;
+        if (left.w !== void 0) {
+          leftWidth = left.w;
+        } else if (left.ratio !== void 0) {
+          leftWidth = availableWidth * left.ratio;
+        } else if (right.w !== void 0) {
+          leftWidth = availableWidth - right.w;
+        } else if (right.ratio !== void 0) {
+          leftWidth = availableWidth * (1 - right.ratio);
+        } else {
+          leftWidth = availableWidth / 2;
+        }
+        const rightWidth = availableWidth - leftWidth;
+        const leftBounds = { x, y, w: leftWidth, h };
+        const rightBounds = { x: x + leftWidth + gap, y, w: rightWidth, h };
+        renderLeft(leftBounds);
+        renderRight(rightBounds);
+        return this;
+      }
+      /**
+       * Add vertically stacked elements with automatic Y positioning.
+       *
+       * @since v5.0.0
+       * @param options - Stack configuration (position, width, gap)
+       * @param builder - Callback function that receives a builder for adding items
+       * @returns This slide for chaining
+       *
+       * @example
+       * ```typescript
+       * const keyword = textStyle({ bold: true, color: '5DADE2' })
+       *
+       * slide.addStack({ x: 0.65, y: 1.0, w: 9, gap: 0.25 }, (add) => {
+       *   add.text('The Title', { h: 0.7, fontSize: 40, bold: true, color: 'FFFFFF' })
+       *   add.space(0.1) // extra spacing
+       *   add.richText({ h: 0.8, fontSize: 22, color: 'FFFFFF' })`First paragraph with ${keyword('emphasis')}.`
+       *   add.richText({ h: 0.8, fontSize: 22, color: '9EAAB8' })`Second paragraph.`
+       * })
+       * ```
+       */
+      addStack(options, builder) {
+        const { x, y, w, gap = 0.2, defaults = {} } = options;
+        let currentY = y;
+        const stackBuilder = {
+          get currentY() {
+            return currentY;
+          },
+          text: (text, itemOptions) => {
+            const _a = itemOptions, { h } = _a, textOptions = __objRest(_a, ["h"]);
+            const mergedOptions = __spreadProps(__spreadValues(__spreadValues({}, defaults), textOptions), { x, y: currentY, w, h });
+            const ref = this.addText(text, mergedOptions);
+            currentY += h + gap;
+            return ref;
+          },
+          richText: (itemOptions) => {
+            const _a = itemOptions, { h } = _a, textOptions = __objRest(_a, ["h"]);
+            return (strings, ...values) => {
+              const mergedOptions = __spreadProps(__spreadValues(__spreadValues({}, defaults), textOptions), { x, y: currentY, w, h });
+              const textProps = convertRichTextToTextProps(strings, values, mergedOptions);
+              addTextDefinition(this, textProps, mergedOptions, false);
+              const ref = this._createShapeRef();
+              currentY += h + gap;
+              return ref;
+            };
+          },
+          space: (height) => {
+            currentY += height;
+          },
+          card: (cardOptions) => {
+            const _a = cardOptions, { h } = _a, rest = __objRest(_a, ["h"]);
+            const ref = this.addCard(__spreadProps(__spreadValues({}, rest), { x, y: currentY, w, h }));
+            currentY += h + gap;
+            return ref;
+          },
+          pill: (pillOptions) => {
+            const _a = pillOptions, { h } = _a, rest = __objRest(_a, ["h"]);
+            const ref = this.addPill(__spreadProps(__spreadValues({}, rest), { x, y: currentY, w, h }));
+            currentY += h + gap;
+            return ref;
+          }
         };
-      },
-      space: (height) => {
-        currentY += height;
-      },
-      card: (cardOptions) => {
-        const _a = cardOptions, { h } = _a, rest = __objRest(_a, ["h"]);
-        const ref = this.addCard(__spreadProps(__spreadValues({}, rest), { x, y: currentY, w, h }));
-        currentY += h + gap;
-        return ref;
+        builder(stackBuilder);
+        return this;
       }
-    };
-    builder(stackBuilder);
-    return this;
-  }
-  /**
-   * Options for grid layout children.
-   * Each child can be a CardOptions (for cards) or a render function.
-   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  addGrid(options) {
-    const _a = options, { children, render } = _a, layoutOptions = __objRest(_a, ["children", "render"]);
-    const positions = calculateGridLayout(
-      layoutOptions,
-      children.length
-    );
-    for (let i = 0; i < children.length; i++) {
-      render(children[i], positions[i], i);
-    }
-    return this;
-  }
-  /**
-   * Convenience method to add a grid of cards.
-   * Simpler than addGrid when all children are cards.
-   *
-   * @since v5.0.0
-   * @example
-   * slide.addCardGrid({
-   *   x: 0.5, y: 1.0,
-   *   cols: 2, gap: 0.3,
-   *   cellWidth: 4, cellHeight: 1.5,
-   *   cards: [
-   *     { heading: '1. LEARNING', body: '...' },
-   *     { heading: '2. REASONING', body: '...' },
-   *   ]
-   * })
-   */
-  addCardGrid(options) {
-    const _a = options, { cards } = _a, gridOptions = __objRest(_a, ["cards"]);
-    return this.addGrid(__spreadProps(__spreadValues({}, gridOptions), {
-      children: cards,
-      render: (cardOptions, bounds) => {
-        this.addCard(__spreadProps(__spreadValues({}, cardOptions), {
-          x: bounds.x,
-          y: bounds.y,
-          w: bounds.w,
-          h: bounds.h
+      /**
+       * Options for grid layout children.
+       * Each child can be a CardOptions (for cards) or a render function.
+       */
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      addGrid(options) {
+        const _a = options, { children, render } = _a, layoutOptions = __objRest(_a, ["children", "render"]);
+        const positions = calculateGridLayout(
+          layoutOptions,
+          children.length
+        );
+        for (let i = 0; i < children.length; i++) {
+          render(children[i], positions[i], i);
+        }
+        return this;
+      }
+      /**
+       * Convenience method to add a grid of cards.
+       * Simpler than addGrid when all children are cards.
+       *
+       * @since v5.0.0
+       * @example
+       * slide.addCardGrid({
+       *   x: 0.5, y: 1.0,
+       *   cols: 2, gap: 0.3,
+       *   cellWidth: 4, cellHeight: 1.5,
+       *   cards: [
+       *     { heading: '1. LEARNING', body: '...' },
+       *     { heading: '2. REASONING', body: '...' },
+       *   ]
+       * })
+       */
+      addCardGrid(options) {
+        const _a = options, { cards } = _a, gridOptions = __objRest(_a, ["cards"]);
+        return this.addGrid(__spreadProps(__spreadValues({}, gridOptions), {
+          children: cards,
+          render: (cardOptions, bounds) => {
+            this.addCard(__spreadProps(__spreadValues({}, cardOptions), {
+              x: bounds.x,
+              y: bounds.y,
+              w: bounds.w,
+              h: bounds.h
+            }));
+          }
         }));
       }
-    }));
+    };
   }
-};
+});
 
 // src/gen-charts.ts
-var import_jszip = __toESM(require("jszip"), 1);
 function createExcelWorksheet(chartObject, zip) {
   return __async(this, null, function* () {
     const data = chartObject.data;
@@ -4480,11 +4844,11 @@ function createShadowElement(options, defaults) {
   const blur = valToPts(opts.blur);
   const offset = valToPts(opts.offset);
   const angle = Math.round(opts.angle * 6e4);
-  const color = opts.color;
+  const color2 = opts.color;
   const opacity = Math.round(opts.opacity * 1e5);
   const rotShape = opts.rotateWithShape ? 1 : 0;
   strXml += `<a:${type}Shdw sx="100000" sy="100000" kx="0" ky="0"  algn="bl" blurRad="${blur}" rotWithShape="${rotShape}" dist="${offset}" dir="${angle}">`;
-  strXml += `<a:srgbClr val="${color}">`;
+  strXml += `<a:srgbClr val="${color2}">`;
   strXml += `<a:alpha val="${opacity}"/></a:srgbClr>`;
   strXml += `</a:${type}Shdw>`;
   strXml += "</a:effectLst>";
@@ -4513,6 +4877,15 @@ function createLineCap(lineCap) {
     throw new Error(`Invalid chart line cap: ${neverLineCap}`);
   }
 }
+var import_jszip;
+var init_gen_charts = __esm({
+  "src/gen-charts.ts"() {
+    "use strict";
+    init_core_enums();
+    init_gen_utils();
+    import_jszip = __toESM(require("jszip"), 1);
+  }
+});
 
 // src/gen-media.ts
 function encodeSlideMediaRels(layout) {
@@ -4649,41 +5022,66 @@ function createSvgPngPreview(rel) {
     });
   });
 }
-
-// src/gen-xml.ts
-var import_xmlbuilder22 = require("xmlbuilder2");
+var init_gen_media = __esm({
+  "src/gen-media.ts"() {
+    "use strict";
+    init_core_enums();
+  }
+});
 
 // src/xml/namespaces.ts
-var NS_A = "http://schemas.openxmlformats.org/drawingml/2006/main";
-var NS_P = "http://schemas.openxmlformats.org/presentationml/2006/main";
-var NS_R = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
-var NS_P14 = "http://schemas.microsoft.com/office/powerpoint/2010/main";
-var NS_CP = "http://schemas.openxmlformats.org/package/2006/metadata/core-properties";
-var NS_DC = "http://purl.org/dc/elements/1.1/";
-var NS_DCTERMS = "http://purl.org/dc/terms/";
-var NS_XSI = "http://www.w3.org/2001/XMLSchema-instance";
-var NS_RELATIONSHIPS = "http://schemas.openxmlformats.org/package/2006/relationships";
-var NS_CONTENT_TYPES = "http://schemas.openxmlformats.org/package/2006/content-types";
-var NS_EXTENDED_PROPERTIES = "http://schemas.openxmlformats.org/officeDocument/2006/extended-properties";
-var NS_VT = "http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes";
-var NS_P15 = "http://schemas.microsoft.com/office/powerpoint/2012/main";
-var REL_TYPE_EXTENDED_PROPERTIES = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties";
-var REL_TYPE_CORE_PROPERTIES = "http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties";
-var REL_TYPE_OFFICE_DOCUMENT = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument";
-var REL_TYPE_SLIDE_MASTER = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideMaster";
-var REL_TYPE_SLIDE = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/slide";
-var REL_TYPE_NOTES_MASTER = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/notesMaster";
-var REL_TYPE_NOTES_SLIDE = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/notesSlide";
-var REL_TYPE_PRES_PROPS = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/presProps";
-var REL_TYPE_VIEW_PROPS = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/viewProps";
-var REL_TYPE_THEME = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme";
-var REL_TYPE_TABLE_STYLES = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/tableStyles";
-var REL_TYPE_HYPERLINK = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink";
-var REL_TYPE_IMAGE = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image";
-var REL_TYPE_AUDIO = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/audio";
-var REL_TYPE_VIDEO = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/video";
-var REL_TYPE_CHART = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/chart";
-var REL_TYPE_MEDIA = "http://schemas.microsoft.com/office/2007/relationships/media";
+var NS_A, NS_P, NS_R, NS_P14, NS_CP, NS_DC, NS_DCTERMS, NS_XSI, NS_RELATIONSHIPS, NS_CONTENT_TYPES, NS_EXTENDED_PROPERTIES, NS_VT, NS_P15, REL_TYPE_EXTENDED_PROPERTIES, REL_TYPE_CORE_PROPERTIES, REL_TYPE_OFFICE_DOCUMENT, REL_TYPE_SLIDE_MASTER, REL_TYPE_SLIDE, REL_TYPE_NOTES_MASTER, REL_TYPE_NOTES_SLIDE, REL_TYPE_PRES_PROPS, REL_TYPE_VIEW_PROPS, REL_TYPE_THEME, REL_TYPE_TABLE_STYLES, REL_TYPE_HYPERLINK, REL_TYPE_IMAGE, REL_TYPE_AUDIO, REL_TYPE_VIDEO, REL_TYPE_CHART, REL_TYPE_MEDIA;
+var init_namespaces = __esm({
+  "src/xml/namespaces.ts"() {
+    "use strict";
+    NS_A = "http://schemas.openxmlformats.org/drawingml/2006/main";
+    NS_P = "http://schemas.openxmlformats.org/presentationml/2006/main";
+    NS_R = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
+    NS_P14 = "http://schemas.microsoft.com/office/powerpoint/2010/main";
+    NS_CP = "http://schemas.openxmlformats.org/package/2006/metadata/core-properties";
+    NS_DC = "http://purl.org/dc/elements/1.1/";
+    NS_DCTERMS = "http://purl.org/dc/terms/";
+    NS_XSI = "http://www.w3.org/2001/XMLSchema-instance";
+    NS_RELATIONSHIPS = "http://schemas.openxmlformats.org/package/2006/relationships";
+    NS_CONTENT_TYPES = "http://schemas.openxmlformats.org/package/2006/content-types";
+    NS_EXTENDED_PROPERTIES = "http://schemas.openxmlformats.org/officeDocument/2006/extended-properties";
+    NS_VT = "http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes";
+    NS_P15 = "http://schemas.microsoft.com/office/powerpoint/2012/main";
+    REL_TYPE_EXTENDED_PROPERTIES = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties";
+    REL_TYPE_CORE_PROPERTIES = "http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties";
+    REL_TYPE_OFFICE_DOCUMENT = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument";
+    REL_TYPE_SLIDE_MASTER = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideMaster";
+    REL_TYPE_SLIDE = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/slide";
+    REL_TYPE_NOTES_MASTER = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/notesMaster";
+    REL_TYPE_NOTES_SLIDE = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/notesSlide";
+    REL_TYPE_PRES_PROPS = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/presProps";
+    REL_TYPE_VIEW_PROPS = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/viewProps";
+    REL_TYPE_THEME = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme";
+    REL_TYPE_TABLE_STYLES = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/tableStyles";
+    REL_TYPE_HYPERLINK = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink";
+    REL_TYPE_IMAGE = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image";
+    REL_TYPE_AUDIO = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/audio";
+    REL_TYPE_VIDEO = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/video";
+    REL_TYPE_CHART = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/chart";
+    REL_TYPE_MEDIA = "http://schemas.microsoft.com/office/2007/relationships/media";
+  }
+});
+
+// src/xml/builder.ts
+var init_builder = __esm({
+  "src/xml/builder.ts"() {
+    "use strict";
+  }
+});
+
+// src/xml/index.ts
+var init_xml = __esm({
+  "src/xml/index.ts"() {
+    "use strict";
+    init_namespaces();
+    init_builder();
+  }
+});
 
 // src/gen-xml-text.ts
 function genXmlParagraphProperties(textObj, isDefault) {
@@ -4968,9 +5366,15 @@ function genXmlPlaceholder(placeholderObj) {
 		${placeholderObj.text && placeholderObj.text.length > 0 ? ' hasCustomPrompt="1"' : ""}
 		/>`;
 }
+var init_gen_xml_text = __esm({
+  "src/gen-xml-text.ts"() {
+    "use strict";
+    init_core_enums();
+    init_gen_utils();
+  }
+});
 
 // src/gen-xml-slide-objects.ts
-var import_xmlbuilder2 = require("xmlbuilder2");
 function computeShadowXmlValues(shadow) {
   if (!shadow || shadow.type === "none") {
     return void 0;
@@ -5006,39 +5410,6 @@ function genShadowEffectXml(shadow) {
   const frag = (0, import_xmlbuilder2.fragment)().ele("a:effectLst").ele(shadowElementName, shadowAttrs).ele("a:srgbClr", { val: computed.color }).ele("a:alpha", { val: String(computed.opacity) }).up().up().up().up();
   return frag.toString({ prettyPrint: false });
 }
-var ImageSizingXml = {
-  cover: function(imgSize, boxDim) {
-    const imgRatio = imgSize.h / imgSize.w;
-    const boxRatio = boxDim.h / boxDim.w;
-    const isBoxBased = boxRatio > imgRatio;
-    const width = isBoxBased ? boxDim.h / imgRatio : boxDim.w;
-    const height = isBoxBased ? boxDim.h : boxDim.w * imgRatio;
-    const hzPerc = Math.round(1e5 * 0.5 * (1 - boxDim.w / width));
-    const vzPerc = Math.round(1e5 * 0.5 * (1 - boxDim.h / height));
-    return (0, import_xmlbuilder2.fragment)().ele("a:srcRect", { l: String(hzPerc), r: String(hzPerc), t: String(vzPerc), b: String(vzPerc) }).up().ele("a:stretch").up().toString({ prettyPrint: false });
-  },
-  contain: function(imgSize, boxDim) {
-    const imgRatio = imgSize.h / imgSize.w;
-    const boxRatio = boxDim.h / boxDim.w;
-    const widthBased = boxRatio > imgRatio;
-    const width = widthBased ? boxDim.w : boxDim.h / imgRatio;
-    const height = widthBased ? boxDim.w * imgRatio : boxDim.h;
-    const hzPerc = Math.round(1e5 * 0.5 * (1 - boxDim.w / width));
-    const vzPerc = Math.round(1e5 * 0.5 * (1 - boxDim.h / height));
-    return (0, import_xmlbuilder2.fragment)().ele("a:srcRect", { l: String(hzPerc), r: String(hzPerc), t: String(vzPerc), b: String(vzPerc) }).up().ele("a:stretch").up().toString({ prettyPrint: false });
-  },
-  crop: function(imgSize, boxDim) {
-    const l = boxDim.x;
-    const r = imgSize.w - (boxDim.x + boxDim.w);
-    const t = boxDim.y;
-    const b = imgSize.h - (boxDim.y + boxDim.h);
-    const lPerc = Math.round(1e5 * (l / imgSize.w));
-    const rPerc = Math.round(1e5 * (r / imgSize.w));
-    const tPerc = Math.round(1e5 * (t / imgSize.h));
-    const bPerc = Math.round(1e5 * (b / imgSize.h));
-    return (0, import_xmlbuilder2.fragment)().ele("a:srcRect", { l: String(lPerc), r: String(rPerc), t: String(tPerc), b: String(bPerc) }).up().ele("a:stretch").up().toString({ prettyPrint: false });
-  }
-};
 function slideObjectToXml(slide) {
   var _a, _b;
   let strSlideXml = slide._name ? '<p:cSld name="' + slide._name + '">' : "<p:cSld>";
@@ -5507,6 +5878,49 @@ function slideObjectToXml(slide) {
   strSlideXml += "</p:cSld>";
   return strSlideXml;
 }
+var import_xmlbuilder2, ImageSizingXml;
+var init_gen_xml_slide_objects = __esm({
+  "src/gen-xml-slide-objects.ts"() {
+    "use strict";
+    import_xmlbuilder2 = require("xmlbuilder2");
+    init_core_enums();
+    init_gen_utils();
+    init_gen_xml_text();
+    ImageSizingXml = {
+      cover: function(imgSize, boxDim) {
+        const imgRatio = imgSize.h / imgSize.w;
+        const boxRatio = boxDim.h / boxDim.w;
+        const isBoxBased = boxRatio > imgRatio;
+        const width = isBoxBased ? boxDim.h / imgRatio : boxDim.w;
+        const height = isBoxBased ? boxDim.h : boxDim.w * imgRatio;
+        const hzPerc = Math.round(1e5 * 0.5 * (1 - boxDim.w / width));
+        const vzPerc = Math.round(1e5 * 0.5 * (1 - boxDim.h / height));
+        return (0, import_xmlbuilder2.fragment)().ele("a:srcRect", { l: String(hzPerc), r: String(hzPerc), t: String(vzPerc), b: String(vzPerc) }).up().ele("a:stretch").up().toString({ prettyPrint: false });
+      },
+      contain: function(imgSize, boxDim) {
+        const imgRatio = imgSize.h / imgSize.w;
+        const boxRatio = boxDim.h / boxDim.w;
+        const widthBased = boxRatio > imgRatio;
+        const width = widthBased ? boxDim.w : boxDim.h / imgRatio;
+        const height = widthBased ? boxDim.w * imgRatio : boxDim.h;
+        const hzPerc = Math.round(1e5 * 0.5 * (1 - boxDim.w / width));
+        const vzPerc = Math.round(1e5 * 0.5 * (1 - boxDim.h / height));
+        return (0, import_xmlbuilder2.fragment)().ele("a:srcRect", { l: String(hzPerc), r: String(hzPerc), t: String(vzPerc), b: String(vzPerc) }).up().ele("a:stretch").up().toString({ prettyPrint: false });
+      },
+      crop: function(imgSize, boxDim) {
+        const l = boxDim.x;
+        const r = imgSize.w - (boxDim.x + boxDim.w);
+        const t = boxDim.y;
+        const b = imgSize.h - (boxDim.y + boxDim.h);
+        const lPerc = Math.round(1e5 * (l / imgSize.w));
+        const rPerc = Math.round(1e5 * (r / imgSize.w));
+        const tPerc = Math.round(1e5 * (t / imgSize.h));
+        const bPerc = Math.round(1e5 * (b / imgSize.h));
+        return (0, import_xmlbuilder2.fragment)().ele("a:srcRect", { l: String(lPerc), r: String(rPerc), t: String(tPerc), b: String(bPerc) }).up().ele("a:stretch").up().toString({ prettyPrint: false });
+      }
+    };
+  }
+});
 
 // src/gen-xml.ts
 function slideObjectRelationsToXml(slide, defaultRels) {
@@ -5830,28 +6244,6 @@ function makeXmlPresentationRels(slides) {
   }).up();
   return doc.end({ prettyPrint: false });
 }
-var MODERN_TRANSITIONS = /* @__PURE__ */ new Set([
-  "morph",
-  "cube",
-  "box",
-  "doors",
-  "pan",
-  "ferris",
-  "gallery",
-  "conveyor",
-  "flip",
-  "flythrough",
-  "glitter",
-  "honeycomb",
-  "origami",
-  "reveal",
-  "ripple",
-  "shred",
-  "switch",
-  "vortex",
-  "warp",
-  "window"
-]);
 function makeXmlTransition(transition) {
   if (!transition || transition.type === "none") return "";
   const isMorph = transition.type === "morph";
@@ -5908,52 +6300,52 @@ function makeXmlTiming(slide) {
   const animations = slide._animations;
   if (!animations || animations.length === 0) return "";
   let nextId = 2;
-  let animationXml = "";
-  let sequenceXml = "";
-  animations.forEach((anim, idx) => {
-    const shapeId = anim.shapeIndex + 2;
-    const animNodeXml = makeAnimationNode(anim, shapeId, nextId, idx);
-    sequenceXml += animNodeXml.xml;
-    nextId = animNodeXml.nextId;
-  });
+  const clickGroups = [];
+  let currentGroup = null;
+  let cumulativeDelay = 0;
+  let prevDuration = 0;
+  for (const anim of animations) {
+    const trigger = anim.options.trigger || "onClick";
+    const duration = anim.options.durationMs || 500;
+    const delayMs = anim.options.delayMs || 0;
+    if (trigger === "onClick") {
+      currentGroup = { animations: [] };
+      clickGroups.push(currentGroup);
+      cumulativeDelay = 0;
+      currentGroup.animations.push({ anim, delay: 0 });
+      prevDuration = duration;
+    } else if (currentGroup) {
+      if (trigger === "withPrevious") {
+        currentGroup.animations.push({ anim, delay: cumulativeDelay });
+      } else {
+        cumulativeDelay = cumulativeDelay + prevDuration + delayMs;
+        currentGroup.animations.push({ anim, delay: cumulativeDelay });
+        prevDuration = duration;
+      }
+    }
+  }
+  let clickGroupsXml = "";
+  for (const group of clickGroups) {
+    const groupOuterId = nextId++;
+    let groupChildrenXml = "";
+    for (const { anim, delay } of group.animations) {
+      const shapeId = anim.shapeIndex + 2;
+      const animNodeXml = makeAnimationNodeInner(anim, shapeId, nextId, delay);
+      groupChildrenXml += animNodeXml.xml;
+      nextId = animNodeXml.nextId;
+    }
+    clickGroupsXml += `<p:par><p:cTn id="${groupOuterId}" fill="hold"><p:stCondLst><p:cond delay="indefinite"/></p:stCondLst><p:childTnLst>${groupChildrenXml}</p:childTnLst></p:cTn></p:par>`;
+  }
   const mainSeqId = nextId++;
-  animationXml = `<p:timing>
-		<p:tnLst>
-			<p:par>
-				<p:cTn id="1" dur="indefinite" restart="never" nodeType="tmRoot">
-					<p:childTnLst>
-						<p:seq concurrent="1" nextAc="seek">
-							<p:cTn id="${mainSeqId}" dur="indefinite" nodeType="mainSeq">
-								<p:childTnLst>${sequenceXml}</p:childTnLst>
-							</p:cTn>
-							<p:prevCondLst>
-								<p:cond evt="onPrev" delay="0"><p:tgtEl><p:sldTgt/></p:tgtEl></p:cond>
-							</p:prevCondLst>
-							<p:nextCondLst>
-								<p:cond evt="onNext" delay="0"><p:tgtEl><p:sldTgt/></p:tgtEl></p:cond>
-							</p:nextCondLst>
-						</p:seq>
-					</p:childTnLst>
-				</p:cTn>
-			</p:par>
-		</p:tnLst>
-	</p:timing>`.replace(/\t/g, "").replace(/\n\s*/g, "");
+  const animationXml = `<p:timing><p:tnLst><p:par><p:cTn id="1" dur="indefinite" restart="never" nodeType="tmRoot"><p:childTnLst><p:seq concurrent="1" nextAc="seek"><p:cTn id="${mainSeqId}" dur="indefinite" nodeType="mainSeq"><p:childTnLst>${clickGroupsXml}</p:childTnLst></p:cTn><p:prevCondLst><p:cond evt="onPrev" delay="0"><p:tgtEl><p:sldTgt/></p:tgtEl></p:cond></p:prevCondLst><p:nextCondLst><p:cond evt="onNext" delay="0"><p:tgtEl><p:sldTgt/></p:tgtEl></p:cond></p:nextCondLst></p:seq></p:childTnLst></p:cTn></p:par></p:tnLst></p:timing>`;
   return animationXml;
 }
-function makeAnimationNode(anim, shapeId, startId, animIndex) {
+function makeAnimationNodeInner(anim, shapeId, startId, delay) {
   let id = startId;
-  const opts = anim.options;
-  const durationMs = opts.durationMs || 500;
-  const delayMs = opts.delayMs || 0;
-  let triggerDelay = "indefinite";
-  if (opts.trigger === "withPrevious") {
-    triggerDelay = String(delayMs);
-  } else if (opts.trigger === "afterPrevious") {
-    triggerDelay = String(delayMs);
-  }
+  const durationMs = anim.options.durationMs || 500;
   let targetXml = `<p:spTgt spid="${shapeId}"`;
-  if (opts.paragraphIndex !== void 0) {
-    targetXml += `><p:txEl><p:pRg st="${opts.paragraphIndex}" end="${opts.paragraphIndex}"/></p:txEl></p:spTgt>`;
+  if (anim.options.paragraphIndex !== void 0) {
+    targetXml += `><p:txEl><p:pRg st="${anim.options.paragraphIndex}" end="${anim.options.paragraphIndex}"/></p:txEl></p:spTgt>`;
   } else {
     targetXml += "/>";
   }
@@ -5961,64 +6353,19 @@ function makeAnimationNode(anim, shapeId, startId, animIndex) {
   const outerId = id++;
   const innerId = id++;
   const effectParId = id++;
-  const effectCTnId = id++;
   let effectChildrenXml = "";
   if (anim.presetClass === "entr") {
-    const setId = id++;
     const setCTnId = id++;
-    effectChildrenXml += `<p:set>
-			<p:cBhvr>
-				<p:cTn id="${setCTnId}" dur="1" fill="hold">
-					<p:stCondLst><p:cond delay="0"/></p:stCondLst>
-				</p:cTn>
-				<p:tgtEl>${targetXml}</p:tgtEl>
-				<p:attrNameLst><p:attrName>style.visibility</p:attrName></p:attrNameLst>
-			</p:cBhvr>
-			<p:to><p:strVal val="visible"/></p:to>
-		</p:set>`.replace(/\t/g, "").replace(/\n\s*/g, "");
+    effectChildrenXml += `<p:set><p:cBhvr><p:cTn id="${setCTnId}" dur="1" fill="hold"><p:stCondLst><p:cond delay="0"/></p:stCondLst></p:cTn><p:tgtEl>${targetXml}</p:tgtEl><p:attrNameLst><p:attrName>style.visibility</p:attrName></p:attrNameLst></p:cBhvr><p:to><p:strVal val="visible"/></p:to></p:set>`;
   }
   const animId = id++;
-  effectChildrenXml += `<p:anim calcmode="lin" valueType="num">
-		<p:cBhvr additive="base">
-			<p:cTn id="${animId}" dur="${durationMs}"/>
-			<p:tgtEl>${targetXml}</p:tgtEl>
-			<p:attrNameLst><p:attrName>ppt_y</p:attrName></p:attrNameLst>
-		</p:cBhvr>
-		<p:tavLst>
-			<p:tav tm="0"><p:val><p:strVal val="#ppt_y+#ppt_h*0.1"/></p:val></p:tav>
-			<p:tav tm="100000"><p:val><p:strVal val="#ppt_y"/></p:val></p:tav>
-		</p:tavLst>
-	</p:anim>`.replace(/\t/g, "").replace(/\n\s*/g, "");
+  effectChildrenXml += `<p:anim calcmode="lin" valueType="num"><p:cBhvr additive="base"><p:cTn id="${animId}" dur="${durationMs}"/><p:tgtEl>${targetXml}</p:tgtEl><p:attrNameLst><p:attrName>ppt_y</p:attrName></p:attrNameLst></p:cBhvr><p:tavLst><p:tav tm="0"><p:val><p:strVal val="#ppt_y+#ppt_h*0.1"/></p:val></p:tav><p:tav tm="100000"><p:val><p:strVal val="#ppt_y"/></p:val></p:tav></p:tavLst></p:anim>`;
   const animEffectId = id++;
   const filter = getAnimationFilter(anim);
   if (filter) {
-    effectChildrenXml += `<p:animEffect transition="in" filter="${filter}">
-			<p:cBhvr>
-				<p:cTn id="${animEffectId}" dur="${durationMs}"/>
-				<p:tgtEl>${targetXml}</p:tgtEl>
-			</p:cBhvr>
-		</p:animEffect>`.replace(/\t/g, "").replace(/\n\s*/g, "");
+    effectChildrenXml += `<p:animEffect transition="in" filter="${filter}"><p:cBhvr><p:cTn id="${animEffectId}" dur="${durationMs}"/><p:tgtEl>${targetXml}</p:tgtEl></p:cBhvr></p:animEffect>`;
   }
-  const xml2 = `<p:par>
-		<p:cTn id="${outerId}" fill="hold">
-			<p:stCondLst><p:cond delay="${triggerDelay}"/></p:stCondLst>
-			<p:childTnLst>
-				<p:par>
-					<p:cTn id="${innerId}" fill="hold">
-						<p:stCondLst><p:cond delay="0"/></p:stCondLst>
-						<p:childTnLst>
-							<p:par>
-								<p:cTn id="${effectParId}" presetID="${anim.presetId}" presetClass="${anim.presetClass}"${subtypeAttr} fill="hold" nodeType="clickEffect">
-									<p:stCondLst><p:cond delay="0"/></p:stCondLst>
-									<p:childTnLst>${effectChildrenXml}</p:childTnLst>
-								</p:cTn>
-							</p:par>
-						</p:childTnLst>
-					</p:cTn>
-				</p:par>
-			</p:childTnLst>
-		</p:cTn>
-	</p:par>`.replace(/\t/g, "").replace(/\n\s*/g, "");
+  const xml2 = `<p:par><p:cTn id="${outerId}" fill="hold"><p:stCondLst><p:cond delay="${delay}"/></p:stCondLst><p:childTnLst><p:par><p:cTn id="${innerId}" fill="hold"><p:stCondLst><p:cond delay="0"/></p:stCondLst><p:childTnLst><p:par><p:cTn id="${effectParId}" presetID="${anim.presetId}" presetClass="${anim.presetClass}"${subtypeAttr} fill="hold" nodeType="clickEffect"><p:stCondLst><p:cond delay="0"/></p:stCondLst><p:childTnLst>${effectChildrenXml}</p:childTnLst></p:cTn></p:par></p:childTnLst></p:cTn></p:par></p:childTnLst></p:cTn></p:par>`;
   return { xml: xml2, nextId: id };
 }
 function getAnimationFilter(anim) {
@@ -6231,560 +6578,1329 @@ function makeXmlTableStyles() {
 function makeXmlViewProps() {
   return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>${CRLF}<p:viewPr xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main"><p:normalViewPr horzBarState="maximized"><p:restoredLeft sz="15611"/><p:restoredTop sz="94610"/></p:normalViewPr><p:slideViewPr><p:cSldViewPr snapToGrid="0" snapToObjects="1"><p:cViewPr varScale="1"><p:scale><a:sx n="136" d="100"/><a:sy n="136" d="100"/></p:scale><p:origin x="216" y="312"/></p:cViewPr><p:guideLst/></p:cSldViewPr></p:slideViewPr><p:notesTextViewPr><p:cViewPr><p:scale><a:sx n="1" d="1"/><a:sy n="1" d="1"/></p:scale><p:origin x="0" y="0"/></p:cViewPr></p:notesTextViewPr><p:gridSpacing cx="76200" cy="76200"/></p:viewPr>`;
 }
+var import_xmlbuilder22, MODERN_TRANSITIONS;
+var init_gen_xml = __esm({
+  "src/gen-xml.ts"() {
+    "use strict";
+    import_xmlbuilder22 = require("xmlbuilder2");
+    init_core_enums();
+    init_gen_utils();
+    init_xml();
+    init_gen_xml_text();
+    init_gen_xml_slide_objects();
+    MODERN_TRANSITIONS = /* @__PURE__ */ new Set([
+      "morph",
+      "cube",
+      "box",
+      "doors",
+      "pan",
+      "ferris",
+      "gallery",
+      "conveyor",
+      "flip",
+      "flythrough",
+      "glitter",
+      "honeycomb",
+      "origami",
+      "reveal",
+      "ripple",
+      "shred",
+      "switch",
+      "vortex",
+      "warp",
+      "window"
+    ]);
+  }
+});
+
+// src/new-api-styles.ts
+function createStyleBuilder(baseStyle = {}) {
+  const applyStyle = (text) => ({
+    text,
+    style: __spreadValues({}, baseStyle)
+  });
+  return new Proxy(applyStyle, {
+    get(target, prop) {
+      if (prop === "bold") return createStyleBuilder(__spreadProps(__spreadValues({}, baseStyle), { bold: true }));
+      if (prop === "italic") return createStyleBuilder(__spreadProps(__spreadValues({}, baseStyle), { italic: true }));
+      if (prop === "underline") return createStyleBuilder(__spreadProps(__spreadValues({}, baseStyle), { underline: true }));
+      if (prop === "strike") return createStyleBuilder(__spreadProps(__spreadValues({}, baseStyle), { strike: true }));
+      if (COLORS[prop]) {
+        return createStyleBuilder(__spreadProps(__spreadValues({}, baseStyle), { color: COLORS[prop] }));
+      }
+      if (prop === "color") {
+        return (hex) => createStyleBuilder(__spreadProps(__spreadValues({}, baseStyle), { color: hex.replace("#", "") }));
+      }
+      if (prop === "size") {
+        return (pt) => createStyleBuilder(__spreadProps(__spreadValues({}, baseStyle), { fontSize: pt }));
+      }
+      if (prop === "font") {
+        return (name) => createStyleBuilder(__spreadProps(__spreadValues({}, baseStyle), { fontFace: name }));
+      }
+      return target[prop];
+    }
+  });
+}
+function processStyledTemplate(strings, ...values) {
+  const result = [];
+  for (let i = 0; i < strings.length; i++) {
+    if (strings[i]) {
+      result.push(strings[i]);
+    }
+    if (i < values.length) {
+      const value = values[i];
+      if (typeof value === "string") {
+        result.push(value);
+      } else {
+        result.push(value);
+      }
+    }
+  }
+  return result;
+}
+var COLORS, style, bold, italic, underline, strike, white, black, gray, red, orange, yellow, green, cyan, blue, purple, magenta, pink, color;
+var init_new_api_styles = __esm({
+  "src/new-api-styles.ts"() {
+    "use strict";
+    COLORS = {
+      white: "FFFFFF",
+      black: "000000",
+      gray: "B0B8C4",
+      red: "E74C3C",
+      orange: "E67E22",
+      yellow: "F1C40F",
+      green: "2ECC71",
+      cyan: "4FC3F7",
+      blue: "3498DB",
+      purple: "9B59B6",
+      magenta: "E91E63",
+      pink: "FF69B4"
+    };
+    style = (customStyle) => createStyleBuilder(customStyle);
+    bold = createStyleBuilder({ bold: true });
+    italic = createStyleBuilder({ italic: true });
+    underline = createStyleBuilder({ underline: true });
+    strike = createStyleBuilder({ strike: true });
+    white = createStyleBuilder({ color: COLORS.white });
+    black = createStyleBuilder({ color: COLORS.black });
+    gray = createStyleBuilder({ color: COLORS.gray });
+    red = createStyleBuilder({ color: COLORS.red });
+    orange = createStyleBuilder({ color: COLORS.orange });
+    yellow = createStyleBuilder({ color: COLORS.yellow });
+    green = createStyleBuilder({ color: COLORS.green });
+    cyan = createStyleBuilder({ color: COLORS.cyan });
+    blue = createStyleBuilder({ color: COLORS.blue });
+    purple = createStyleBuilder({ color: COLORS.purple });
+    magenta = createStyleBuilder({ color: COLORS.magenta });
+    pink = createStyleBuilder({ color: COLORS.pink });
+    color = (hex) => createStyleBuilder({ color: hex.replace("#", "") });
+  }
+});
+
+// src/new-api-render.ts
+var new_api_render_exports = {};
+__export(new_api_render_exports, {
+  renderPresentationToOldAPI: () => renderPresentationToOldAPI
+});
+function renderPresentationToOldAPI(pres, fileName) {
+  return __async(this, null, function* () {
+    const pptx = new PptxGenJS();
+    const config = pres.config;
+    if (config.layout) {
+      if (typeof config.layout === "string") {
+        const layoutMap = {
+          "16x9": "LAYOUT_16x9",
+          "16x10": "LAYOUT_16x10",
+          "4x3": "LAYOUT_4x3",
+          "WIDE": "LAYOUT_WIDE"
+        };
+        pptx.layout = layoutMap[config.layout] || "LAYOUT_16x9";
+      } else {
+        pptx.defineLayout({ name: "CUSTOM", width: config.layout.width, height: config.layout.height });
+        pptx.layout = "CUSTOM";
+      }
+    }
+    for (const slideData of pres.getSlides()) {
+      renderSlide(pptx, slideData);
+    }
+    yield pptx.writeFile({ fileName });
+  });
+}
+function renderSlide(pptx, slideData) {
+  const slide = pptx.addSlide();
+  if (slideData.config.background) {
+    if (typeof slideData.config.background === "string") {
+      slide.background = { color: slideData.config.background };
+    } else {
+      const grad = slideData.config.background;
+      slide.background = {
+        type: "gradient",
+        gradient: {
+          type: grad.type || "linear",
+          angle: grad.angle || 180,
+          stops: grad.stops.map((s) => ({ position: s.position, color: s.color }))
+        }
+      };
+    }
+  }
+  const ctx = {
+    pptx,
+    slide,
+    defaults: slideData.config.defaults || {},
+    animationSequence: 0
+  };
+  if (ctx.defaults.fontFace) {
+    slide.fontFace = ctx.defaults.fontFace;
+  }
+  if (ctx.defaults.color) {
+    slide.color = ctx.defaults.color;
+  }
+  if (ctx.defaults.accentColor) {
+    slide.accentColor = ctx.defaults.accentColor;
+  }
+  let currentY = 0.5;
+  for (const element of slideData.elements) {
+    const height = renderElement(ctx, element, { x: 0.5, y: currentY, w: 9, h: 5 });
+    currentY += height + 0.3;
+  }
+}
+function renderElement(ctx, node, bounds) {
+  switch (node._tag) {
+    case "text":
+      return renderText(ctx, node, bounds);
+    case "shape":
+      return renderShape(ctx, node, bounds);
+    case "pill":
+      return renderPill(ctx, node, bounds);
+    case "card":
+      return renderCard(ctx, node, bounds);
+    case "image":
+      return renderImage(ctx, node, bounds);
+    case "numberedList":
+      return renderNumberedList(ctx, node, bounds);
+    case "bulletList":
+      return renderBulletList(ctx, node, bounds);
+    case "stack":
+      return renderStack(ctx, node, bounds);
+    case "columns":
+      return renderColumns(ctx, node, bounds);
+    case "grid":
+      return renderGrid(ctx, node, bounds);
+    case "absolute":
+      return renderAbsolute(ctx, node);
+    default:
+      console.warn(`Unknown element type: ${node._tag}`);
+      return 0;
+  }
+}
+function renderText(ctx, node, bounds) {
+  var _a, _b, _c;
+  const props = node.props;
+  const fontSize = props.fontSize || ctx.defaults.fontSize || 18;
+  const h = props.h || fontSize / 72 * 1.5;
+  let textContent;
+  if (props.fragments) {
+    textContent = props.fragments.map((frag) => {
+      var _a2, _b2;
+      if (typeof frag === "string") {
+        return {
+          text: frag,
+          options: {
+            color: props.color || ctx.defaults.color,
+            bold: props.bold,
+            italic: props.italic,
+            fontSize,
+            fontFace: props.fontFace || ctx.defaults.fontFace
+          }
+        };
+      } else {
+        return {
+          text: frag.text,
+          options: {
+            color: frag.style.color || props.color || ctx.defaults.color,
+            bold: (_a2 = frag.style.bold) != null ? _a2 : props.bold,
+            italic: (_b2 = frag.style.italic) != null ? _b2 : props.italic,
+            underline: frag.style.underline,
+            strike: frag.style.strike,
+            fontSize: frag.style.fontSize || fontSize,
+            fontFace: frag.style.fontFace || props.fontFace || ctx.defaults.fontFace
+          }
+        };
+      }
+    });
+  } else {
+    textContent = props.content || "";
+  }
+  const ref = ctx.slide.addText(textContent, {
+    x: (_a = props.x) != null ? _a : bounds.x,
+    y: (_b = props.y) != null ? _b : bounds.y,
+    w: (_c = props.w) != null ? _c : bounds.w,
+    h,
+    fontSize,
+    fontFace: props.fontFace || ctx.defaults.fontFace,
+    color: props.color || ctx.defaults.color,
+    bold: props.bold,
+    italic: props.italic,
+    align: props.align
+  });
+  applyAnimation(ctx, ref, node.animation);
+  return h;
+}
+function renderShape(ctx, node, bounds) {
+  var _a, _b, _c, _d;
+  const props = node.props;
+  const shapeTypeMap = {
+    rect: "rect" /* rect */,
+    roundRect: "roundRect" /* roundRect */,
+    ellipse: "ellipse" /* ellipse */,
+    line: "line" /* line */
+  };
+  const h = (_a = props.h) != null ? _a : 1;
+  const ref = ctx.slide.addShape(shapeTypeMap[props.type || "rect"], {
+    x: (_b = props.x) != null ? _b : bounds.x,
+    y: (_c = props.y) != null ? _c : bounds.y,
+    w: (_d = props.w) != null ? _d : bounds.w,
+    h,
+    fill: props.fill ? { color: props.fill } : void 0,
+    line: props.line ? { color: props.line.color, width: props.line.width || 1 } : void 0,
+    rectRadius: props.rectRadius
+  });
+  applyAnimation(ctx, ref, node.animation);
+  return h;
+}
+function renderPill(ctx, node, bounds) {
+  const props = node.props;
+  const h = props.h || 0.65;
+  const ref = ctx.slide.addPill({
+    x: bounds.x,
+    y: bounds.y,
+    w: bounds.w,
+    h,
+    text: props.text,
+    fill: props.fill,
+    color: props.color || "FFFFFF",
+    fontSize: props.fontSize || 16,
+    fontFace: props.fontFace || ctx.defaults.fontFace,
+    rectRadius: props.rectRadius || 0.15,
+    animation: node.animation ? mapAnimationToOldAPI(node.animation) : void 0
+  });
+  return h;
+}
+function renderCard(ctx, node, bounds) {
+  var _a, _b, _c;
+  const props = node.props;
+  const h = props.h || 2;
+  const ref = ctx.slide.addCard({
+    x: (_a = props.x) != null ? _a : bounds.x,
+    y: (_b = props.y) != null ? _b : bounds.y,
+    w: (_c = props.w) != null ? _c : bounds.w,
+    h,
+    heading: props.heading,
+    body: props.body,
+    fill: props.fill,
+    headingColor: props.headingColor,
+    bodyColor: props.bodyColor,
+    shadow: props.shadow
+  });
+  applyAnimation(ctx, ref, node.animation);
+  return h;
+}
+function renderImage(ctx, node, bounds) {
+  var _a, _b, _c;
+  const props = node.props;
+  const h = props.h || 3;
+  const ref = ctx.slide.addImage({
+    path: props.path,
+    data: props.data,
+    x: (_a = props.x) != null ? _a : bounds.x,
+    y: (_b = props.y) != null ? _b : bounds.y,
+    w: (_c = props.w) != null ? _c : bounds.w,
+    h,
+    sizing: props.sizing
+  });
+  applyAnimation(ctx, ref, node.animation);
+  return h;
+}
+function renderNumberedList(ctx, node, bounds) {
+  var _a, _b, _c;
+  const props = node.props;
+  const fontSize = props.fontSize || 18;
+  const itemGap = props.itemGap || 0.4;
+  const itemHeight = fontSize / 72 * 1.5;
+  const totalHeight = props.items.length * itemHeight + (props.items.length - 1) * itemGap;
+  ctx.slide.addNumberedList({
+    x: (_a = props.x) != null ? _a : bounds.x,
+    y: (_b = props.y) != null ? _b : bounds.y,
+    w: (_c = props.w) != null ? _c : bounds.w,
+    fontSize,
+    fontFace: props.fontFace || ctx.defaults.fontFace,
+    color: props.color || ctx.defaults.color,
+    accentColor: props.accentColor || ctx.defaults.accentColor,
+    itemGap,
+    items: props.items
+  });
+  return totalHeight;
+}
+function renderBulletList(ctx, node, bounds) {
+  var _a, _b, _c;
+  const props = node.props;
+  const fontSize = props.fontSize || 18;
+  const itemGap = props.itemGap || 0.4;
+  const itemHeight = fontSize / 72 * 1.5;
+  const totalHeight = props.items.length * itemHeight + (props.items.length - 1) * itemGap;
+  for (let i = 0; i < props.items.length; i++) {
+    ctx.slide.addText(`\u2022  ${props.items[i]}`, {
+      x: (_a = props.x) != null ? _a : bounds.x,
+      y: ((_b = props.y) != null ? _b : bounds.y) + i * (itemHeight + itemGap),
+      w: (_c = props.w) != null ? _c : bounds.w,
+      h: itemHeight,
+      fontSize,
+      fontFace: props.fontFace || ctx.defaults.fontFace,
+      color: props.color || ctx.defaults.color
+    });
+  }
+  return totalHeight;
+}
+function renderStack(ctx, node, bounds) {
+  var _a, _b, _c, _d, _e, _f;
+  const props = node.props;
+  const gap = (_a = props.gap) != null ? _a : 0.2;
+  const x = (_b = props.x) != null ? _b : bounds.x;
+  const w = (_c = props.w) != null ? _c : bounds.w;
+  let y = (_d = props.y) != null ? _d : bounds.y;
+  const stagger = (_e = node.animation) == null ? void 0 : _e.stagger;
+  for (let childIndex = 0; childIndex < node.children.length; childIndex++) {
+    const child = node.children[childIndex];
+    let childWithAnimation = child;
+    if (node.animation && stagger) {
+      if (childIndex === 0) {
+        childWithAnimation = __spreadProps(__spreadValues({}, child), {
+          animation: __spreadProps(__spreadValues({}, node.animation), {
+            trigger: "onClick",
+            delayMs: 0,
+            stagger: void 0
+            // Don't pass stagger down
+          })
+        });
+      } else {
+        childWithAnimation = __spreadProps(__spreadValues({}, child), {
+          animation: __spreadProps(__spreadValues({}, node.animation), {
+            trigger: "afterPrevious",
+            delayMs: stagger,
+            stagger: void 0
+          })
+        });
+      }
+    } else if (node.animation) {
+      if (!child.animation) {
+        childWithAnimation = __spreadProps(__spreadValues({}, child), {
+          animation: node.animation
+        });
+      }
+    }
+    const childHeight = renderElement(ctx, childWithAnimation, { x, y, w, h: bounds.h });
+    y += childHeight + gap;
+  }
+  return y - ((_f = props.y) != null ? _f : bounds.y) - gap;
+}
+function renderColumns(ctx, node, bounds) {
+  var _a, _b, _c, _d, _e;
+  const props = node.props;
+  const gap = (_a = props.gap) != null ? _a : 0.3;
+  const x = (_b = props.x) != null ? _b : bounds.x;
+  const y = (_c = props.y) != null ? _c : bounds.y;
+  const w = (_d = props.w) != null ? _d : bounds.w;
+  const h = (_e = props.h) != null ? _e : bounds.h;
+  const numCols = node.children.length;
+  const ratio = props.ratio || node.children.map(() => 1);
+  const totalRatio = ratio.reduce((a, b) => a + b, 0);
+  const totalGapWidth = gap * (numCols - 1);
+  const availableWidth = w - totalGapWidth;
+  let currentX = x;
+  let maxHeight = 0;
+  for (let i = 0; i < node.children.length; i++) {
+    const colWidth = ratio[i] / totalRatio * availableWidth;
+    const child = node.children[i];
+    const childWithAnimation = child.animation ? child : node.animation ? __spreadProps(__spreadValues({}, child), { animation: node.animation }) : child;
+    const childHeight = renderElement(ctx, childWithAnimation, { x: currentX, y, w: colWidth, h });
+    maxHeight = Math.max(maxHeight, childHeight);
+    currentX += colWidth + gap;
+  }
+  return maxHeight;
+}
+function renderGrid(ctx, node, bounds) {
+  var _a, _b, _c, _d;
+  const props = node.props;
+  const cols = props.cols;
+  const gap = (_a = props.gap) != null ? _a : 0.2;
+  const x = (_b = props.x) != null ? _b : bounds.x;
+  const y = (_c = props.y) != null ? _c : bounds.y;
+  const w = (_d = props.w) != null ? _d : bounds.w;
+  const cellWidth = (w - gap * (cols - 1)) / cols;
+  const rows = Math.ceil(node.children.length / cols);
+  let maxRowHeight = 0;
+  let totalHeight = 0;
+  for (let i = 0; i < node.children.length; i++) {
+    const row = Math.floor(i / cols);
+    const col = i % cols;
+    const cellX = x + col * (cellWidth + gap);
+    const cellY = y + totalHeight;
+    if (col === 0 && i > 0) {
+      totalHeight += maxRowHeight + gap;
+      maxRowHeight = 0;
+    }
+    const child = node.children[i];
+    const childHeight = renderElement(ctx, child, { x: cellX, y: cellY, w: cellWidth, h: bounds.h });
+    maxRowHeight = Math.max(maxRowHeight, childHeight);
+  }
+  return totalHeight + maxRowHeight;
+}
+function renderAbsolute(ctx, node) {
+  var _a, _b;
+  const props = node.props;
+  if (node.children.length > 0) {
+    renderElement(ctx, node.children[0], {
+      x: props.x,
+      y: props.y,
+      w: (_a = props.w) != null ? _a : 4,
+      h: (_b = props.h) != null ? _b : 2
+    });
+  }
+  return 0;
+}
+function applyAnimation(ctx, ref, animation) {
+  if (!animation) return;
+  ctx.slide.addAnimation(ref, mapAnimationToOldAPI(animation));
+}
+function mapAnimationToOldAPI(animation) {
+  const directionMap = {
+    "from-left": "from-left",
+    "from-right": "from-right",
+    "from-top": "from-top",
+    "from-bottom": "from-bottom"
+  };
+  return {
+    type: animation.type,
+    trigger: animation.trigger,
+    direction: animation.direction ? directionMap[animation.direction] : void 0,
+    durationMs: animation.durationMs,
+    delayMs: animation.delayMs
+  };
+}
+var init_new_api_render = __esm({
+  "src/new-api-render.ts"() {
+    "use strict";
+    init_pptxgen();
+    init_core_enums();
+  }
+});
+
+// src/new-api.ts
+function createElement(tag, props, children = []) {
+  return { _tag: tag, props, children };
+}
+function Text(contentOrStrings, configOrFirstValue, ...restValues) {
+  if (typeof contentOrStrings === "string") {
+    const config = configOrFirstValue || {};
+    return createElement("text", __spreadValues({ content: contentOrStrings }, config), []);
+  }
+  const strings = contentOrStrings;
+  const values = configOrFirstValue !== void 0 ? [configOrFirstValue, ...restValues] : [];
+  const fragments = processStyledTemplate(strings, ...values);
+  return createTextElement(fragments);
+}
+function createTextElement(fragments, baseConfig = {}) {
+  const node = createElement("text", __spreadValues({ fragments }, baseConfig), []);
+  node.config = (config) => {
+    return createTextElement(fragments, __spreadValues(__spreadValues({}, baseConfig), config));
+  };
+  return node;
+}
+function Shape(config) {
+  return createElement("shape", config, []);
+}
+function Pill(config) {
+  return createElement("pill", config, []);
+}
+function Card(config, children = []) {
+  return createElement("card", config, children);
+}
+function Image2(config) {
+  return createElement("image", config, []);
+}
+function NumberedList(config, items) {
+  return createElement("numberedList", __spreadProps(__spreadValues({}, config), { items }), []);
+}
+function BulletList(config, items) {
+  return createElement("bulletList", __spreadProps(__spreadValues({}, config), { items }), []);
+}
+function Stack(config, children) {
+  return createElement("stack", config, children);
+}
+function Columns(config, children) {
+  return createElement("columns", config, children);
+}
+function Grid(config, children) {
+  return createElement("grid", config, children);
+}
+function Absolute(config, child) {
+  return createElement("absolute", config, [child]);
+}
+function resolveAnimationTrigger(config) {
+  if (config.onClick) return "onClick";
+  if (config.withPrevious) return "withPrevious";
+  if (config.afterPrevious) return "afterPrevious";
+  return "onClick";
+}
+function wrapWithAnimation(type, config, child) {
+  const animation = {
+    type,
+    trigger: resolveAnimationTrigger(config),
+    direction: config.direction,
+    durationMs: config.durationMs,
+    delayMs: config.delayMs,
+    stagger: config.stagger
+  };
+  return __spreadProps(__spreadValues({}, child), { animation });
+}
+function FadeIn(config, child) {
+  return wrapWithAnimation("fade", config, child);
+}
+function FlyIn(config, child) {
+  return wrapWithAnimation("fly-in", __spreadValues({ direction: "from-bottom" }, config), child);
+}
+function ZoomIn(config, child) {
+  return wrapWithAnimation("zoom", config, child);
+}
+function Wipe(config, child) {
+  return wrapWithAnimation("wipe", __spreadValues({ direction: "from-left" }, config), child);
+}
+function Appear(config, child) {
+  return wrapWithAnimation("appear", config, child);
+}
+function gradient(config) {
+  var _a;
+  return {
+    type: "linear",
+    angle: (_a = config.angle) != null ? _a : 180,
+    stops: [
+      { position: 0, color: config.from },
+      { position: 100, color: config.to }
+    ]
+  };
+}
+function createPresentation(config) {
+  return new $pptxNewAPI(config);
+}
+var $Slide, $pptxNewAPI;
+var init_new_api = __esm({
+  "src/new-api.ts"() {
+    "use strict";
+    init_new_api_styles();
+    init_new_api_styles();
+    $Slide = class {
+      constructor(config, elements) {
+        this.config = config;
+        this.elements = elements;
+      }
+    };
+    $pptxNewAPI = class {
+      constructor(config = {}) {
+        this.slides = [];
+        this.config = __spreadValues({ layout: "16x9" }, config);
+      }
+      /** Add a slide with elements */
+      slide(configOrFirstElement, ...elements) {
+        let config = {};
+        let allElements;
+        if (configOrFirstElement && "_tag" in configOrFirstElement) {
+          allElements = [configOrFirstElement, ...elements];
+        } else {
+          config = configOrFirstElement;
+          allElements = elements;
+        }
+        const slide = new $Slide(config, allElements);
+        this.slides.push(slide);
+        return slide;
+      }
+      /** Get all slides */
+      getSlides() {
+        return this.slides;
+      }
+      /** Render to old API and write file */
+      write(fileName) {
+        return __async(this, null, function* () {
+          const { renderPresentationToOldAPI: renderPresentationToOldAPI2 } = yield Promise.resolve().then(() => (init_new_api_render(), new_api_render_exports));
+          yield renderPresentationToOldAPI2(this, fileName);
+        });
+      }
+    };
+  }
+});
 
 // src/pptxgen.ts
-var VERSION = "4.0.1";
-var PptxGenJS = class {
-  constructor() {
-    // Property getters/setters
-    /**
-     * Presentation layout name
-     * Standard layouts:
-     * - 'LAYOUT_4x3'   (10"    x 7.5")
-     * - 'LAYOUT_16x9'  (10"    x 5.625")
-     * - 'LAYOUT_16x10' (10"    x 6.25")
-     * - 'LAYOUT_WIDE'  (13.33" x 7.5")
-     * Custom layouts:
-     * Use `pptx.defineLayout()` to create custom layouts (e.g.: 'A4')
-     * @type {string}
-     * @see https://support.office.com/en-us/article/Change-the-size-of-your-slides-040a811c-be43-40b9-8d04-0de5ed79987e
-     */
-    this._layout = DEF_PRES_LAYOUT;
-    /**
-     * PptxGenJS Library Version
-     */
-    this._version = VERSION;
-    // Exposed class props
-    this._alignH = AlignH;
-    this._alignV = AlignV;
-    this._chartType = ChartType;
-    this._outputType = OutputType;
-    this._schemeColor = SchemeColor;
-    this._shapeType = ShapeType;
-    /**
-     * @depricated use `ChartType`
-     */
-    this._charts = CHART_TYPE;
-    /**
-     * @depricated use `SchemeColor`
-     */
-    this._colors = SCHEME_COLOR_NAMES;
-    /**
-     * @depricated use `ShapeType`
-     */
-    this._shapes = SHAPE_TYPE;
-    /**
-     * Provides an API for `addTableDefinition` to create slides as needed for auto-paging
-     * @param {AddSlideProps} options - slide masterName and/or sectionTitle
-     * @return {PresSlide} new Slide
-     */
-    this.addNewSlide = (options) => {
-      const sectAlreadyInUse = this.sections.length > 0 && this.sections[this.sections.length - 1]._slides.filter((slide) => slide._slideNum === this.slides[this.slides.length - 1]._slideNum).length > 0;
-      const slideOptions = options || {};
-      slideOptions.sectionTitle = sectAlreadyInUse ? this.sections[this.sections.length - 1].title : void 0;
-      return this.addSlide(slideOptions);
-    };
-    /**
-     * Provides an API for `addTableDefinition` to get slide reference by number
-     * @param {number} slideNum - slide number
-     * @return {PresSlide} Slide
-     * @since 3.0.0
-     */
-    this.getSlide = (slideNum) => this.slides.filter((slide) => slide._slideNum === slideNum)[0];
-    /**
-     * Enables the `Slide` class to set PptxGenJS [Presentation] master/layout slidenumbers
-     * @param {SlideNumberProps} slideNum - slide number config
-     */
-    this.setSlideNumber = (slideNum) => {
-      this.masterSlide._slideNumberProps = slideNum;
-      this.slideLayouts.filter((layout) => layout._name === DEF_PRES_LAYOUT_NAME)[0]._slideNumberProps = slideNum;
-    };
-    /**
-     * Create all chart and media rels for this Presentation
-     * @param {PresSlide | SlideLayout} slide - slide with rels
-     * @param {JSZip} zip - JSZip instance
-     * @param {Promise<string>[]} chartPromises - promise array
-     */
-    this.createChartMediaRels = (slide, zip, chartPromises) => {
-      slide._relsChart.forEach((rel) => chartPromises.push(createExcelWorksheet(rel, zip)));
-      slide._relsMedia.forEach((rel) => {
-        if (rel.type !== "online" && rel.type !== "hyperlink") {
-          let data = rel.data && typeof rel.data === "string" ? rel.data : "";
-          if (!data.includes(",") && !data.includes(";")) data = "image/png;base64," + data;
-          else if (!data.includes(",")) data = "image/png;base64," + data;
-          else if (!data.includes(";")) data = "image/png;" + data;
-          const base64Data = data.split(",").pop() || "";
-          zip.file(rel.Target.replace("..", "ppt"), base64Data, { base64: true });
-        }
-      });
-    };
-    /**
-     * Create and export the .pptx file
-     * @param {string} exportName - output file type
-     * @param {Blob} blobContent - Blob content
-     * @return {Promise<string>} Promise with file name
-     */
-    this.writeFileToBrowser = (exportName, blobContent) => __async(null, null, function* () {
-      const eleLink = document.createElement("a");
-      eleLink.setAttribute("style", "display:none;");
-      eleLink.dataset.interception = "off";
-      document.body.appendChild(eleLink);
-      if (window.URL.createObjectURL) {
-        const url = window.URL.createObjectURL(new Blob([blobContent], { type: "application/vnd.openxmlformats-officedocument.presentationml.presentation" }));
-        eleLink.href = url;
-        eleLink.download = exportName;
-        eleLink.click();
-        setTimeout(() => {
-          window.URL.revokeObjectURL(url);
-          document.body.removeChild(eleLink);
-        }, 100);
-        return yield Promise.resolve(exportName);
-      }
-      return exportName;
-    });
-    /**
-     * Create and export the .pptx file
-     * @param {WRITE_OUTPUT_TYPE} outputType - output file type
-     * @return {Promise<string | ArrayBuffer | Blob | Buffer | Uint8Array>} Promise with data or stream (node) or filename (browser)
-     */
-    this.exportPresentation = (props) => __async(this, null, function* () {
-      const arrChartPromises = [];
-      let arrMediaPromises = [];
-      const zip = new import_jszip2.default();
-      this.slides.forEach((slide) => {
-        arrMediaPromises = arrMediaPromises.concat(encodeSlideMediaRels(slide));
-      });
-      this.slideLayouts.forEach((layout) => {
-        arrMediaPromises = arrMediaPromises.concat(encodeSlideMediaRels(layout));
-      });
-      arrMediaPromises = arrMediaPromises.concat(encodeSlideMediaRels(this.masterSlide));
-      return yield Promise.all(arrMediaPromises).then(() => __async(this, null, function* () {
-        this.slides.forEach((slide) => {
-          if (slide._slideLayout) addPlaceholdersToSlideLayouts(slide);
-        });
-        zip.folder("_rels");
-        zip.folder("docProps");
-        zip.folder("ppt").folder("_rels");
-        zip.folder("ppt/charts").folder("_rels");
-        zip.folder("ppt/embeddings");
-        zip.folder("ppt/media");
-        zip.folder("ppt/slideLayouts").folder("_rels");
-        zip.folder("ppt/slideMasters").folder("_rels");
-        zip.folder("ppt/slides").folder("_rels");
-        zip.folder("ppt/theme");
-        zip.folder("ppt/notesMasters").folder("_rels");
-        zip.folder("ppt/notesSlides").folder("_rels");
-        zip.file("[Content_Types].xml", makeXmlContTypes(this.slides, this.slideLayouts, this.masterSlide));
-        zip.file("_rels/.rels", makeXmlRootRels());
-        zip.file("docProps/app.xml", makeXmlApp(this.slides, this.company));
-        zip.file("docProps/core.xml", makeXmlCore(this.title, this.subject, this.author, this.revision));
-        zip.file("ppt/_rels/presentation.xml.rels", makeXmlPresentationRels(this.slides));
-        zip.file("ppt/theme/theme1.xml", makeXmlTheme(this));
-        zip.file("ppt/presentation.xml", makeXmlPresentation(this));
-        zip.file("ppt/presProps.xml", makeXmlPresProps());
-        zip.file("ppt/tableStyles.xml", makeXmlTableStyles());
-        zip.file("ppt/viewProps.xml", makeXmlViewProps());
-        this.slideLayouts.forEach((layout, idx) => {
-          zip.file(`ppt/slideLayouts/slideLayout${idx + 1}.xml`, makeXmlLayout(layout));
-          zip.file(`ppt/slideLayouts/_rels/slideLayout${idx + 1}.xml.rels`, makeXmlSlideLayoutRel(idx + 1, this.slideLayouts));
-        });
-        this.slides.forEach((slide, idx) => {
-          zip.file(`ppt/slides/slide${idx + 1}.xml`, makeXmlSlide(slide));
-          zip.file(`ppt/slides/_rels/slide${idx + 1}.xml.rels`, makeXmlSlideRel(this.slides, this.slideLayouts, idx + 1));
-          zip.file(`ppt/notesSlides/notesSlide${idx + 1}.xml`, makeXmlNotesSlide(slide));
-          zip.file(`ppt/notesSlides/_rels/notesSlide${idx + 1}.xml.rels`, makeXmlNotesSlideRel(idx + 1));
-        });
-        zip.file("ppt/slideMasters/slideMaster1.xml", makeXmlMaster(this.masterSlide, this.slideLayouts));
-        zip.file("ppt/slideMasters/_rels/slideMaster1.xml.rels", makeXmlMasterRel(this.masterSlide, this.slideLayouts));
-        zip.file("ppt/notesMasters/notesMaster1.xml", makeXmlNotesMaster());
-        zip.file("ppt/notesMasters/_rels/notesMaster1.xml.rels", makeXmlNotesMasterRel());
-        this.slideLayouts.forEach((layout) => {
-          this.createChartMediaRels(layout, zip, arrChartPromises);
-        });
-        this.slides.forEach((slide) => {
-          this.createChartMediaRels(slide, zip, arrChartPromises);
-        });
-        this.createChartMediaRels(this.masterSlide, zip, arrChartPromises);
-        return yield Promise.all(arrChartPromises).then(() => __async(this, null, function* () {
-          if (props.outputType === "STREAM") {
-            return yield zip.generateAsync({ type: "nodebuffer", compression: props.compression ? "DEFLATE" : "STORE" });
-          } else if (props.outputType) {
-            return yield zip.generateAsync({ type: props.outputType });
-          } else {
-            return yield zip.generateAsync({ type: "blob", compression: props.compression ? "DEFLATE" : "STORE" });
+var pptxgen_exports = {};
+__export(pptxgen_exports, {
+  $Slide: () => $Slide,
+  $pptxNewAPI: () => $pptxNewAPI,
+  Absolute: () => Absolute,
+  Appear: () => Appear,
+  BulletList: () => BulletList,
+  Card: () => Card,
+  Columns: () => Columns,
+  FadeIn: () => FadeIn,
+  FlyIn: () => FlyIn,
+  Grid: () => Grid,
+  Image: () => Image2,
+  NumberedList: () => NumberedList,
+  Pill: () => Pill,
+  SHADOW_PRESETS: () => SHADOW_PRESETS,
+  Shape: () => Shape,
+  Stack: () => Stack,
+  Text: () => Text,
+  Wipe: () => Wipe,
+  ZoomIn: () => ZoomIn,
+  black: () => black,
+  blue: () => blue,
+  bold: () => bold,
+  color: () => color,
+  createPresentation: () => createPresentation,
+  cyan: () => cyan,
+  darkenColor: () => darkenColor,
+  default: () => PptxGenJS,
+  gradient: () => gradient,
+  gray: () => gray,
+  green: () => green,
+  interpolateColor: () => interpolateColor,
+  interpolateColors: () => interpolateColors,
+  italic: () => italic,
+  lightenColor: () => lightenColor,
+  magenta: () => magenta,
+  orange: () => orange,
+  parseHexColorToRgb: () => parseHexColorToRgb,
+  parseMarkdownToTextProps: () => parseMarkdownToTextProps,
+  pink: () => pink,
+  purple: () => purple,
+  red: () => red,
+  resolveShadowPreset: () => resolveShadowPreset,
+  rgbToHexColor: () => rgbToHexColor,
+  strike: () => strike,
+  style: () => style,
+  textStyle: () => textStyle,
+  underline: () => underline,
+  white: () => white,
+  yellow: () => yellow
+});
+module.exports = __toCommonJS(pptxgen_exports);
+var import_jszip2, VERSION, PptxGenJS;
+var init_pptxgen = __esm({
+  "src/pptxgen.ts"() {
+    import_jszip2 = __toESM(require("jszip"), 1);
+    init_slide();
+    init_core_enums();
+    init_gen_charts();
+    init_gen_objects();
+    init_gen_media();
+    init_gen_tables();
+    init_gen_xml();
+    init_utils();
+    init_styles();
+    init_rich_text();
+    init_new_api();
+    VERSION = "4.0.1";
+    PptxGenJS = class {
+      constructor() {
+        // Property getters/setters
+        /**
+         * Presentation layout name
+         * Standard layouts:
+         * - 'LAYOUT_4x3'   (10"    x 7.5")
+         * - 'LAYOUT_16x9'  (10"    x 5.625")
+         * - 'LAYOUT_16x10' (10"    x 6.25")
+         * - 'LAYOUT_WIDE'  (13.33" x 7.5")
+         * Custom layouts:
+         * Use `pptx.defineLayout()` to create custom layouts (e.g.: 'A4')
+         * @type {string}
+         * @see https://support.office.com/en-us/article/Change-the-size-of-your-slides-040a811c-be43-40b9-8d04-0de5ed79987e
+         */
+        this._layout = DEF_PRES_LAYOUT;
+        /**
+         * PptxGenJS Library Version
+         */
+        this._version = VERSION;
+        // Exposed class props
+        this._alignH = AlignH;
+        this._alignV = AlignV;
+        this._chartType = ChartType;
+        this._outputType = OutputType;
+        this._schemeColor = SchemeColor;
+        this._shapeType = ShapeType;
+        /**
+         * @depricated use `ChartType`
+         */
+        this._charts = CHART_TYPE;
+        /**
+         * @depricated use `SchemeColor`
+         */
+        this._colors = SCHEME_COLOR_NAMES;
+        /**
+         * @depricated use `ShapeType`
+         */
+        this._shapes = SHAPE_TYPE;
+        /**
+         * Provides an API for `addTableDefinition` to create slides as needed for auto-paging
+         * @param {AddSlideProps} options - slide masterName and/or sectionTitle
+         * @return {PresSlide} new Slide
+         */
+        this.addNewSlide = (options) => {
+          const sectAlreadyInUse = this.sections.length > 0 && this.sections[this.sections.length - 1]._slides.filter((slide) => slide._slideNum === this.slides[this.slides.length - 1]._slideNum).length > 0;
+          const slideOptions = options || {};
+          slideOptions.sectionTitle = sectAlreadyInUse ? this.sections[this.sections.length - 1].title : void 0;
+          return this.addSlide(slideOptions);
+        };
+        /**
+         * Provides an API for `addTableDefinition` to get slide reference by number
+         * @param {number} slideNum - slide number
+         * @return {PresSlide} Slide
+         * @since 3.0.0
+         */
+        this.getSlide = (slideNum) => this.slides.filter((slide) => slide._slideNum === slideNum)[0];
+        /**
+         * Enables the `Slide` class to set PptxGenJS [Presentation] master/layout slidenumbers
+         * @param {SlideNumberProps} slideNum - slide number config
+         */
+        this.setSlideNumber = (slideNum) => {
+          this.masterSlide._slideNumberProps = slideNum;
+          this.slideLayouts.filter((layout) => layout._name === DEF_PRES_LAYOUT_NAME)[0]._slideNumberProps = slideNum;
+        };
+        /**
+         * Create all chart and media rels for this Presentation
+         * @param {PresSlide | SlideLayout} slide - slide with rels
+         * @param {JSZip} zip - JSZip instance
+         * @param {Promise<string>[]} chartPromises - promise array
+         */
+        this.createChartMediaRels = (slide, zip, chartPromises) => {
+          slide._relsChart.forEach((rel) => chartPromises.push(createExcelWorksheet(rel, zip)));
+          slide._relsMedia.forEach((rel) => {
+            if (rel.type !== "online" && rel.type !== "hyperlink") {
+              let data = rel.data && typeof rel.data === "string" ? rel.data : "";
+              if (!data.includes(",") && !data.includes(";")) data = "image/png;base64," + data;
+              else if (!data.includes(",")) data = "image/png;base64," + data;
+              else if (!data.includes(";")) data = "image/png;" + data;
+              const base64Data = data.split(",").pop() || "";
+              zip.file(rel.Target.replace("..", "ppt"), base64Data, { base64: true });
+            }
+          });
+        };
+        /**
+         * Create and export the .pptx file
+         * @param {string} exportName - output file type
+         * @param {Blob} blobContent - Blob content
+         * @return {Promise<string>} Promise with file name
+         */
+        this.writeFileToBrowser = (exportName, blobContent) => __async(null, null, function* () {
+          const eleLink = document.createElement("a");
+          eleLink.setAttribute("style", "display:none;");
+          eleLink.dataset.interception = "off";
+          document.body.appendChild(eleLink);
+          if (window.URL.createObjectURL) {
+            const url = window.URL.createObjectURL(new Blob([blobContent], { type: "application/vnd.openxmlformats-officedocument.presentationml.presentation" }));
+            eleLink.href = url;
+            eleLink.download = exportName;
+            eleLink.click();
+            setTimeout(() => {
+              window.URL.revokeObjectURL(url);
+              document.body.removeChild(eleLink);
+            }, 100);
+            return yield Promise.resolve(exportName);
           }
-        }));
-      }));
-    });
-    const layout4x3 = { name: "screen4x3", width: 9144e3, height: 6858e3 };
-    const layout16x9 = { name: "screen16x9", width: 9144e3, height: 5143500 };
-    const layout16x10 = { name: "screen16x10", width: 9144e3, height: 5715e3 };
-    const layoutWide = { name: "custom", width: 12192e3, height: 6858e3 };
-    this.LAYOUTS = {
-      LAYOUT_4x3: layout4x3,
-      LAYOUT_16x9: layout16x9,
-      LAYOUT_16x10: layout16x10,
-      LAYOUT_WIDE: layoutWide
-    };
-    this._author = "PptxGenJS";
-    this._company = "PptxGenJS";
-    this._revision = "1";
-    this._subject = "PptxGenJS Presentation";
-    this._title = "PptxGenJS Presentation";
-    this._presLayout = {
-      name: this.LAYOUTS[DEF_PRES_LAYOUT].name,
-      _sizeW: this.LAYOUTS[DEF_PRES_LAYOUT].width,
-      _sizeH: this.LAYOUTS[DEF_PRES_LAYOUT].height,
-      width: this.LAYOUTS[DEF_PRES_LAYOUT].width,
-      height: this.LAYOUTS[DEF_PRES_LAYOUT].height,
-      _chartCounter: 0
-    };
-    this._rtlMode = false;
-    this._strictMode = false;
-    this._slideLayouts = [
-      {
-        _margin: DEF_SLIDE_MARGIN_IN,
-        _name: DEF_PRES_LAYOUT_NAME,
-        _presLayout: this._presLayout,
-        _rels: [],
-        _relsChart: [],
-        _relsMedia: [],
-        _slide: void 0,
-        _slideNum: 1e3,
-        _slideNumberProps: void 0,
-        _slideObjects: []
+          return exportName;
+        });
+        /**
+         * Create and export the .pptx file
+         * @param {WRITE_OUTPUT_TYPE} outputType - output file type
+         * @return {Promise<string | ArrayBuffer | Blob | Buffer | Uint8Array>} Promise with data or stream (node) or filename (browser)
+         */
+        this.exportPresentation = (props) => __async(this, null, function* () {
+          const arrChartPromises = [];
+          let arrMediaPromises = [];
+          const zip = new import_jszip2.default();
+          this.slides.forEach((slide) => {
+            arrMediaPromises = arrMediaPromises.concat(encodeSlideMediaRels(slide));
+          });
+          this.slideLayouts.forEach((layout) => {
+            arrMediaPromises = arrMediaPromises.concat(encodeSlideMediaRels(layout));
+          });
+          arrMediaPromises = arrMediaPromises.concat(encodeSlideMediaRels(this.masterSlide));
+          return yield Promise.all(arrMediaPromises).then(() => __async(this, null, function* () {
+            this.slides.forEach((slide) => {
+              if (slide._slideLayout) addPlaceholdersToSlideLayouts(slide);
+            });
+            zip.folder("_rels");
+            zip.folder("docProps");
+            zip.folder("ppt").folder("_rels");
+            zip.folder("ppt/charts").folder("_rels");
+            zip.folder("ppt/embeddings");
+            zip.folder("ppt/media");
+            zip.folder("ppt/slideLayouts").folder("_rels");
+            zip.folder("ppt/slideMasters").folder("_rels");
+            zip.folder("ppt/slides").folder("_rels");
+            zip.folder("ppt/theme");
+            zip.folder("ppt/notesMasters").folder("_rels");
+            zip.folder("ppt/notesSlides").folder("_rels");
+            zip.file("[Content_Types].xml", makeXmlContTypes(this.slides, this.slideLayouts, this.masterSlide));
+            zip.file("_rels/.rels", makeXmlRootRels());
+            zip.file("docProps/app.xml", makeXmlApp(this.slides, this.company));
+            zip.file("docProps/core.xml", makeXmlCore(this.title, this.subject, this.author, this.revision));
+            zip.file("ppt/_rels/presentation.xml.rels", makeXmlPresentationRels(this.slides));
+            zip.file("ppt/theme/theme1.xml", makeXmlTheme(this));
+            zip.file("ppt/presentation.xml", makeXmlPresentation(this));
+            zip.file("ppt/presProps.xml", makeXmlPresProps());
+            zip.file("ppt/tableStyles.xml", makeXmlTableStyles());
+            zip.file("ppt/viewProps.xml", makeXmlViewProps());
+            this.slideLayouts.forEach((layout, idx) => {
+              zip.file(`ppt/slideLayouts/slideLayout${idx + 1}.xml`, makeXmlLayout(layout));
+              zip.file(`ppt/slideLayouts/_rels/slideLayout${idx + 1}.xml.rels`, makeXmlSlideLayoutRel(idx + 1, this.slideLayouts));
+            });
+            this.slides.forEach((slide, idx) => {
+              zip.file(`ppt/slides/slide${idx + 1}.xml`, makeXmlSlide(slide));
+              zip.file(`ppt/slides/_rels/slide${idx + 1}.xml.rels`, makeXmlSlideRel(this.slides, this.slideLayouts, idx + 1));
+              zip.file(`ppt/notesSlides/notesSlide${idx + 1}.xml`, makeXmlNotesSlide(slide));
+              zip.file(`ppt/notesSlides/_rels/notesSlide${idx + 1}.xml.rels`, makeXmlNotesSlideRel(idx + 1));
+            });
+            zip.file("ppt/slideMasters/slideMaster1.xml", makeXmlMaster(this.masterSlide, this.slideLayouts));
+            zip.file("ppt/slideMasters/_rels/slideMaster1.xml.rels", makeXmlMasterRel(this.masterSlide, this.slideLayouts));
+            zip.file("ppt/notesMasters/notesMaster1.xml", makeXmlNotesMaster());
+            zip.file("ppt/notesMasters/_rels/notesMaster1.xml.rels", makeXmlNotesMasterRel());
+            this.slideLayouts.forEach((layout) => {
+              this.createChartMediaRels(layout, zip, arrChartPromises);
+            });
+            this.slides.forEach((slide) => {
+              this.createChartMediaRels(slide, zip, arrChartPromises);
+            });
+            this.createChartMediaRels(this.masterSlide, zip, arrChartPromises);
+            return yield Promise.all(arrChartPromises).then(() => __async(this, null, function* () {
+              if (props.outputType === "STREAM") {
+                return yield zip.generateAsync({ type: "nodebuffer", compression: props.compression ? "DEFLATE" : "STORE" });
+              } else if (props.outputType) {
+                return yield zip.generateAsync({ type: props.outputType });
+              } else {
+                return yield zip.generateAsync({ type: "blob", compression: props.compression ? "DEFLATE" : "STORE" });
+              }
+            }));
+          }));
+        });
+        const layout4x3 = { name: "screen4x3", width: 9144e3, height: 6858e3 };
+        const layout16x9 = { name: "screen16x9", width: 9144e3, height: 5143500 };
+        const layout16x10 = { name: "screen16x10", width: 9144e3, height: 5715e3 };
+        const layoutWide = { name: "custom", width: 12192e3, height: 6858e3 };
+        this.LAYOUTS = {
+          LAYOUT_4x3: layout4x3,
+          LAYOUT_16x9: layout16x9,
+          LAYOUT_16x10: layout16x10,
+          LAYOUT_WIDE: layoutWide
+        };
+        this._author = "PptxGenJS";
+        this._company = "PptxGenJS";
+        this._revision = "1";
+        this._subject = "PptxGenJS Presentation";
+        this._title = "PptxGenJS Presentation";
+        this._presLayout = {
+          name: this.LAYOUTS[DEF_PRES_LAYOUT].name,
+          _sizeW: this.LAYOUTS[DEF_PRES_LAYOUT].width,
+          _sizeH: this.LAYOUTS[DEF_PRES_LAYOUT].height,
+          width: this.LAYOUTS[DEF_PRES_LAYOUT].width,
+          height: this.LAYOUTS[DEF_PRES_LAYOUT].height,
+          _chartCounter: 0
+        };
+        this._rtlMode = false;
+        this._strictMode = false;
+        this._slideLayouts = [
+          {
+            _margin: DEF_SLIDE_MARGIN_IN,
+            _name: DEF_PRES_LAYOUT_NAME,
+            _presLayout: this._presLayout,
+            _rels: [],
+            _relsChart: [],
+            _relsMedia: [],
+            _slide: void 0,
+            _slideNum: 1e3,
+            _slideNumberProps: void 0,
+            _slideObjects: []
+          }
+        ];
+        this._slides = [];
+        this._sections = [];
+        this._masterSlide = {
+          // Master slide uses no-op implementations for these methods (master slide doesn't support direct content addition)
+          addChart: () => ({ _shapeIndex: -1, _slideRef: this._masterSlide }),
+          addImage: () => ({ _shapeIndex: -1, _slideRef: this._masterSlide }),
+          addMedia: () => this._masterSlide,
+          addNotes: () => this._masterSlide,
+          addShape: () => ({ _shapeIndex: -1, _slideRef: this._masterSlide }),
+          addTable: () => this._masterSlide,
+          addText: () => ({ _shapeIndex: -1, _slideRef: this._masterSlide }),
+          addAnimation: () => this._masterSlide,
+          //
+          _name: "Master",
+          _presLayout: this._presLayout,
+          _rId: 0,
+          _rels: [],
+          _relsChart: [],
+          _relsMedia: [],
+          _slideId: 0,
+          _slideLayout: void 0,
+          _slideNum: 0,
+          _slideNumberProps: void 0,
+          _slideObjects: [],
+          _animations: []
+        };
       }
-    ];
-    this._slides = [];
-    this._sections = [];
-    this._masterSlide = {
-      // Master slide uses no-op implementations for these methods (master slide doesn't support direct content addition)
-      addChart: () => ({ _shapeIndex: -1, _slideRef: this._masterSlide }),
-      addImage: () => ({ _shapeIndex: -1, _slideRef: this._masterSlide }),
-      addMedia: () => this._masterSlide,
-      addNotes: () => this._masterSlide,
-      addShape: () => ({ _shapeIndex: -1, _slideRef: this._masterSlide }),
-      addTable: () => this._masterSlide,
-      addText: () => ({ _shapeIndex: -1, _slideRef: this._masterSlide }),
-      addAnimation: () => this._masterSlide,
-      //
-      _name: "Master",
-      _presLayout: this._presLayout,
-      _rId: 0,
-      _rels: [],
-      _relsChart: [],
-      _relsMedia: [],
-      _slideId: 0,
-      _slideLayout: void 0,
-      _slideNum: 0,
-      _slideNumberProps: void 0,
-      _slideObjects: [],
-      _animations: []
-    };
-  }
-  set layout(value) {
-    const newLayout = this.LAYOUTS[value];
-    if (newLayout) {
-      this._layout = value;
-      this._presLayout = newLayout;
-    } else {
-      throw new Error("UNKNOWN-LAYOUT");
-    }
-  }
-  get layout() {
-    return this._layout;
-  }
-  get version() {
-    return this._version;
-  }
-  set author(value) {
-    this._author = value;
-  }
-  get author() {
-    return this._author;
-  }
-  set company(value) {
-    this._company = value;
-  }
-  get company() {
-    return this._company;
-  }
-  set revision(value) {
-    this._revision = value;
-  }
-  get revision() {
-    return this._revision;
-  }
-  set subject(value) {
-    this._subject = value;
-  }
-  get subject() {
-    return this._subject;
-  }
-  set theme(value) {
-    this._theme = value;
-  }
-  get theme() {
-    return this._theme;
-  }
-  set title(value) {
-    this._title = value;
-  }
-  get title() {
-    return this._title;
-  }
-  set rtlMode(value) {
-    this._rtlMode = value;
-  }
-  get rtlMode() {
-    return this._rtlMode;
-  }
-  set strictMode(value) {
-    this._strictMode = value;
-  }
-  get strictMode() {
-    return this._strictMode;
-  }
-  get masterSlide() {
-    return this._masterSlide;
-  }
-  get slides() {
-    return this._slides;
-  }
-  get sections() {
-    return this._sections;
-  }
-  get slideLayouts() {
-    return this._slideLayouts;
-  }
-  get AlignH() {
-    return this._alignH;
-  }
-  get AlignV() {
-    return this._alignV;
-  }
-  get ChartType() {
-    return this._chartType;
-  }
-  get OutputType() {
-    return this._outputType;
-  }
-  get presLayout() {
-    return this._presLayout;
-  }
-  get SchemeColor() {
-    return this._schemeColor;
-  }
-  get ShapeType() {
-    return this._shapeType;
-  }
-  get charts() {
-    return this._charts;
-  }
-  get colors() {
-    return this._colors;
-  }
-  get shapes() {
-    return this._shapes;
-  }
-  /**
-   * Log a warning or throw an error based on strict mode
-   * @param {string} message - warning message
-   * @throws {Error} when strictMode is enabled
-   */
-  warnOrThrow(message) {
-    if (this._strictMode) {
-      throw new Error(`PptxGenJS: ${message}`);
-    } else {
-      console.warn(`PptxGenJS: ${message}`);
-    }
-  }
-  // EXPORT METHODS
-  /**
-   * Export the current Presentation to stream
-   * @param {WriteBaseProps} props - output properties
-   * @returns {Promise<string | ArrayBuffer | Blob | Buffer | Uint8Array>} file stream
-   */
-  stream(props) {
-    return __async(this, null, function* () {
-      return yield this.exportPresentation({
-        compression: props == null ? void 0 : props.compression,
-        outputType: "STREAM"
-      });
-    });
-  }
-  /**
-   * Export the current Presentation as JSZip content with the selected type
-   * @param {WriteProps} props output properties
-   * @returns {Promise<string | ArrayBuffer | Blob | Buffer | Uint8Array>} file content in selected type
-   */
-  write(props) {
-    return __async(this, null, function* () {
-      var _a;
-      return yield this.exportPresentation({
-        compression: (_a = props == null ? void 0 : props.compression) != null ? _a : false,
-        outputType: props == null ? void 0 : props.outputType
-      });
-    });
-  }
-  /**
-   * Export the current Presentation.
-   * Write the generated presentation to disk (Node) or trigger a download (browser).
-   * @param {WriteFileProps} props - output file properties
-   * @returns {Promise<string>} the presentation name
-   */
-  writeFile(props) {
-    return __async(this, null, function* () {
-      var _a, _b;
-      const isNode = typeof process !== "undefined" && !!((_a = process.versions) == null ? void 0 : _a.node) && ((_b = process.release) == null ? void 0 : _b.name) === "node";
-      const { fileName: rawName = "Presentation.pptx", compression = false } = props != null ? props : {};
-      const fileName = rawName.toLowerCase().endsWith(".pptx") ? rawName : `${rawName}.pptx`;
-      const outputType = isNode ? "nodebuffer" : void 0;
-      const data = yield this.exportPresentation({ compression, outputType });
-      if (isNode) {
-        const { promises: fs } = yield import("fs");
-        const { writeFile } = fs;
-        yield writeFile(fileName, data);
-        return fileName;
+      set layout(value) {
+        const newLayout = this.LAYOUTS[value];
+        if (newLayout) {
+          this._layout = value;
+          this._presLayout = newLayout;
+        } else {
+          throw new Error("UNKNOWN-LAYOUT");
+        }
       }
-      yield this.writeFileToBrowser(fileName, data);
-      return fileName;
-    });
-  }
-  // PRESENTATION METHODS
-  /**
-   * Add a new Section to Presentation
-   * @param {ISectionProps} section - section properties
-   * @example pptx.addSection({ title:'Charts' });
-   */
-  addSection(section) {
-    if (!section) this.warnOrThrow("addSection requires an argument");
-    else if (!section.title) this.warnOrThrow("addSection requires a title");
-    const newSection = {
-      _type: "user",
-      _slides: [],
-      title: section.title
-    };
-    if (section.order) this.sections.splice(section.order, 0, newSection);
-    else this._sections.push(newSection);
-  }
-  /**
-   * Add a new Slide to Presentation
-   * @param {AddSlideProps} options - slide options
-   * @returns {PresSlide} the new Slide
-   */
-  addSlide(options) {
-    const masterSlideName = typeof options === "string" ? options : (options == null ? void 0 : options.masterName) ? options.masterName : "";
-    let slideLayout = {
-      _name: this.LAYOUTS[DEF_PRES_LAYOUT].name,
-      _presLayout: this.presLayout,
-      _rels: [],
-      _relsChart: [],
-      _relsMedia: [],
-      _slideNum: this.slides.length + 1
-    };
-    if (masterSlideName) {
-      const tmpLayout = this.slideLayouts.filter((layout) => layout._name === masterSlideName)[0];
-      if (tmpLayout) slideLayout = tmpLayout;
-    }
-    const newSlide = new Slide({
-      addSlide: this.addNewSlide,
-      getSlide: this.getSlide,
-      presLayout: this.presLayout,
-      setSlideNum: this.setSlideNumber,
-      slideId: this.slides.length + 256,
-      slideRId: this.slides.length + 2,
-      slideNumber: this.slides.length + 1,
-      slideLayout
-    });
-    this._slides.push(newSlide);
-    if (options == null ? void 0 : options.sectionTitle) {
-      const sect = this.sections.filter((section) => section.title === options.sectionTitle)[0];
-      if (!sect) this.warnOrThrow(`addSlide: unable to find section with title: "${options.sectionTitle}"`);
-      else sect._slides.push(newSlide);
-    } else if (this.sections && this.sections.length > 0 && !(options == null ? void 0 : options.sectionTitle)) {
-      const lastSect = this._sections[this.sections.length - 1];
-      if (lastSect._type === "default") lastSect._slides.push(newSlide);
-      else {
-        this._sections.push({
-          title: `Default-${this.sections.filter((sect) => sect._type === "default").length + 1}`,
-          _type: "default",
-          _slides: [newSlide]
+      get layout() {
+        return this._layout;
+      }
+      get version() {
+        return this._version;
+      }
+      set author(value) {
+        this._author = value;
+      }
+      get author() {
+        return this._author;
+      }
+      set company(value) {
+        this._company = value;
+      }
+      get company() {
+        return this._company;
+      }
+      set revision(value) {
+        this._revision = value;
+      }
+      get revision() {
+        return this._revision;
+      }
+      set subject(value) {
+        this._subject = value;
+      }
+      get subject() {
+        return this._subject;
+      }
+      set theme(value) {
+        this._theme = value;
+      }
+      get theme() {
+        return this._theme;
+      }
+      set title(value) {
+        this._title = value;
+      }
+      get title() {
+        return this._title;
+      }
+      set rtlMode(value) {
+        this._rtlMode = value;
+      }
+      get rtlMode() {
+        return this._rtlMode;
+      }
+      set strictMode(value) {
+        this._strictMode = value;
+      }
+      get strictMode() {
+        return this._strictMode;
+      }
+      get masterSlide() {
+        return this._masterSlide;
+      }
+      get slides() {
+        return this._slides;
+      }
+      get sections() {
+        return this._sections;
+      }
+      get slideLayouts() {
+        return this._slideLayouts;
+      }
+      get AlignH() {
+        return this._alignH;
+      }
+      get AlignV() {
+        return this._alignV;
+      }
+      get ChartType() {
+        return this._chartType;
+      }
+      get OutputType() {
+        return this._outputType;
+      }
+      get presLayout() {
+        return this._presLayout;
+      }
+      get SchemeColor() {
+        return this._schemeColor;
+      }
+      get ShapeType() {
+        return this._shapeType;
+      }
+      get charts() {
+        return this._charts;
+      }
+      get colors() {
+        return this._colors;
+      }
+      get shapes() {
+        return this._shapes;
+      }
+      /**
+       * Log a warning or throw an error based on strict mode
+       * @param {string} message - warning message
+       * @throws {Error} when strictMode is enabled
+       */
+      warnOrThrow(message) {
+        if (this._strictMode) {
+          throw new Error(`PptxGenJS: ${message}`);
+        } else {
+          console.warn(`PptxGenJS: ${message}`);
+        }
+      }
+      // EXPORT METHODS
+      /**
+       * Export the current Presentation to stream
+       * @param {WriteBaseProps} props - output properties
+       * @returns {Promise<string | ArrayBuffer | Blob | Buffer | Uint8Array>} file stream
+       */
+      stream(props) {
+        return __async(this, null, function* () {
+          return yield this.exportPresentation({
+            compression: props == null ? void 0 : props.compression,
+            outputType: "STREAM"
+          });
         });
       }
-    }
-    return newSlide;
-  }
-  /**
-   * Create a custom Slide Layout in any size
-   * @param {PresLayout} layout - layout properties
-   * @example pptx.defineLayout({ name:'A3', width:16.5, height:11.7 });
-   */
-  defineLayout(layout) {
-    if (!layout) this.warnOrThrow("defineLayout requires `{name, width, height}`");
-    else if (!layout.name) this.warnOrThrow("defineLayout requires `name`");
-    else if (!layout.width) this.warnOrThrow("defineLayout requires `width`");
-    else if (!layout.height) this.warnOrThrow("defineLayout requires `height`");
-    else if (typeof layout.height !== "number") this.warnOrThrow("defineLayout `height` should be a number (inches)");
-    else if (typeof layout.width !== "number") this.warnOrThrow("defineLayout `width` should be a number (inches)");
-    this.LAYOUTS[layout.name] = {
-      name: layout.name,
-      _sizeW: Math.round(Number(layout.width) * EMU),
-      _sizeH: Math.round(Number(layout.height) * EMU),
-      width: Math.round(Number(layout.width) * EMU),
-      height: Math.round(Number(layout.height) * EMU)
+      /**
+       * Export the current Presentation as JSZip content with the selected type
+       * @param {WriteProps} props output properties
+       * @returns {Promise<string | ArrayBuffer | Blob | Buffer | Uint8Array>} file content in selected type
+       */
+      write(props) {
+        return __async(this, null, function* () {
+          var _a;
+          return yield this.exportPresentation({
+            compression: (_a = props == null ? void 0 : props.compression) != null ? _a : false,
+            outputType: props == null ? void 0 : props.outputType
+          });
+        });
+      }
+      /**
+       * Export the current Presentation.
+       * Write the generated presentation to disk (Node) or trigger a download (browser).
+       * @param {WriteFileProps} props - output file properties
+       * @returns {Promise<string>} the presentation name
+       */
+      writeFile(props) {
+        return __async(this, null, function* () {
+          var _a, _b;
+          const isNode = typeof process !== "undefined" && !!((_a = process.versions) == null ? void 0 : _a.node) && ((_b = process.release) == null ? void 0 : _b.name) === "node";
+          const { fileName: rawName = "Presentation.pptx", compression = false } = props != null ? props : {};
+          const fileName = rawName.toLowerCase().endsWith(".pptx") ? rawName : `${rawName}.pptx`;
+          const outputType = isNode ? "nodebuffer" : void 0;
+          const data = yield this.exportPresentation({ compression, outputType });
+          if (isNode) {
+            const { promises: fs } = yield import("fs");
+            const { writeFile } = fs;
+            yield writeFile(fileName, data);
+            return fileName;
+          }
+          yield this.writeFileToBrowser(fileName, data);
+          return fileName;
+        });
+      }
+      // PRESENTATION METHODS
+      /**
+       * Add a new Section to Presentation
+       * @param {ISectionProps} section - section properties
+       * @example pptx.addSection({ title:'Charts' });
+       */
+      addSection(section) {
+        if (!section) this.warnOrThrow("addSection requires an argument");
+        else if (!section.title) this.warnOrThrow("addSection requires a title");
+        const newSection = {
+          _type: "user",
+          _slides: [],
+          title: section.title
+        };
+        if (section.order) this.sections.splice(section.order, 0, newSection);
+        else this._sections.push(newSection);
+      }
+      /**
+       * Add a new Slide to Presentation
+       * @param {AddSlideProps} options - slide options
+       * @returns {PresSlide} the new Slide
+       */
+      addSlide(options) {
+        const masterSlideName = typeof options === "string" ? options : (options == null ? void 0 : options.masterName) ? options.masterName : "";
+        let slideLayout = {
+          _name: this.LAYOUTS[DEF_PRES_LAYOUT].name,
+          _presLayout: this.presLayout,
+          _rels: [],
+          _relsChart: [],
+          _relsMedia: [],
+          _slideNum: this.slides.length + 1
+        };
+        if (masterSlideName) {
+          const tmpLayout = this.slideLayouts.filter((layout) => layout._name === masterSlideName)[0];
+          if (tmpLayout) slideLayout = tmpLayout;
+        }
+        const newSlide = new Slide({
+          addSlide: this.addNewSlide,
+          getSlide: this.getSlide,
+          presLayout: this.presLayout,
+          setSlideNum: this.setSlideNumber,
+          slideId: this.slides.length + 256,
+          slideRId: this.slides.length + 2,
+          slideNumber: this.slides.length + 1,
+          slideLayout
+        });
+        this._slides.push(newSlide);
+        if (options == null ? void 0 : options.sectionTitle) {
+          const sect = this.sections.filter((section) => section.title === options.sectionTitle)[0];
+          if (!sect) this.warnOrThrow(`addSlide: unable to find section with title: "${options.sectionTitle}"`);
+          else sect._slides.push(newSlide);
+        } else if (this.sections && this.sections.length > 0 && !(options == null ? void 0 : options.sectionTitle)) {
+          const lastSect = this._sections[this.sections.length - 1];
+          if (lastSect._type === "default") lastSect._slides.push(newSlide);
+          else {
+            this._sections.push({
+              title: `Default-${this.sections.filter((sect) => sect._type === "default").length + 1}`,
+              _type: "default",
+              _slides: [newSlide]
+            });
+          }
+        }
+        return newSlide;
+      }
+      /**
+       * Create a custom Slide Layout in any size
+       * @param {PresLayout} layout - layout properties
+       * @example pptx.defineLayout({ name:'A3', width:16.5, height:11.7 });
+       */
+      defineLayout(layout) {
+        if (!layout) this.warnOrThrow("defineLayout requires `{name, width, height}`");
+        else if (!layout.name) this.warnOrThrow("defineLayout requires `name`");
+        else if (!layout.width) this.warnOrThrow("defineLayout requires `width`");
+        else if (!layout.height) this.warnOrThrow("defineLayout requires `height`");
+        else if (typeof layout.height !== "number") this.warnOrThrow("defineLayout `height` should be a number (inches)");
+        else if (typeof layout.width !== "number") this.warnOrThrow("defineLayout `width` should be a number (inches)");
+        this.LAYOUTS[layout.name] = {
+          name: layout.name,
+          _sizeW: Math.round(Number(layout.width) * EMU),
+          _sizeH: Math.round(Number(layout.height) * EMU),
+          width: Math.round(Number(layout.width) * EMU),
+          height: Math.round(Number(layout.height) * EMU)
+        };
+      }
+      /**
+       * Create a new slide master [layout] for the Presentation
+       * @param {SlideMasterProps} props - layout properties
+       */
+      defineSlideMaster(props) {
+        const propsClone = structuredClone(props);
+        if (!propsClone.title) throw new Error("defineSlideMaster() object argument requires a `title` value. (https://gitbrent.github.io/PptxGenJS/docs/masters.html)");
+        const newLayout = {
+          _margin: propsClone.margin || DEF_SLIDE_MARGIN_IN,
+          _name: propsClone.title,
+          _presLayout: this.presLayout,
+          _rels: [],
+          _relsChart: [],
+          _relsMedia: [],
+          _slide: void 0,
+          _slideNum: 1e3 + this.slideLayouts.length + 1,
+          _slideNumberProps: propsClone.slideNumber,
+          _slideObjects: [],
+          background: propsClone.background
+        };
+        createSlideMaster(propsClone, newLayout);
+        this.slideLayouts.push(newLayout);
+        if (propsClone.background) addBackgroundDefinition(propsClone.background, newLayout);
+        if (newLayout._slideNumberProps && !this.masterSlide._slideNumberProps) this.masterSlide._slideNumberProps = newLayout._slideNumberProps;
+      }
+      // HTML-TO-SLIDES METHODS
+      /**
+       * Reproduces an HTML table as a PowerPoint table - including column widths, style, etc. - creates 1 or more slides as needed
+       * @param {string} eleId - table HTML element ID
+       * @param {TableToSlidesProps} options - generation options
+       */
+      tableToSlides(eleId, options = {}) {
+        genTableToSlides(
+          this,
+          eleId,
+          options,
+          (options == null ? void 0 : options.masterSlideName) ? this.slideLayouts.filter((layout) => layout._name === options.masterSlideName)[0] : void 0
+        );
+      }
     };
   }
-  /**
-   * Create a new slide master [layout] for the Presentation
-   * @param {SlideMasterProps} props - layout properties
-   */
-  defineSlideMaster(props) {
-    const propsClone = structuredClone(props);
-    if (!propsClone.title) throw new Error("defineSlideMaster() object argument requires a `title` value. (https://gitbrent.github.io/PptxGenJS/docs/masters.html)");
-    const newLayout = {
-      _margin: propsClone.margin || DEF_SLIDE_MARGIN_IN,
-      _name: propsClone.title,
-      _presLayout: this.presLayout,
-      _rels: [],
-      _relsChart: [],
-      _relsMedia: [],
-      _slide: void 0,
-      _slideNum: 1e3 + this.slideLayouts.length + 1,
-      _slideNumberProps: propsClone.slideNumber,
-      _slideObjects: [],
-      background: propsClone.background
-    };
-    createSlideMaster(propsClone, newLayout);
-    this.slideLayouts.push(newLayout);
-    if (propsClone.background) addBackgroundDefinition(propsClone.background, newLayout);
-    if (newLayout._slideNumberProps && !this.masterSlide._slideNumberProps) this.masterSlide._slideNumberProps = newLayout._slideNumberProps;
-  }
-  // HTML-TO-SLIDES METHODS
-  /**
-   * Reproduces an HTML table as a PowerPoint table - including column widths, style, etc. - creates 1 or more slides as needed
-   * @param {string} eleId - table HTML element ID
-   * @param {TableToSlidesProps} options - generation options
-   */
-  tableToSlides(eleId, options = {}) {
-    genTableToSlides(
-      this,
-      eleId,
-      options,
-      (options == null ? void 0 : options.masterSlideName) ? this.slideLayouts.filter((layout) => layout._name === options.masterSlideName)[0] : void 0
-    );
-  }
-};
+});
+init_pptxgen();
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
+  $Slide,
+  $pptxNewAPI,
+  Absolute,
+  Appear,
+  BulletList,
+  Card,
+  Columns,
+  FadeIn,
+  FlyIn,
+  Grid,
+  Image,
+  NumberedList,
+  Pill,
   SHADOW_PRESETS,
+  Shape,
+  Stack,
+  Text,
+  Wipe,
+  ZoomIn,
+  black,
+  blue,
+  bold,
+  color,
+  createPresentation,
+  cyan,
   darkenColor,
+  gradient,
+  gray,
+  green,
   interpolateColor,
   interpolateColors,
+  italic,
   lightenColor,
+  magenta,
+  orange,
   parseHexColorToRgb,
+  parseMarkdownToTextProps,
+  pink,
+  purple,
+  red,
   resolveShadowPreset,
   rgbToHexColor,
-  textStyle
+  strike,
+  style,
+  textStyle,
+  underline,
+  white,
+  yellow
 });
 //# sourceMappingURL=pptxgen.cjs.js.map

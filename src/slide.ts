@@ -37,8 +37,8 @@ import type { GridLayoutOptions, GapValue } from './layout'
 import { resolveCardConfig } from './components'
 import type { CardOptions } from './components'
 import { interpolateColors } from './utils'
-import { convertRichTextToTextProps, isStyledTextFragment } from './rich-text'
-import type { StyledTextFragment, RichTextOptions } from './rich-text'
+import { convertRichTextToTextProps, isStyledTextFragment, parseMarkdownToTextProps } from './rich-text'
+import type { StyledTextFragment, RichTextOptions, MarkdownTextOptions } from './rich-text'
 
 /**
  * Options for addTitle convenience method.
@@ -108,6 +108,39 @@ export interface BadgeOptions {
 }
 
 /**
+ * Options for addPill method - a rounded rectangle with centered text.
+ */
+export interface PillOptions {
+	/** X position (inches) */
+	x: number
+	/** Y position (inches) */
+	y: number
+	/** Width (inches) */
+	w: number
+	/** Height (inches) */
+	h: number
+	/** Text to display */
+	text: string
+	/** Background fill color */
+	fill: HexColor
+	/** Text color (default: 'FFFFFF') */
+	color?: HexColor
+	/** Font size (default: 16) */
+	fontSize?: number
+	/** Font face */
+	fontFace?: string
+	/** Corner radius (default: 0.15) */
+	rectRadius?: number
+	/**
+	 * Animation to apply to both shape and text.
+	 * Use trigger: 'onClick' for click-to-reveal, 'withPrevious' to animate with previous element.
+	 * @example { type: 'fade', trigger: 'onClick' }
+	 * @example { type: 'fly-in', direction: 'from-bottom', trigger: 'onClick' }
+	 */
+	animation?: AnimationProps
+}
+
+/**
  * A single item in a bullet list.
  */
 export interface BulletListItem {
@@ -158,6 +191,42 @@ export interface BulletListOptions {
 	bulletBadgeGap?: number
 	/** Gap between badge and text (default: 0.15) */
 	badgeTextGap?: number
+}
+
+/**
+ * Options for addNumberedList method.
+ */
+export interface NumberedListOptions {
+	/** X position (inches) */
+	x: number
+	/** Y position (inches) */
+	y: number
+	/** Width (inches) */
+	w: number
+	/**
+	 * List items - just strings with optional markdown.
+	 * Use **bold** for keywords, which will use slide.accentColor.
+	 * @example ["First item", "Item with **keyword**", "Third item"]
+	 */
+	items: string[]
+	/** Starting number (default: 1) */
+	startNumber?: number
+	/** Color for the numbers (default: same as text color) */
+	numberColor?: HexColor
+	/** Bold numbers (default: true) */
+	numberBold?: boolean
+	/** Text color (default: 'FFFFFF') */
+	color?: HexColor
+	/** Font size (default: 18) */
+	fontSize?: number
+	/** Font face (default: 'Arial') */
+	fontFace?: string
+	/** Height per line of text (inches, default: auto-calculated from fontSize) */
+	lineHeight?: number
+	/** Gap between items (inches, default: 0.3) */
+	itemGap?: number
+	/** Indent for wrapped lines (inches, default: 0.45) */
+	hangingIndent?: number
 }
 
 /**
@@ -250,6 +319,12 @@ export interface StackBuilder {
 	 * @param options - Card options (h is required, x/y/w are ignored)
 	 */
 	card(options: Omit<CardOptions, 'x' | 'y' | 'w'> & { h: number }): ShapeRef
+
+	/**
+	 * Add a pill (rounded rect with centered text) to the stack.
+	 * @param options - Pill options (h is required, x/y/w are ignored)
+	 */
+	pill(options: Omit<PillOptions, 'x' | 'y' | 'w'> & { h: number }): ShapeRef
 }
 
 export default class Slide {
@@ -324,7 +399,7 @@ export default class Slide {
 	}
 
 	/**
-	 * Default font color
+	 * Default font color for all text on this slide.
 	 * @type {HexColor}
 	 */
 	private _color: HexColor | undefined
@@ -334,6 +409,35 @@ export default class Slide {
 
 	public get color(): HexColor | undefined {
 		return this._color
+	}
+
+	/**
+	 * Default font face for all text on this slide.
+	 * Set this once to avoid repeating fontFace on every element.
+	 * @example slide.fontFace = 'Outfit'
+	 * @type {string}
+	 */
+	private _fontFace: string | undefined
+	public set fontFace(value: string) {
+		this._fontFace = value
+	}
+
+	public get fontFace(): string | undefined {
+		return this._fontFace
+	}
+
+	/**
+	 * Accent color for **bold** text in markdown.
+	 * When set, **bold** text automatically uses this color.
+	 * @example slide.accentColor = '4FC3F7'
+	 */
+	private _accentColor: HexColor | undefined
+	public set accentColor(value: HexColor) {
+		this._accentColor = value
+	}
+
+	public get accentColor(): HexColor | undefined {
+		return this._accentColor
 	}
 
 	/**
@@ -459,15 +563,57 @@ export default class Slide {
 	}
 
 	/**
-	 * Add text to Slide
-	 * @param {string|TextProps[]} text - text string or complex object
+	 * Add text to Slide. Supports markdown: **bold**, *italic*, 'quoted'.
+	 *
+	 * @param {string|TextProps[]} text - text string (with optional markdown) or TextProps[]
 	 * @param {TextPropsOptions} options - text options
 	 * @return {ShapeRef} reference to the added text for animation targeting
-	 * @since v4.2.0 - returns ShapeRef instead of Slide
+	 *
+	 * @example // Plain text
+	 * slide.addText('Hello world', { x: 1, y: 1 })
+	 *
+	 * @example // Markdown - **bold** uses slide.accentColor automatically
+	 * slide.accentColor = '4FC3F7'
+	 * slide.addText("This has **bold keywords** in it", { x: 1, y: 1 })
 	 */
 	addText(text: string | TextProps[], options?: TextPropsOptions): ShapeRef {
-		const textParam = typeof text === 'string' || typeof text === 'number' ? [{ text, options }] : text
-		genObj.addTextDefinition(this, textParam, options || {}, false)
+		let textParam: TextProps[]
+
+		// Merge slide defaults into options
+		const mergedOptions: TextPropsOptions = {
+			fontFace: this._getDefaultFontFace(options?.fontFace),
+			color: options?.color ?? this._color,
+			...options,
+		}
+
+		if (typeof text === 'string' || typeof text === 'number') {
+			const str = String(text)
+			// Check if string contains markdown patterns
+			const hasMarkdown = /\*\*.*?\*\*|\*.*?\*|'[^']+'/.test(str)
+
+			if (hasMarkdown) {
+				// Parse markdown with slide defaults
+				textParam = parseMarkdownToTextProps(str, {
+					...mergedOptions,
+					boldColor: this._accentColor,
+				})
+			} else {
+				// Plain text with slide defaults
+				textParam = [{ text: str, options: mergedOptions }]
+			}
+		} else {
+			// TextProps[] - apply defaults to fragments missing fontFace/color
+			textParam = text.map(fragment => ({
+				...fragment,
+				options: {
+					fontFace: this._getDefaultFontFace(fragment.options?.fontFace),
+					color: fragment.options?.color ?? this._color,
+					...fragment.options,
+				},
+			}))
+		}
+
+		genObj.addTextDefinition(this, textParam, mergedOptions, false)
 		return this._createShapeRef()
 	}
 
@@ -584,6 +730,22 @@ export default class Slide {
 		}
 	}
 
+	/**
+	 * Get the default font face, checking slide-level default.
+	 * @internal
+	 */
+	private _getDefaultFontFace(explicit?: string): string {
+		return explicit ?? this._fontFace ?? 'Arial'
+	}
+
+	/**
+	 * Get the default color, checking slide-level default.
+	 * @internal
+	 */
+	private _getDefaultColor(explicit?: string): string {
+		return explicit ?? this._color ?? '000000'
+	}
+
 	// ============================================================================
 	// COMPOSITIONAL API - High-level components and layouts
 	// ============================================================================
@@ -613,7 +775,7 @@ export default class Slide {
 			w: 9,
 			h: 0.7,
 			fontSize: 32,
-			fontFace: 'Arial',
+			fontFace: this._getDefaultFontFace(options?.fontFace),
 			bold: true,
 		}
 
@@ -849,9 +1011,9 @@ export default class Slide {
 			x, y, size, text, color,
 			textColor = 'FFFFFF',
 			fontSize = Math.round(size * 72 * 0.5), // Auto-size based on badge size
-			fontFace = 'Arial',
 			bold = true,
 		} = options
+		const fontFace = this._getDefaultFontFace(options.fontFace)
 
 		// Add circle
 		this.addShape(ShapeType.ellipse, {
@@ -883,6 +1045,58 @@ export default class Slide {
 	}
 
 	/**
+	 * Add a pill - a rounded rectangle with centered text.
+	 *
+	 * @since v5.0.0
+	 * @param options - Pill configuration
+	 * @returns ShapeRef to the pill
+	 *
+	 * @example
+	 * slide.addPill({
+	 *   x: 1, y: 1, w: 4, h: 0.65,
+	 *   text: 'Equally good',
+	 *   fill: '2ECC71',
+	 * })
+	 */
+	addPill(options: PillOptions): ShapeRef {
+		const {
+			x, y, w, h, text, fill,
+			color = 'FFFFFF',
+			fontSize = 16,
+			rectRadius = 0.15,
+			animation,
+		} = options
+		const fontFace = this._getDefaultFontFace(options.fontFace)
+
+		// Add rounded rectangle
+		const shapeRef = this.addShape(ShapeType.roundRect, {
+			x, y, w, h,
+			fill: { color: fill },
+			line: { color: fill, width: 0 },
+			rectRadius,
+		})
+
+		// Add centered text
+		const textRef = this.addText(text, {
+			x, y, w, h,
+			fontSize,
+			fontFace,
+			color,
+			align: 'center',
+			valign: 'middle',
+		})
+
+		// Apply animation to both shape and text if specified
+		if (animation) {
+			this.addAnimation(shapeRef, animation)
+			// Text animates with the shape - use delayMs: 0 so it starts exactly when shape starts
+			this.addAnimation(textRef, { ...animation, trigger: 'withPrevious', delayMs: 0 })
+		}
+
+		return shapeRef
+	}
+
+	/**
 	 * Add a bullet list with optional colored badges.
 	 *
 	 * @since v5.0.0
@@ -906,13 +1120,15 @@ export default class Slide {
 			itemHeight = 0.5,
 			showBullets = true,
 			bulletChar = '•',
-			color = '555555',
 			fontSize = 16,
-			fontFace = 'Arial',
 			badgeSize = 0.3,
 			bulletBadgeGap = 0.1,
 			badgeTextGap = 0.15,
 		} = options
+
+		// Use slide defaults
+		const fontFace = this._getDefaultFontFace(options.fontFace)
+		const color = options.color ?? this._color ?? '555555'
 
 		// Calculate positions
 		const bulletX = x
@@ -968,6 +1184,125 @@ export default class Slide {
 		}
 
 		return this
+	}
+
+	/**
+	 * Add a numbered list with auto-numbering, auto-spacing, and rich text support.
+	 *
+	 * @since v5.0.0
+	 * @param options - Numbered list configuration
+	 * @returns This slide for chaining
+	 *
+	 * @example
+	 * slide.accentColor = '4FC3F7'  // **bold** text uses this color
+	 * slide.addNumberedList({
+	 *   x: 0.6, y: 1.5, w: 9,
+	 *   items: [
+	 *     "Normative reasons can be either **'given'** or **'created'** reasons.",
+	 *     "We create reasons by **willing**, under the right conditions.",
+	 *     "Thus we have **robust normative powers** — the power to will.",
+	 *   ],
+	 * })
+	 */
+	addNumberedList(options: NumberedListOptions): Slide {
+		const {
+			x,
+			y,
+			w,
+			items,
+			startNumber = 1,
+			numberColor,
+			numberBold = true,
+			fontSize = 18,
+			lineHeight,
+			itemGap = 0.3,
+		} = options
+
+		// Use slide defaults
+		const fontFace = this._getDefaultFontFace(options.fontFace)
+		const color = this._getDefaultColor(options.color)
+		const accentColor = this._accentColor
+
+		// Calculate line height based on font size
+		const calculatedLineHeight = lineHeight ?? (fontSize / 72) * 1.5
+
+		let currentY = y
+
+		for (let i = 0; i < items.length; i++) {
+			const itemText = items[i]
+			const number = startNumber + i
+
+			// Number styling
+			const numberStyle: TextPropsOptions = {
+				color: numberColor ?? accentColor ?? color,
+				fontSize,
+				fontFace,
+				bold: numberBold,
+			}
+
+			// Parse markdown in item text
+			const parsedText = parseMarkdownToTextProps(itemText, {
+				color,
+				fontSize,
+				fontFace,
+				boldColor: accentColor,
+			})
+
+			// Prepend number and indent first fragment
+			const textContent: TextProps[] = [
+				{ text: `${number}.`, options: numberStyle },
+				...parsedText.map((fragment, idx) => ({
+					...fragment,
+					text: idx === 0 ? `    ${fragment.text}` : fragment.text,
+				})),
+			]
+
+			// Estimate height
+			const textLength = textContent.reduce((len, t) => len + (t.text?.length ?? 0), 0)
+			const charsPerLine = Math.floor(w / (fontSize / 72) * 1.8)
+			const estimatedLines = Math.ceil(textLength / charsPerLine)
+			const itemHeight = Math.max(calculatedLineHeight, calculatedLineHeight * estimatedLines)
+
+			// Use internal addText to avoid double markdown parsing
+			const textParam = textContent
+			genObj.addTextDefinition(this, textParam, { x, y: currentY, w, h: itemHeight, fontFace, valign: 'top' }, false)
+
+			currentY += itemHeight + itemGap
+		}
+
+		return this
+	}
+
+	/**
+	 * Add text with simple markdown-like formatting.
+	 * Supports **bold** and 'quoted' text with optional custom colors.
+	 *
+	 * @since v5.0.0
+	 * @param text - Text with markdown formatting
+	 * @param options - Text options including boldColor for styling bold/quoted text
+	 * @returns ShapeRef to the text
+	 *
+	 * @example
+	 * slide.addMarkdownText(
+	 *   "Normative reasons can be either **'given'** or **'created'** reasons.",
+	 *   {
+	 *     x: 0.6, y: 1.5, w: 9, h: 0.5,
+	 *     color: 'FFFFFF',
+	 *     boldColor: '4FC3F7',
+	 *     fontSize: 18,
+	 *   }
+	 * )
+	 */
+	addMarkdownText(text: string, options?: MarkdownTextOptions): ShapeRef {
+		// Merge slide defaults into options
+		const mergedOptions: MarkdownTextOptions = {
+			fontFace: this._getDefaultFontFace(options?.fontFace),
+			color: options?.color ?? this._color, // Don't default to black for markdown
+			...options,
+		}
+		const textProps = parseMarkdownToTextProps(text, mergedOptions)
+		genObj.addTextDefinition(this, textProps, mergedOptions, false)
+		return this._createShapeRef()
 	}
 
 	/**
@@ -1088,6 +1423,13 @@ export default class Slide {
 			card: (cardOptions: Omit<CardOptions, 'x' | 'y' | 'w'> & { h: number }): ShapeRef => {
 				const { h, ...rest } = cardOptions
 				const ref = this.addCard({ ...rest, x, y: currentY, w, h })
+				currentY += h + gap
+				return ref
+			},
+
+			pill: (pillOptions: Omit<PillOptions, 'x' | 'y' | 'w'> & { h: number }): ShapeRef => {
+				const { h, ...rest } = pillOptions
+				const ref = this.addPill({ ...rest, x, y: currentY, w, h })
 				currentY += h + gap
 				return ref
 			},

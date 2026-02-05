@@ -667,74 +667,85 @@ function makeXmlTiming (slide: PresSlide): string {
 	// Generate unique IDs starting from 2 (1 is reserved for root)
 	let nextId = 2
 
-	// Build the timing tree structure
-	let animationXml = ''
-	let sequenceXml = ''
+	// Group animations by click - each onClick starts a new group
+	// withPrevious/afterPrevious animations belong to the current click group
+	interface ClickGroup {
+		animations: Array<{ anim: ISlideAnimation; delay: number }>
+	}
+	const clickGroups: ClickGroup[] = []
+	let currentGroup: ClickGroup | null = null
+	let cumulativeDelay = 0
+	let prevDuration = 0
 
-	animations.forEach((anim, idx) => {
-		// Get target shape ID (shape IDs in PPTX start at 2 for the first shape after the group container)
-		const shapeId = anim.shapeIndex + 2
+	for (const anim of animations) {
+		const trigger = anim.options.trigger || 'onClick'
+		const duration = anim.options.durationMs || 500
+		const delayMs = anim.options.delayMs || 0
 
-		// Build individual animation node
-		const animNodeXml = makeAnimationNode(anim, shapeId, nextId, idx)
-		sequenceXml += animNodeXml.xml
-		nextId = animNodeXml.nextId
-	})
+		if (trigger === 'onClick') {
+			// Start a new click group
+			currentGroup = { animations: [] }
+			clickGroups.push(currentGroup)
+			cumulativeDelay = 0
+			currentGroup.animations.push({ anim, delay: 0 })
+			prevDuration = duration
+		} else if (currentGroup) {
+			// Add to current click group
+			if (trigger === 'withPrevious') {
+				// Same delay as previous
+				currentGroup.animations.push({ anim, delay: cumulativeDelay })
+			} else {
+				// afterPrevious: after previous animation ends + optional delay
+				cumulativeDelay = cumulativeDelay + prevDuration + delayMs
+				currentGroup.animations.push({ anim, delay: cumulativeDelay })
+				prevDuration = duration
+			}
+		}
+		// If no current group and not onClick, skip (orphan animation)
+	}
+
+	// Build XML for each click group
+	let clickGroupsXml = ''
+	for (const group of clickGroups) {
+		// Each click group is wrapped in a p:par with delay="indefinite" (waits for click)
+		const groupOuterId = nextId++
+		let groupChildrenXml = ''
+
+		for (const { anim, delay } of group.animations) {
+			const shapeId = anim.shapeIndex + 2
+			const animNodeXml = makeAnimationNodeInner(anim, shapeId, nextId, delay)
+			groupChildrenXml += animNodeXml.xml
+			nextId = animNodeXml.nextId
+		}
+
+		clickGroupsXml += `<p:par><p:cTn id="${groupOuterId}" fill="hold"><p:stCondLst><p:cond delay="indefinite"/></p:stCondLst><p:childTnLst>${groupChildrenXml}</p:childTnLst></p:cTn></p:par>`
+	}
 
 	// Build main sequence container
 	const mainSeqId = nextId++
 
-	animationXml = `<p:timing>
-		<p:tnLst>
-			<p:par>
-				<p:cTn id="1" dur="indefinite" restart="never" nodeType="tmRoot">
-					<p:childTnLst>
-						<p:seq concurrent="1" nextAc="seek">
-							<p:cTn id="${mainSeqId}" dur="indefinite" nodeType="mainSeq">
-								<p:childTnLst>${sequenceXml}</p:childTnLst>
-							</p:cTn>
-							<p:prevCondLst>
-								<p:cond evt="onPrev" delay="0"><p:tgtEl><p:sldTgt/></p:tgtEl></p:cond>
-							</p:prevCondLst>
-							<p:nextCondLst>
-								<p:cond evt="onNext" delay="0"><p:tgtEl><p:sldTgt/></p:tgtEl></p:cond>
-							</p:nextCondLst>
-						</p:seq>
-					</p:childTnLst>
-				</p:cTn>
-			</p:par>
-		</p:tnLst>
-	</p:timing>`.replace(/\t/g, '').replace(/\n\s*/g, '')
+	const animationXml = `<p:timing><p:tnLst><p:par><p:cTn id="1" dur="indefinite" restart="never" nodeType="tmRoot"><p:childTnLst><p:seq concurrent="1" nextAc="seek"><p:cTn id="${mainSeqId}" dur="indefinite" nodeType="mainSeq"><p:childTnLst>${clickGroupsXml}</p:childTnLst></p:cTn><p:prevCondLst><p:cond evt="onPrev" delay="0"><p:tgtEl><p:sldTgt/></p:tgtEl></p:cond></p:prevCondLst><p:nextCondLst><p:cond evt="onNext" delay="0"><p:tgtEl><p:sldTgt/></p:tgtEl></p:cond></p:nextCondLst></p:seq></p:childTnLst></p:cTn></p:par></p:tnLst></p:timing>`
 
 	return animationXml
 }
 
 /**
- * Generates XML for a single animation effect
+ * Generates inner animation XML (without the click group wrapper)
+ * Used within a click group where delay is relative to the click
  */
-function makeAnimationNode (
+function makeAnimationNodeInner (
 	anim: ISlideAnimation,
 	shapeId: number,
 	startId: number,
-	animIndex: number
+	delay: number
 ): { xml: string; nextId: number } {
 	let id = startId
-	const opts = anim.options
-	const durationMs = opts.durationMs || 500
-	const delayMs = opts.delayMs || 0
-
-	// Determine trigger delay
-	let triggerDelay = 'indefinite' // onClick
-	if (opts.trigger === 'withPrevious') {
-		triggerDelay = String(delayMs)
-	} else if (opts.trigger === 'afterPrevious') {
-		triggerDelay = String(delayMs)
-	}
+	const durationMs = anim.options.durationMs || 500
 
 	// Build target element
 	let targetXml = `<p:spTgt spid="${shapeId}"`
-	if (opts.paragraphIndex !== undefined) {
-		targetXml += `><p:txEl><p:pRg st="${opts.paragraphIndex}" end="${opts.paragraphIndex}"/></p:txEl></p:spTgt>`
+	if (anim.options.paragraphIndex !== undefined) {
+		targetXml += `><p:txEl><p:pRg st="${anim.options.paragraphIndex}" end="${anim.options.paragraphIndex}"/></p:txEl></p:spTgt>`
 	} else {
 		targetXml += '/>'
 	}
@@ -742,81 +753,35 @@ function makeAnimationNode (
 	// Build presetSubtype attribute
 	const subtypeAttr = anim.presetSubtype ? ` presetSubtype="${anim.presetSubtype}"` : ''
 
-	// Outer par (click/with/after container)
+	// IDs for the animation structure
 	const outerId = id++
 	const innerId = id++
 	const effectParId = id++
-	const effectCTnId = id++
 
-	// Build the effect based on animation class
+	// Build the effect children
 	let effectChildrenXml = ''
 
-	// Set element (makes shape visible for entrance)
+	// Set element (makes shape visible for entrance animations)
 	if (anim.presetClass === 'entr') {
-		const setId = id++
 		const setCTnId = id++
-		effectChildrenXml += `<p:set>
-			<p:cBhvr>
-				<p:cTn id="${setCTnId}" dur="1" fill="hold">
-					<p:stCondLst><p:cond delay="0"/></p:stCondLst>
-				</p:cTn>
-				<p:tgtEl>${targetXml}</p:tgtEl>
-				<p:attrNameLst><p:attrName>style.visibility</p:attrName></p:attrNameLst>
-			</p:cBhvr>
-			<p:to><p:strVal val="visible"/></p:to>
-		</p:set>`.replace(/\t/g, '').replace(/\n\s*/g, '')
+		effectChildrenXml += `<p:set><p:cBhvr><p:cTn id="${setCTnId}" dur="1" fill="hold"><p:stCondLst><p:cond delay="0"/></p:stCondLst></p:cTn><p:tgtEl>${targetXml}</p:tgtEl><p:attrNameLst><p:attrName>style.visibility</p:attrName></p:attrNameLst></p:cBhvr><p:to><p:strVal val="visible"/></p:to></p:set>`
 	}
 
-	// Anim element (property animation)
+	// Anim element (property animation for movement)
 	const animId = id++
-	effectChildrenXml += `<p:anim calcmode="lin" valueType="num">
-		<p:cBhvr additive="base">
-			<p:cTn id="${animId}" dur="${durationMs}"/>
-			<p:tgtEl>${targetXml}</p:tgtEl>
-			<p:attrNameLst><p:attrName>ppt_y</p:attrName></p:attrNameLst>
-		</p:cBhvr>
-		<p:tavLst>
-			<p:tav tm="0"><p:val><p:strVal val="#ppt_y+#ppt_h*0.1"/></p:val></p:tav>
-			<p:tav tm="100000"><p:val><p:strVal val="#ppt_y"/></p:val></p:tav>
-		</p:tavLst>
-	</p:anim>`.replace(/\t/g, '').replace(/\n\s*/g, '')
+	effectChildrenXml += `<p:anim calcmode="lin" valueType="num"><p:cBhvr additive="base"><p:cTn id="${animId}" dur="${durationMs}"/><p:tgtEl>${targetXml}</p:tgtEl><p:attrNameLst><p:attrName>ppt_y</p:attrName></p:attrNameLst></p:cBhvr><p:tavLst><p:tav tm="0"><p:val><p:strVal val="#ppt_y+#ppt_h*0.1"/></p:val></p:tav><p:tav tm="100000"><p:val><p:strVal val="#ppt_y"/></p:val></p:tav></p:tavLst></p:anim>`
 
-	// AnimEffect element (transition filter)
+	// AnimEffect element (transition filter like fade)
 	const animEffectId = id++
 	const filter = getAnimationFilter(anim)
 	if (filter) {
-		effectChildrenXml += `<p:animEffect transition="in" filter="${filter}">
-			<p:cBhvr>
-				<p:cTn id="${animEffectId}" dur="${durationMs}"/>
-				<p:tgtEl>${targetXml}</p:tgtEl>
-			</p:cBhvr>
-		</p:animEffect>`.replace(/\t/g, '').replace(/\n\s*/g, '')
+		effectChildrenXml += `<p:animEffect transition="in" filter="${filter}"><p:cBhvr><p:cTn id="${animEffectId}" dur="${durationMs}"/><p:tgtEl>${targetXml}</p:tgtEl></p:cBhvr></p:animEffect>`
 	}
 
-	const xml = `<p:par>
-		<p:cTn id="${outerId}" fill="hold">
-			<p:stCondLst><p:cond delay="${triggerDelay}"/></p:stCondLst>
-			<p:childTnLst>
-				<p:par>
-					<p:cTn id="${innerId}" fill="hold">
-						<p:stCondLst><p:cond delay="0"/></p:stCondLst>
-						<p:childTnLst>
-							<p:par>
-								<p:cTn id="${effectParId}" presetID="${anim.presetId}" presetClass="${anim.presetClass}"${subtypeAttr} fill="hold" nodeType="clickEffect">
-									<p:stCondLst><p:cond delay="0"/></p:stCondLst>
-									<p:childTnLst>${effectChildrenXml}</p:childTnLst>
-								</p:cTn>
-							</p:par>
-						</p:childTnLst>
-					</p:cTn>
-				</p:par>
-			</p:childTnLst>
-		</p:cTn>
-	</p:par>`.replace(/\t/g, '').replace(/\n\s*/g, '')
+	const xml = `<p:par><p:cTn id="${outerId}" fill="hold"><p:stCondLst><p:cond delay="${delay}"/></p:stCondLst><p:childTnLst><p:par><p:cTn id="${innerId}" fill="hold"><p:stCondLst><p:cond delay="0"/></p:stCondLst><p:childTnLst><p:par><p:cTn id="${effectParId}" presetID="${anim.presetId}" presetClass="${anim.presetClass}"${subtypeAttr} fill="hold" nodeType="clickEffect"><p:stCondLst><p:cond delay="0"/></p:stCondLst><p:childTnLst>${effectChildrenXml}</p:childTnLst></p:cTn></p:par></p:childTnLst></p:cTn></p:par></p:childTnLst></p:cTn></p:par>`
 
 	return { xml, nextId: id }
 }
-
 /**
  * Get animation filter string based on preset
  */

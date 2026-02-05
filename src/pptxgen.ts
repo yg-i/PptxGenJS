@@ -857,8 +857,10 @@ export type {
 	TitleOptions,
 	GradientTextOptions,
 	BadgeOptions,
+	PillOptions,
 	BulletListItem,
 	BulletListOptions,
+	NumberedListOptions,
 	TwoColumnOptions,
 	StackOptions,
 	StackItemOptions,
@@ -880,5 +882,89 @@ export type {
  * Rich text styling utilities.
  * @since v5.0.0
  */
-export { textStyle } from './rich-text'
-export type { StyledTextFragment, StyleFunction, RichTextOptions } from './rich-text'
+export { textStyle, parseMarkdownToTextProps } from './rich-text'
+export type { StyledTextFragment, StyleFunction, RichTextOptions, MarkdownTextOptions } from './rich-text'
+
+// ============================================================================
+// NEW DECLARATIVE API
+// ============================================================================
+
+/**
+ * New declarative API - elements are data, layouts position children,
+ * animation is a wrapper. XML only generates at write() time.
+ * @since v6.0.0
+ */
+export {
+	// Main class
+	$pptxNewAPI,
+	createPresentation,
+	$Slide,
+
+	// Element constructors
+	Text,
+	Shape,
+	Pill,
+	Card,
+	Image,
+	NumberedList,
+	BulletList,
+
+	// Layout containers
+	Stack,
+	Columns,
+	Grid,
+	Absolute,
+
+	// Animation wrappers
+	FadeIn,
+	FlyIn,
+	ZoomIn,
+	Wipe,
+	Appear,
+
+	// Helpers
+	gradient,
+
+	// Chalk-like style builders for tagged template Text
+	style,
+	bold,
+	italic,
+	underline,
+	strike,
+	white,
+	black,
+	gray,
+	red,
+	orange,
+	yellow,
+	green,
+	cyan,
+	blue,
+	purple,
+	magenta,
+	pink,
+	color,
+} from './new-api'
+
+export type {
+	ElementNode,
+	AnimationConfig,
+	SlideConfig,
+	GradientConfig,
+	TextConfig,
+	ShapeConfig,
+	PillConfig,
+	CardConfig,
+	StackConfig,
+	ColumnsConfig,
+	GridConfig,
+	NumberedListConfig,
+	ImageConfig,
+	PresentationConfig,
+	TextContent,
+	TextElement,
+	// Style types
+	TextStyle,
+	StyleBuilder,
+	StyledFragment as NewApiStyledFragment,
+} from './new-api'

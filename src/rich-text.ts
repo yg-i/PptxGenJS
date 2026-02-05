@@ -70,6 +70,22 @@ export function isStyledTextFragment(value: unknown): value is StyledTextFragmen
 export interface RichTextOptions extends TextPropsOptions {}
 
 /**
+ * Options for markdown text parsing.
+ */
+export interface MarkdownTextOptions extends TextPropsOptions {
+	/**
+	 * Color to apply to **bold** text segments.
+	 * If not specified, bold text uses the default color.
+	 */
+	boldColor?: string
+	/**
+	 * Color to apply to *italic* text segments.
+	 * If not specified, italic text uses the default color.
+	 */
+	italicColor?: string
+}
+
+/**
  * Converts tagged template arguments to TextProps array.
  *
  * @param strings - Template literal strings
@@ -124,6 +140,120 @@ export function convertRichTextToTextProps(
 				})
 			}
 		}
+	}
+
+	return result
+}
+
+/**
+ * Parses simple markdown-like syntax into TextProps array.
+ * Supports:
+ * - **bold** - bold text
+ * - 'quoted' - text in single quotes (can apply special styling)
+ *
+ * @param text - Text with markdown-like formatting
+ * @param options - Text options including boldColor for styling bold text
+ * @returns Array of TextProps
+ *
+ * @example
+ * ```typescript
+ * parseMarkdownToTextProps("This is **bold** and 'quoted' text", {
+ *   color: 'FFFFFF',
+ *   boldColor: '4FC3F7',
+ * })
+ * // Returns: [
+ * //   { text: 'This is ', options: { color: 'FFFFFF' } },
+ * //   { text: 'bold', options: { color: '4FC3F7', bold: true } },
+ * //   { text: ' and ', options: { color: 'FFFFFF' } },
+ * //   { text: "'quoted'", options: { color: '4FC3F7', bold: true } },
+ * //   { text: ' text', options: { color: 'FFFFFF' } },
+ * // ]
+ * ```
+ */
+export function parseMarkdownToTextProps(
+	text: string,
+	options: MarkdownTextOptions = {}
+): TextProps[] {
+	const { boldColor, italicColor, x, y, w, h, ...styleOptions } = options
+	const result: TextProps[] = []
+
+	// Clean up undefined values from default style
+	const defaultStyle: TextPropsOptions = {}
+	for (const [key, value] of Object.entries(styleOptions)) {
+		if (value !== undefined) {
+			(defaultStyle as Record<string, unknown>)[key] = value
+		}
+	}
+
+	// Regex to match **bold**, 'single quoted', or *italic*
+	// Order matters: ** must come before * to avoid partial matches
+	const pattern = /(\*\*(.+?)\*\*)|('([^']+)')|(\*(.+?)\*)/g
+
+	let lastIndex = 0
+	let match: RegExpExecArray | null
+
+	while ((match = pattern.exec(text)) !== null) {
+		// Add text before the match
+		if (match.index > lastIndex) {
+			const beforeText = text.slice(lastIndex, match.index)
+			if (beforeText) {
+				result.push({
+					text: beforeText,
+					options: { ...defaultStyle },
+				})
+			}
+		}
+
+		if (match[2]) {
+			// **bold** match (match[2] is the content without **)
+			result.push({
+				text: match[2],
+				options: {
+					...defaultStyle,
+					bold: true,
+					...(boldColor ? { color: boldColor } : {}),
+				},
+			})
+		} else if (match[4]) {
+			// 'single quoted' match (match[4] is the content without quotes)
+			// Treat quoted text as bold+colored (like keywords)
+			result.push({
+				text: `'${match[4]}'`,
+				options: {
+					...defaultStyle,
+					bold: true,
+					...(boldColor ? { color: boldColor } : {}),
+				},
+			})
+		} else if (match[6]) {
+			// *italic* match (match[6] is the content without *)
+			result.push({
+				text: match[6],
+				options: {
+					...defaultStyle,
+					italic: true,
+					...(italicColor ? { color: italicColor } : {}),
+				},
+			})
+		}
+
+		lastIndex = match.index + match[0].length
+	}
+
+	// Add remaining text after last match
+	if (lastIndex < text.length) {
+		result.push({
+			text: text.slice(lastIndex),
+			options: { ...defaultStyle },
+		})
+	}
+
+	// If no matches found, return the whole text with default style
+	if (result.length === 0 && text) {
+		result.push({
+			text,
+			options: { ...defaultStyle },
+		})
 	}
 
 	return result
