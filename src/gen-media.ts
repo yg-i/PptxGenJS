@@ -37,9 +37,10 @@ export function encodeSlideMediaRels(layout: PresSlide | SlideLayout): Array<Pro
 	// B: PERF: Mark dupes (same `path`) to avoid loading the same media over-and-over!
 	const unqPaths: string[] = []
 	candidateRels.forEach(rel => {
-		if (!unqPaths.includes(rel.path)) {
+		const relPath = rel.path ?? ''
+		if (!unqPaths.includes(relPath)) {
 			rel.isDuplicate = false
-			unqPaths.push(rel.path)
+			unqPaths.push(relPath)
 		} else {
 			rel.isDuplicate = true
 		}
@@ -52,45 +53,46 @@ export function encodeSlideMediaRels(layout: PresSlide | SlideLayout): Array<Pro
 			imageProms.push(
 				(async () => {
 					if (!https) await loadNodeDeps()
+					const relPath = rel.path ?? ''
 
 					// ────────────  NODE LOCAL FILE  ────────────
-					if (isNode && fs && rel.path.indexOf('http') !== 0) {
+					if (isNode && fs && relPath.indexOf('http') !== 0) {
 						try {
-							const bitmap = fs.readFileSync(rel.path)
+							const bitmap = fs.readFileSync(relPath)
 							rel.data = Buffer.from(bitmap).toString('base64')
 							candidateRels
-								.filter(dupe => dupe.isDuplicate && dupe.path === rel.path)
+								.filter(dupe => dupe.isDuplicate && dupe.path === relPath)
 								.forEach(dupe => (dupe.data = rel.data))
 							return 'done'
 						} catch (ex) {
 							rel.data = IMG_BROKEN
 							candidateRels
-								.filter(dupe => dupe.isDuplicate && dupe.path === rel.path)
+								.filter(dupe => dupe.isDuplicate && dupe.path === relPath)
 								.forEach(dupe => (dupe.data = rel.data))
-							throw new Error(`ERROR: Unable to read media: "${rel.path}"\n${String(ex)}`)
+							throw new Error(`ERROR: Unable to read media: "${relPath}"\n${String(ex)}`)
 						}
 					}
 
 					// ────────────  NODE HTTP(S)  ────────────
-					if (isNode && https && rel.path.startsWith('http')) {
+					if (isNode && https && relPath.startsWith('http')) {
 						return await new Promise<string>((resolve, reject) => {
-							https.get(rel.path, res => {
+							https!.get(relPath, res => {
 								let raw = ''
 								res.setEncoding('binary') // IMPORTANT: Only binary encoding works
 								res.on('data', chunk => (raw += chunk))
 								res.on('end', () => {
 									rel.data = Buffer.from(raw, 'binary').toString('base64')
 									candidateRels
-										.filter(dupe => dupe.isDuplicate && dupe.path === rel.path)
+										.filter(dupe => dupe.isDuplicate && dupe.path === relPath)
 										.forEach(dupe => (dupe.data = rel.data))
 									resolve('done')
 								})
 								res.on('error', () => {
 									rel.data = IMG_BROKEN
 									candidateRels
-										.filter(dupe => dupe.isDuplicate && dupe.path === rel.path)
+										.filter(dupe => dupe.isDuplicate && dupe.path === relPath)
 										.forEach(dupe => (dupe.data = rel.data))
-									reject(new Error(`ERROR! Unable to load image (https.get): ${rel.path}`))
+									reject(new Error(`ERROR! Unable to load image (https.get): ${relPath}`))
 								})
 							})
 						})
@@ -105,7 +107,7 @@ export function encodeSlideMediaRels(layout: PresSlide | SlideLayout): Array<Pro
 							reader.onloadend = () => {
 								rel.data = reader.result as string
 								candidateRels
-									.filter(dupe => dupe.isDuplicate && dupe.path === rel.path)
+									.filter(dupe => dupe.isDuplicate && dupe.path === relPath)
 									.forEach(dupe => (dupe.data = rel.data))
 								if (!rel.isSvgPng) {
 									resolve('done')
@@ -120,12 +122,12 @@ export function encodeSlideMediaRels(layout: PresSlide | SlideLayout): Array<Pro
 						xhr.onerror = () => {
 							rel.data = IMG_BROKEN
 							candidateRels
-								.filter(dupe => dupe.isDuplicate && dupe.path === rel.path)
+								.filter(dupe => dupe.isDuplicate && dupe.path === relPath)
 								.forEach(dupe => (dupe.data = rel.data))
-							reject(new Error(`ERROR! Unable to load image (xhr.onerror): ${rel.path}`))
+							reject(new Error(`ERROR! Unable to load image (xhr.onerror): ${relPath}`))
 						}
 						// B: execute request
-						xhr.open('GET', rel.path)
+						xhr.open('GET', relPath)
 						xhr.responseType = 'blob'
 						xhr.send()
 					})
@@ -168,13 +170,14 @@ async function createSvgPngPreview(rel: ISlideRelMedia): Promise<string> {
 		image.onload = () => {
 			// First: Check for any errors: This is the best method (try/catch wont work, etc.)
 			if (image.width + image.height === 0) {
-				image.onerror('h/w=0')
+				if (image.onerror) (image.onerror as (reason: unknown) => void)('h/w=0')
+				return
 			}
-			let canvas: HTMLCanvasElement = document.createElement('CANVAS') as HTMLCanvasElement
+			const canvas: HTMLCanvasElement = document.createElement('CANVAS') as HTMLCanvasElement
 			const ctx = canvas.getContext('2d')
 			canvas.width = image.width
 			canvas.height = image.height
-			ctx.drawImage(image, 0, 0)
+			ctx?.drawImage(image, 0, 0)
 			// Users running on local machine will get the following error:
 			// "SecurityError: Failed to execute 'toDataURL' on 'HTMLCanvasElement': Tainted canvases may not be exported."
 			// when the canvas.toDataURL call executes below.
@@ -182,9 +185,8 @@ async function createSvgPngPreview(rel: ISlideRelMedia): Promise<string> {
 				rel.data = canvas.toDataURL(rel.type)
 				resolve('done')
 			} catch (ex) {
-				image.onerror(ex.toString())
+				if (image.onerror) (image.onerror as (reason: unknown) => void)(String(ex))
 			}
-			canvas = null
 		}
 		image.onerror = () => {
 			rel.data = IMG_BROKEN

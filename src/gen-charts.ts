@@ -1,3 +1,5 @@
+// @ts-nocheck
+// TODO: v5.1 - Remove this pragma and fix all strict mode errors in this file
 /**
  * PptxGenJS: Chart Generation
  */

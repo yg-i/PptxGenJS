@@ -9,11 +9,11 @@
 		],
 		"module": "es2020",
 		"moduleResolution": "node",
-		"noImplicitAny": false,
+		"noImplicitAny": true,
 		"outDir": "./out",
 		"sourceMap": true,
 		"strict": true,
-		"strictNullChecks": false, // NOTE: very necessary!
+		"strictNullChecks": true,
 		"target": "es2016"
 	},
 	"display": "Recommended",

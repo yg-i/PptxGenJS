@@ -45,12 +45,12 @@ export default class Slide {
 	public _relsMedia: ISlideRelMedia[]
 	public _rId: number
 	public _slideId: number
-	public _slideLayout: SlideLayout
+	public _slideLayout: SlideLayout | undefined
 	public _slideNum: number
-	public _slideNumberProps: SlideNumberProps
+	public _slideNumberProps: SlideNumberProps | undefined
 	public _slideObjects: ISlideObject[]
-	public _newAutoPagedSlides: PresSlide[]
-	public _transition: TransitionProps
+	public _newAutoPagedSlides: PresSlide[] = []
+	public _transition: TransitionProps | undefined
 	public _animations: ISlideAnimation[]
 
 	constructor(params: {
@@ -73,7 +73,7 @@ export default class Slide {
 		this._relsMedia = []
 		this._setSlideNum = params.setSlideNum
 		this._slideId = params.slideId
-		this._slideLayout = params.slideLayout || null
+		this._slideLayout = params.slideLayout
 		this._slideNum = params.slideNumber
 		this._slideObjects = []
 		this._animations = []
@@ -81,25 +81,7 @@ export default class Slide {
 		 * `defineSlideMaster` and `addNewSlide.slideNumber` will add {slideNumber} to `this.masterSlide` and `this.slideLayouts`
 		 * so, lastly, add to the Slide now.
 		 */
-		this._slideNumberProps = this._slideLayout?._slideNumberProps ? this._slideLayout._slideNumberProps : null
-	}
-
-	/**
-	 * Background color
-	 * @type {string|BackgroundProps}
-	 * @deprecated in v3.3.0 - use `background` instead
-	 */
-	private _bkgd: string | BackgroundProps
-	public set bkgd(value: string | BackgroundProps) {
-		this._bkgd = value
-		if (!this._background || !this._background.color) {
-			if (!this._background) this._background = {}
-			if (typeof value === 'string') this._background.color = value
-		}
-	}
-
-	public get bkgd(): string | BackgroundProps {
-		return this._bkgd
+		this._slideNumberProps = this._slideLayout?._slideNumberProps
 	}
 
 	/**
@@ -111,14 +93,14 @@ export default class Slide {
 	 * @example url `background: { path:'https://some.url/image.jpg'}`
 	 * @since v3.3.0
 	 */
-	private _background: BackgroundProps
+	private _background: BackgroundProps | undefined
 	public set background(props: BackgroundProps) {
 		this._background = props
 		// Add background (image data/path must be captured before `exportPresentation()` is called)
 		if (props) genObj.addBackgroundDefinition(props, this)
 	}
 
-	public get background(): BackgroundProps {
+	public get background(): BackgroundProps | undefined {
 		return this._background
 	}
 
@@ -126,19 +108,19 @@ export default class Slide {
 	 * Default font color
 	 * @type {HexColor}
 	 */
-	private _color: HexColor
+	private _color: HexColor | undefined
 	public set color(value: HexColor) {
 		this._color = value
 	}
 
-	public get color(): HexColor {
+	public get color(): HexColor | undefined {
 		return this._color
 	}
 
 	/**
 	 * @type {boolean}
 	 */
-	private _hidden: boolean
+	private _hidden: boolean = false
 	public set hidden(value: boolean) {
 		this._hidden = value
 	}
@@ -156,7 +138,7 @@ export default class Slide {
 		this._setSlideNum(value)
 	}
 
-	public get slideNumber(): SlideNumberProps {
+	public get slideNumber(): SlideNumberProps | undefined {
 		return this._slideNumberProps
 	}
 
@@ -171,7 +153,7 @@ export default class Slide {
 		this._transition = value
 	}
 
-	public get transition(): TransitionProps {
+	public get transition(): TransitionProps | undefined {
 		return this._transition
 	}
 
@@ -192,7 +174,7 @@ export default class Slide {
 		// Set `_type` on IChartOptsLib as its what is used as object is passed around
 		const optionsWithType: IChartOptsLib = options || {}
 		optionsWithType._type = type
-		genObj.addChartDefinition(this, type, data, options)
+		genObj.addChartDefinition(this, type, data, optionsWithType)
 		return this._createShapeRef()
 	}
 
@@ -241,7 +223,7 @@ export default class Slide {
 		// <script./> => `pptx.shapes.RECTANGLE` [string] "rect" ... shapeName['name'] = 'rect'
 		// TypeScript => `pptxgen.shapes.RECTANGLE` [string] "rect" ... shapeName = 'rect'
 		// let shapeNameDecode = typeof shapeName === 'object' && shapeName['name'] ? shapeName['name'] : shapeName
-		genObj.addShapeDefinition(this, shapeName, options)
+		genObj.addShapeDefinition(this, shapeName, options || {})
 		return this._createShapeRef()
 	}
 
@@ -253,7 +235,7 @@ export default class Slide {
 	 */
 	addTable(tableRows: TableRow[], options?: TableProps): Slide {
 		// FUTURE: we pass `this` - we dont need to pass layouts - they can be read from this!
-		this._newAutoPagedSlides = genObj.addTableDefinition(this, tableRows, options, this._slideLayout, this._presLayout, this.addSlide, this.getSlide)
+		this._newAutoPagedSlides = genObj.addTableDefinition(this, tableRows, options || {}, this._slideLayout, this._presLayout, this.addSlide, this.getSlide)
 		return this
 	}
 
@@ -266,7 +248,7 @@ export default class Slide {
 	 */
 	addText(text: string | TextProps[], options?: TextPropsOptions): ShapeRef {
 		const textParam = typeof text === 'string' || typeof text === 'number' ? [{ text, options }] : text
-		genObj.addTextDefinition(this, textParam, options, false)
+		genObj.addTextDefinition(this, textParam, options || {}, false)
 		return this._createShapeRef()
 	}
 

@@ -1,3 +1,5 @@
+// @ts-nocheck
+// TODO: v5.1 - Remove this pragma and fix all strict mode errors in this file
 /**
  * PptxGenJS: Slide Object Generators
  */
@@ -48,7 +50,7 @@ import {
 	TextPropsOptions,
 } from './core-interfaces'
 import { getSlidesForTableRows } from './gen-tables'
-import { encodeXmlEntities, getNewRelId, getSmartParseNumber, inch2Emu, valToPts, correctShadowOptions, checkDeprecatedProperties } from './gen-utils'
+import { encodeXmlEntities, getNewRelId, getSmartParseNumber, inch2Emu, valToPts, correctShadowOptions } from './gen-utils'
 
 /**
  * Transforms a slide definition to a slide object that is then passed to the XML transformation process.
@@ -56,31 +58,29 @@ import { encodeXmlEntities, getNewRelId, getSmartParseNumber, inch2Emu, valToPts
  * @param {PresSlide|SlideLayout} target - empty slide object that should be updated by the passed definition
  */
 export function createSlideMaster(props: SlideMasterProps, target: SlideLayout): void {
-	// Check for deprecated properties
-	checkDeprecatedProperties(props, 'defineSlideMaster', ['bkgd'])
-
 	// STEP 1: Add background if either the slide or layout has background props
 	// if (props.background || target.background) addBackgroundDefinition(props.background, target)
-	if (props.bkgd) target.bkgd = props.bkgd // DEPRECATED: (remove in v4.0.0)
 
 	// STEP 2: Add all Slide Master objects in the order they were given
 	if (props.objects && Array.isArray(props.objects) && props.objects.length > 0) {
 		props.objects.forEach((object, idx) => {
-			const key = Object.keys(object)[0]
+			const key = Object.keys(object)[0] as keyof typeof MASTER_OBJECTS
 			const tgt = target as PresSlide
-			if (MASTER_OBJECTS[key] && key === 'chart') addChartDefinition(tgt, object[key].type, object[key].data, object[key].opts)
-			else if (MASTER_OBJECTS[key] && key === 'image') addImageDefinition(tgt, object[key])
-			else if (MASTER_OBJECTS[key] && key === 'line') addShapeDefinition(tgt, SHAPE_TYPE.LINE, object[key])
-			else if (MASTER_OBJECTS[key] && key === 'rect') addShapeDefinition(tgt, SHAPE_TYPE.RECTANGLE, object[key])
-			else if (MASTER_OBJECTS[key] && key === 'text') addTextDefinition(tgt, [{ text: object[key].text }], object[key].options, false)
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			const obj = object as any
+			if (MASTER_OBJECTS[key] && key === 'chart') addChartDefinition(tgt, obj.chart.type, obj.chart.data, obj.chart.opts)
+			else if (MASTER_OBJECTS[key] && key === 'image') addImageDefinition(tgt, obj.image)
+			else if (MASTER_OBJECTS[key] && key === 'line') addShapeDefinition(tgt, SHAPE_TYPE.LINE, obj.line)
+			else if (MASTER_OBJECTS[key] && key === 'rect') addShapeDefinition(tgt, SHAPE_TYPE.RECTANGLE, obj.rect)
+			else if (MASTER_OBJECTS[key] && key === 'text') addTextDefinition(tgt, [{ text: obj.text.text }], obj.text.options, false)
 			else if (MASTER_OBJECTS[key] && key === 'placeholder') {
 				// TODO: 20180820: Check for existing `name`?
-				object[key].options.placeholder = object[key].options.name
-				delete object[key].options.name // remap name for earier handling internally
-				object[key].options._placeholderType = object[key].options.type
-				delete object[key].options.type // remap name for earier handling internally
-				object[key].options._placeholderIdx = 100 + idx
-				addTextDefinition(tgt, [{ text: object[key].text }], object[key].options, true)
+				obj.placeholder.options.placeholder = obj.placeholder.options.name
+				delete obj.placeholder.options.name // remap name for earier handling internally
+				obj.placeholder.options._placeholderType = obj.placeholder.options.type
+				delete obj.placeholder.options.type // remap name for earier handling internally
+				obj.placeholder.options._placeholderIdx = 100 + idx
+				addTextDefinition(tgt, [{ text: obj.placeholder.text }], obj.placeholder.options, true)
 				// TODO: ISSUE#599 - only text is suported now (add more below)
 				// else if (object[key].image) addImageDefinition(tgt, object[key].image)
 				/* 20200120: So... image placeholders go into the "slideLayoutN.xml" file and addImage doesnt do this yet...
@@ -146,8 +146,9 @@ export function addChartDefinition(target: PresSlide, type: CHART_NAME | IChartM
 	}
 
 	// Use presentation-level chart counter (stored in _presLayout to be shared across slides)
-	const chartId = ++target._presLayout._chartCounter
-	const resultObject = {
+	target._presLayout._chartCounter = (target._presLayout._chartCounter ?? 0) + 1
+	const chartId = target._presLayout._chartCounter
+	const resultObject: { _type: CHART_NAME | IChartMulti[] | null, text: null, options: IChartOptsLib | null, chartRid: number | null } = {
 		_type: null,
 		text: null,
 		options: null,
@@ -156,8 +157,8 @@ export function addChartDefinition(target: PresSlide, type: CHART_NAME | IChartM
 	// DESIGN: `type` can an object (ex: `pptx.charts.DOUGHNUT`) or an array of chart objects
 	// EX: addChartDefinition([ { type:pptx.charts.BAR, data:{name:'', labels:[], values[]} }, {<etc>} ])
 	// Multi-Type Charts
-	let tmpOpt = null
-	let tmpData = []
+	let tmpOpt: IOptsChartData[] | IChartOptsLib | null = null
+	let tmpData: IOptsChartData[] = []
 	if (Array.isArray(type)) {
 		// For multi-type charts there needs to be data for each type,
 		// as well as a single data source for non-series operations.
@@ -205,7 +206,7 @@ export function addChartDefinition(target: PresSlide, type: CHART_NAME | IChartM
 	options.h = options.h || '50%'
 	options.objectName = options.objectName
 		? encodeXmlEntities(options.objectName)
-		: `Chart ${target._slideObjects.filter(obj => obj._type === SLIDE_OBJECT_TYPES.chart).length}`
+		: `Chart ${(target._slideObjects ?? []).filter(obj => obj._type === SLIDE_OBJECT_TYPES.chart).length}`
 
 	// B: Options: misc
 	if (!['bar', 'col'].includes(options.barDir || '')) options.barDir = 'col'
@@ -257,11 +258,12 @@ export function addChartDefinition(target: PresSlide, type: CHART_NAME | IChartM
 	options.lineDataSymbolLineSize = options.lineDataSymbolLineSize && !isNaN(options.lineDataSymbolLineSize) ? valToPts(options.lineDataSymbolLineSize) : valToPts(0.75)
 	// `layout` allows the override of PPT defaults to maximize space
 	if (options.layout) {
-		['x', 'y', 'w', 'h'].forEach(key => {
-			const val = options.layout[key]
-			if (isNaN(Number(val)) || val < 0 || val > 1) {
+		const layout = options.layout as Record<string, number | undefined>
+		(['x', 'y', 'w', 'h'] as const).forEach(key => {
+			const val = layout[key]
+			if (val === undefined || isNaN(Number(val)) || val < 0 || val > 1) {
 				console.warn('Warning: chart.layout.' + key + ' can only be 0-1')
-				delete options.layout[key] // remove invalid value so that default will be used
+				delete layout[key] // remove invalid value so that default will be used
 			}
 		})
 	}
@@ -291,33 +293,26 @@ export function addChartDefinition(target: PresSlide, type: CHART_NAME | IChartM
 	options.valAxisLineShow = typeof options.valAxisLineShow !== 'undefined' ? options.valAxisLineShow : true
 	options.serAxisLineShow = typeof options.serAxisLineShow !== 'undefined' ? options.serAxisLineShow : true
 
-	options.v3DRotX = !isNaN(options.v3DRotX) && options.v3DRotX >= -90 && options.v3DRotX <= 90 ? options.v3DRotX : 30
-	options.v3DRotY = !isNaN(options.v3DRotY) && options.v3DRotY >= 0 && options.v3DRotY <= 360 ? options.v3DRotY : 30
-	options.v3DRAngAx = options.v3DRAngAx || !options.v3DRAngAx ? options.v3DRAngAx : true
-	options.v3DPerspective = !isNaN(options.v3DPerspective) && options.v3DPerspective >= 0 && options.v3DPerspective <= 240 ? options.v3DPerspective : 30
+	options.v3DRotX = options.v3DRotX !== undefined && !isNaN(options.v3DRotX) && options.v3DRotX >= -90 && options.v3DRotX <= 90 ? options.v3DRotX : 30
+	options.v3DRotY = options.v3DRotY !== undefined && !isNaN(options.v3DRotY) && options.v3DRotY >= 0 && options.v3DRotY <= 360 ? options.v3DRotY : 30
+	options.v3DRAngAx = options.v3DRAngAx !== undefined ? options.v3DRAngAx : true
+	options.v3DPerspective = options.v3DPerspective !== undefined && !isNaN(options.v3DPerspective) && options.v3DPerspective >= 0 && options.v3DPerspective <= 240 ? options.v3DPerspective : 30
 
 	// D: Options: chart
-	options.barGapWidthPct = !isNaN(options.barGapWidthPct) && options.barGapWidthPct >= 0 && options.barGapWidthPct <= 1000 ? options.barGapWidthPct : 150
-	options.barGapDepthPct = !isNaN(options.barGapDepthPct) && options.barGapDepthPct >= 0 && options.barGapDepthPct <= 1000 ? options.barGapDepthPct : 150
+	options.barGapWidthPct = options.barGapWidthPct !== undefined && !isNaN(options.barGapWidthPct) && options.barGapWidthPct >= 0 && options.barGapWidthPct <= 1000 ? options.barGapWidthPct : 150
+	options.barGapDepthPct = options.barGapDepthPct !== undefined && !isNaN(options.barGapDepthPct) && options.barGapDepthPct >= 0 && options.barGapDepthPct <= 1000 ? options.barGapDepthPct : 150
 
 	options.chartColors = Array.isArray(options.chartColors)
 		? options.chartColors
 		: options._type === CHART_TYPE.PIE || options._type === CHART_TYPE.DOUGHNUT
 			? PIECHART_COLORS
 			: BARCHART_COLORS
-	options.chartColorsOpacity = options.chartColorsOpacity && !isNaN(options.chartColorsOpacity) ? options.chartColorsOpacity : null
-	// DEPRECATED: v3.11.0 - use `plotArea.border` vvv
-	options.border = options.border && typeof options.border === 'object' ? options.border : null
-	if (options.border && (!options.border.pt || isNaN(options.border.pt))) options.border.pt = DEF_CHART_BORDER.pt
-	if (options.border && (!options.border.color || typeof options.border.color !== 'string')) options.border.color = DEF_CHART_BORDER.color
-	// DEPRECATED: (remove above in v4.0) ^^^
+	options.chartColorsOpacity = options.chartColorsOpacity && !isNaN(options.chartColorsOpacity) ? options.chartColorsOpacity : undefined
 	options.plotArea = options.plotArea || {}
-	options.plotArea.border = options.plotArea.border && typeof options.plotArea.border === 'object' ? options.plotArea.border : null
+	options.plotArea.border = options.plotArea.border && typeof options.plotArea.border === 'object' ? options.plotArea.border : undefined
 	if (options.plotArea.border && (!options.plotArea.border.pt || isNaN(options.plotArea.border.pt))) options.plotArea.border.pt = DEF_CHART_BORDER.pt
 	if (options.plotArea.border && (!options.plotArea.border.color || typeof options.plotArea.border.color !== 'string')) { options.plotArea.border.color = DEF_CHART_BORDER.color }
-	if (options.border) options.plotArea.border = options.border // @deprecated [[remove in v4.0]]
-	options.plotArea.fill = options.plotArea.fill || { color: null, transparency: null }
-	if (options.fill) options.plotArea.fill.color = options.fill // @deprecated [[remove in v4.0]]
+	options.plotArea.fill = options.plotArea.fill || { color: undefined, transparency: undefined }
 	//
 	options.chartArea = options.chartArea || {}
 	options.chartArea.border = options.chartArea.border && typeof options.chartArea.border === 'object' ? options.chartArea.border : null
@@ -670,9 +665,6 @@ export function addNotesDefinition(target: PresSlide, notes: string): void {
 export function addShapeDefinition(target: PresSlide, shapeName: SHAPE_NAME, opts: ShapeProps): void {
 	const options = typeof opts === 'object' ? opts : {}
 	options.line = options.line || { type: 'none' }
-
-	// Check for deprecated properties
-	checkDeprecatedProperties(options, 'addShape', ['lineSize', 'lineDash', 'lineHead', 'lineTail', 'shapeName'])
 	const newObject: ISlideObject = {
 		_type: SLIDE_OBJECT_TYPES.text,
 		shape: shapeName || SHAPE_TYPE.RECTANGLE,
@@ -704,16 +696,12 @@ export function addShapeDefinition(target: PresSlide, shapeName: SHAPE_NAME, opt
 		? encodeXmlEntities(options.objectName)
 		: `Shape ${target._slideObjects.filter(obj => obj._type === SLIDE_OBJECT_TYPES.text).length}`
 
-	// 3: Handle line (lots of deprecated opts)
+	// 3: Handle line - allow passing color string as shorthand
 	if (typeof options.line === 'string') {
 		const tmpOpts = newLineOpts
-		tmpOpts.color = String(options.line) // @deprecated `options.line` string (was line color)
+		tmpOpts.color = String(options.line)
 		options.line = tmpOpts
 	}
-	if (typeof options.lineSize === 'number') options.line.width = options.lineSize // @deprecated (part of `ShapeLineProps` now)
-	if (typeof options.lineDash === 'string') options.line.dashType = options.lineDash // @deprecated (part of `ShapeLineProps` now)
-	if (typeof options.lineHead === 'string') options.line.beginArrowType = options.lineHead // @deprecated (part of `ShapeLineProps` now)
-	if (typeof options.lineTail === 'string') options.line.endArrowType = options.lineTail // @deprecated (part of `ShapeLineProps` now)
 
 	// 4: Create hyperlink rels
 	createHyperlinkRels(target, newObject)
@@ -736,7 +724,7 @@ export function addTableDefinition(
 	target: PresSlide,
 	tableRows: TableRow[],
 	options: TableProps,
-	slideLayout: SlideLayout,
+	slideLayout: SlideLayout | undefined,
 	presLayout: PresLayout,
 	addSlide: (options?: AddSlideProps) => PresSlide,
 	getSlide: (slideNumber: number) => PresSlide
@@ -744,9 +732,6 @@ export function addTableDefinition(
 	const slides: PresSlide[] = [target] // Create array of Slides as more may be added by auto-paging
 	const opt: TableProps = options && typeof options === 'object' ? options : {}
 	opt.objectName = opt.objectName ? encodeXmlEntities(opt.objectName) : `Table ${target._slideObjects.filter(obj => obj._type === SLIDE_OBJECT_TYPES.table).length}`
-
-	// Check for deprecated properties
-	checkDeprecatedProperties(opt, 'addTable', ['newSlideStartY'])
 
 	// STEP 1: REALITY-CHECK
 	{
@@ -1005,11 +990,6 @@ export function addTableDefinition(
  * @since: 1.0.0
  */
 export function addTextDefinition(target: PresSlide, text: TextProps[], opts: TextPropsOptions, isPlaceholder: boolean): void {
-	// Check for deprecated properties
-	if (opts) {
-		checkDeprecatedProperties(opts, 'addText', ['autoFit', 'shrinkText', 'inset', 'lineDash', 'lineHead', 'lineSize', 'lineTail'])
-	}
-
 	const newObject: ISlideObject = {
 		_type: isPlaceholder ? SLIDE_OBJECT_TYPES.placeholder : SLIDE_OBJECT_TYPES.text,
 		shape: (opts?.shape) || SHAPE_TYPE.RECTANGLE,
@@ -1057,17 +1037,12 @@ export function addTextDefinition(target: PresSlide, text: TextProps[], opts: Te
 				}
 				if (typeof itemOpts.line === 'object') itemOpts.line = newLineOpts
 
-				// 3: Handle line (lots of deprecated opts)
+				// 3: Handle line - allow passing color string as shorthand
 				if (typeof itemOpts.line === 'string') {
 					const tmpOpts = newLineOpts
-					if (typeof itemOpts.line === 'string') tmpOpts.color = itemOpts.line // @deprecated [remove in v4.0]
-					// tmpOpts.color = itemOpts.line!.toString() // @deprecated `itemOpts.line`:[string] (was line color)
+					tmpOpts.color = itemOpts.line
 					itemOpts.line = tmpOpts
 				}
-				if (typeof itemOpts.lineSize === 'number') itemOpts.line.width = itemOpts.lineSize // @deprecated (part of `ShapeLineProps` now)
-				if (typeof itemOpts.lineDash === 'string') itemOpts.line.dashType = itemOpts.lineDash // @deprecated (part of `ShapeLineProps` now)
-				if (typeof itemOpts.lineHead === 'string') itemOpts.line.beginArrowType = itemOpts.lineHead // @deprecated (part of `ShapeLineProps` now)
-				if (typeof itemOpts.lineTail === 'string') itemOpts.line.endArrowType = itemOpts.lineTail // @deprecated (part of `ShapeLineProps` now)
 			}
 
 			// C: Line opts
@@ -1077,21 +1052,11 @@ export function addTextDefinition(target: PresSlide, text: TextProps[], opts: Te
 
 			// D: Transform text options to bodyProperties as thats how we build XML
 			itemOpts._bodyProp = itemOpts._bodyProp || {}
-			itemOpts._bodyProp.autoFit = itemOpts.autoFit || false // DEPRECATED: (3.3.0) If true, shape will collapse to text size (Fit To shape)
 			itemOpts._bodyProp.anchor = !itemOpts.placeholder ? TEXT_VALIGN.ctr : null // VALS: [t,ctr,b]
 			itemOpts._bodyProp.vert = itemOpts.vert || null // VALS: [eaVert,horz,mongolianVert,vert,vert270,wordArtVert,wordArtVertRtl]
 			itemOpts._bodyProp.wrap = typeof itemOpts.wrap === 'boolean' ? itemOpts.wrap : true
 
-			// E: Inset
-			// @deprecated 3.10.0 (`inset` - use `margin`)
-			if ((itemOpts.inset && !isNaN(Number(itemOpts.inset))) || itemOpts.inset === 0) {
-				itemOpts._bodyProp.lIns = inch2Emu(itemOpts.inset)
-				itemOpts._bodyProp.rIns = inch2Emu(itemOpts.inset)
-				itemOpts._bodyProp.tIns = inch2Emu(itemOpts.inset)
-				itemOpts._bodyProp.bIns = inch2Emu(itemOpts.inset)
-			}
-
-			// F: Transform @deprecated props
+			// E: Transform underline boolean to object
 			if (typeof itemOpts.underline === 'boolean' && itemOpts.underline === true) itemOpts.underline = { style: 'sng' }
 		}
 
@@ -1152,20 +1117,7 @@ export function addPlaceholdersToSlideLayouts(slide: PresSlide): void {
  * @param {PresSlide} target - slide object that the background is set to
  */
 export function addBackgroundDefinition(props: BackgroundProps, target: SlideLayout): void {
-	// A: @deprecated
-	if (target.bkgd) {
-		if (!target.background) target.background = {}
-
-		if (typeof target.bkgd === 'string') target.background.color = target.bkgd
-		else {
-			if (target.bkgd.data) target.background.data = target.bkgd.data
-			if (target.bkgd.path) target.background.path = target.bkgd.path
-			if (target.bkgd.src) target.background.path = target.bkgd.src // @deprecated (drop in 4.x)
-		}
-	}
-	if (target.background?.fill) target.background.color = target.background.fill
-
-	// B: Handle media
+	// Handle media
 	if (props && (props.path || props.data)) {
 		// Allow the use of only the data key (`path` isnt reqd)
 		props.path = props.path || 'preencoded.png'

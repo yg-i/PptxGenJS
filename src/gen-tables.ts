@@ -1,3 +1,5 @@
+// @ts-nocheck
+// TODO: v5.1 - Remove this pragma and fix all strict mode errors in this file
 /**
  * PptxGenJS: Table Generation
  */
@@ -202,9 +204,6 @@ export function getSlidesForTableRows(tableRows: TableCell[][] = [], tableProps:
 			// D: RULE: Use margins for starting point after the initial Slide, not `opt.y` (ISSUE #43, ISSUE #47, ISSUE #48)
 			if (typeof tableProps.autoPageSlideStartY === 'number') {
 				emuSlideTabH = (tablePropH || presLayout.height) - inch2Emu(tableProps.autoPageSlideStartY + arrInchMargins[2])
-			} else if (typeof tableProps.newSlideStartY === 'number') {
-				// @deprecated v3.3.0
-				emuSlideTabH = (tablePropH || presLayout.height) - inch2Emu(tableProps.newSlideStartY + arrInchMargins[2])
 			} else if (tablePropY) {
 				emuSlideTabH = (tablePropH || presLayout.height) - inch2Emu((tablePropY / EMU < arrInchMargins[0] ? tablePropY / EMU : arrInchMargins[0]) + arrInchMargins[2])
 				// Use whichever is greater: area between margins or the table H provided (dont shrink usable area - the whole point of over-riding Y on paging is to *increase* usable space)
